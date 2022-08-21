@@ -31,7 +31,7 @@ export abstract class Unit extends Equatable {
 }
 
 export class Container extends Unit {
-  private _childs: Array<Block>;
+  private _childs: Array<Unit>;
   private readonly _key: Key;
   constructor({
     pos,
@@ -53,7 +53,7 @@ export class Container extends Unit {
     else if (children != null)
       this._childs = children;
   }
-  get children(): Array<Block> { return this._childs; }
+  get children(): Array<Unit> { return this._childs; }
   get key(): Key { return this._key; }
 
   build(offset=new Pos({})) {
@@ -65,7 +65,7 @@ export class Container extends Unit {
             "x": this.pos.x,
             "y": this.pos.y,
             "z": this.pos.z
-          })
+          }).add(offset)
         )
       );
     });

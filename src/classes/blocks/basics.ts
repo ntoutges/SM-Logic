@@ -9,7 +9,7 @@ import { Pos, Rotate } from "../../support/spatial/classes";
 import { ShapeIds } from "../shapeIds";
 import { BlockInterface, LogicInterface } from "./interfaces";
 
-export class Block extends Unit {
+export abstract class Block extends Unit {
   private _id: Id;
   readonly shapeId: ShapeIds;
   constructor({
@@ -30,22 +30,7 @@ export class Block extends Unit {
   }
   get id() { return this._id; }
 
-  build(offset=new Pos({})) {
-    let json = {
-      "color": this.color,
-      "controller": {
-        "active": false,
-        "controllers": null, 
-        "id": this.id.id,
-        "joints": null
-      },
-      "pos": this.pos.add(offset).build(),
-      "shapeId": this.shapeId,
-      "xaxis": -3,
-      "zaxis": 1
-    }
-    return JSON.stringify(json);
-  }
+  abstract build(offset: Pos)
 }
 
 // note: SM connections work as an id in the logic "sender"
@@ -88,6 +73,7 @@ export class Logic extends Block {
     super.color = color;
     this.colorSet = true;
   };
+  get color(): Color { return super.color; }
   set operation(operation: Operation) {
     this.op = operation;
     if (!this.colorSet)
@@ -97,7 +83,7 @@ export class Logic extends Block {
 
   build(offset=new Pos({})) {
     let json = {
-      "color": this.color,
+      "color": this.color.hex,
       "controller": {
         "active": false,
         "controllers": this._conns.build(),

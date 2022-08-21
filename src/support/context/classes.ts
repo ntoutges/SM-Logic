@@ -16,9 +16,9 @@ export class BasicKey extends Key {
     this.ids = startId;
     this.customIds = new Map<string,number>();
   }
-  get newId(): number {
-    return this.ids++;
-  }
+  get newId(): number { return this.ids++; }
+  get lastId(): number { return this.ids - 1; }
+  get nextId(): number { return this.ids; }
   customId(identifier: string): number {
     if (this.customIds.has(identifier)) // get
       return this.customIds.get(identifier);
@@ -30,20 +30,36 @@ export class BasicKey extends Key {
 }
 
 export class CustomKey extends Key {
-  private key: BasicKey;
-  private identifier: string;
+  readonly key: BasicKey;
+  readonly identifier: string;
   constructor({
     key,
-    identifier,
+    identifier
   }: CustomKeyInterface
   ) {
     super(["key", "identifier"]);
     this.key = key;
     this.identifier = identifier;
   }
-  get newId(): number {
-    return this.key.customId( this.identifier );
+  get newId(): number { return this.key.customId( this.identifier ); }
+}
+
+export class UniqueCustomKey extends CustomKey {
+  _customId: number;
+  constructor({
+    key,
+    identifier
+  }: CustomKeyInterface
+  ) {
+    super({key,identifier})
+    this._customId = -1
   }
+  get newId(): number {
+    if (this._customId == -1) // unset
+      this._customId = this.key.customId( `@${this.identifier}-#${this.key.lastId}?` );
+    return this._customId;
+  }
+  get customId(): string { return `@${this.identifier}-#${this.key.lastId}?`; }
 }
 
 export class Keyless extends Key {

@@ -15,7 +15,7 @@ if (!(body instanceof GenericBody))
 
 console.log("Creating JSON.");
 const blueprintObjects = body.build();
-const blueprintString = `{\"bodies\":[${blueprintObjects.build()}],\"version\":${BLUEPRINT_VERSION}}`;
+const blueprintString = `{\"bodies\":[{\"childs\":[${blueprintObjects.build()}]}],\"version\":${BLUEPRINT_VERSION}}`;
 
 const descriptionString = body.description;
 
