@@ -1,0 +1,75 @@
+import { PosInterface, RelativePosInterface, RotateInterface } from "./interfaces";
+import { Direction, Orientation } from "./enums";
+import { Equatable } from "../support/classes";
+
+export class Pos extends Equatable {
+  private _x: number;
+  private _y: number;
+  private _z: number;
+  constructor({
+    x = 0,
+    y = 0,
+    z = 0,
+  }: PosInterface
+  ) {
+    super(["x","y","z"]);
+    this._x = x;
+    this._y = y;
+    this._z = z;
+  }
+  get x(): number { return this._x; }
+  get y(): number { return this._y; }
+  get z(): number { return this._z; }
+  
+  add(other: Pos): Pos {
+    return new Pos({
+      "x": this.x + other.x,
+      "y": this.y + other.y,
+      "z": this.z + other.z
+    });
+  }
+  build() {
+    return {
+      "x": this.x,
+      "y": this.y,
+      "z": this.z
+    }
+  }
+}
+
+export class RelativePos extends Pos {
+  private other: Pos;
+  constructor({
+    x = 0,
+    y = 0,
+    z = 0,
+    pos,
+  }: RelativePosInterface
+  ) {
+    super({x,y,z});
+    this.other = pos;
+  }
+  get x(): number { return super.x + this.other.x; }
+  get y(): number { return super.y + this.other.y; }
+  get z(): number { return super.z + this.other.z; }
+}
+
+export class Rotate extends Equatable {
+  dir: Direction;
+  or: Orientation;
+  constructor({
+    direction = Direction.Forwards,
+    orientation = Orientation.Up,
+  }: RotateInterface
+  ) {
+    super(["dir", "or"]);
+    this.dir = direction;
+    this.or = orientation;
+  }
+  get direction(): Direction {
+    return this.dir;
+  }
+  get orientation(): Orientation {
+    return this.or;
+  }
+}
