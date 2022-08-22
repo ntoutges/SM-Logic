@@ -11,7 +11,7 @@ export interface UnitInterface {
 }
 
 export interface ContainerInterface extends UnitInterface {
-  child?: Block,
+  child?: Unit,
   children?: Array<Unit>,
   key?: Key
 }

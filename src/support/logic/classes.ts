@@ -53,7 +53,7 @@ export class Connections extends Equatable {
       return null;
     let connections = [];
     this._conns.forEach((id: Id) => {
-      connections.push({ "id": id.id });
+      connections = connections.concat( id.build() );
     });
     return connections;
   }

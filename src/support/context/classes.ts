@@ -70,10 +70,17 @@ export class Keyless extends Key {
 }
 
 export class Id extends Equatable {
-  private _id: number;
+  private _ids: Array<number>;
   constructor(key: Key) {
-    super(["id"]);
-    this._id = key.newId;
+    super(["_id"]);
+    this._ids = [key.newId];
   }
-  get id() { return this._id; }
+  get ids(): Array<number> { return this._ids; }
+  build() {
+    let ids = [];
+    this._ids.forEach((id) => {
+      ids.push({ "id": id });
+    });
+    return ids;
+  }
 }

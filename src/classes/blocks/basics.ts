@@ -87,7 +87,7 @@ export class Logic extends Block {
       "controller": {
         "active": false,
         "controllers": this._conns.build(),
-        "id": this.id.id,
+        "id": this.id.ids[0],
         "joints": null,
         "mode": this.op.type
       },
