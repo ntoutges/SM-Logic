@@ -1,4 +1,4 @@
-import { PosInterface, RelativePosInterface, RotateInterface } from "./interfaces";
+import { BoundsInterface, PosInterface, RelativePosInterface, RotateInterface } from "./interfaces";
 import { Direction, Orientation } from "./enums";
 import { Equatable } from "../support/classes";
 
@@ -52,6 +52,18 @@ export class RelativePos extends Pos {
   get x(): number { return super.x + this.other.x; }
   get y(): number { return super.y + this.other.y; }
   get z(): number { return super.z + this.other.z; }
+}
+
+export class Bounds extends Pos {
+  constructor({
+    x = 1,
+    y = 1,
+    z = 1
+  }: BoundsInterface) {
+    if (x < 1 || y < 1 || z < 1)
+      throw new Error("value in Bounds cannot be less than one")
+    super({x,y,z});
+  }
 }
 
 export class Rotate extends Equatable {

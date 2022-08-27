@@ -1,10 +1,10 @@
 import { Builder } from "./builders/classes";
 import { Logic } from "./classes/blocks/basics";
 import { Bit, Byte } from "./classes/prebuilts/memory/classes";
-import { Container, GenericBody, Unit } from "./containers/classes";
+import { Container, GenericBody, Grid, Unit } from "./containers/classes";
 import { CustomKey, BasicKey, Id } from "./support/context/classes";
 import { Connections, RawBitMask } from "./support/logic/classes";
-import { Pos, Rotate } from "./support/spatial/classes";
+import { Bounds, Pos, Rotate } from "./support/spatial/classes";
 
 export class Body extends GenericBody {
   constructor() {
@@ -13,26 +13,27 @@ export class Body extends GenericBody {
   build() {
     const key = this.key;
     
-    const byte = new Byte({ key: key });
-    return new Container({
-      children: [
-        byte,
+    var gridChilds = [];
+    for (var i = 0; i < 1000; i++) {
+      gridChilds.push(
         new Logic({
-          key: key,
-          pos: new Pos({x: 3}),
-          connections: new Connections( byte.reset )
-        }),
-        new Logic({
-          key: key,
-          pos: new Pos({x: 4}),
-          connections: new Connections(
-            byte.set(
-              new RawBitMask(0b11000011)
-            )
-          )
-        })
-      ]
-    })
+          key: key
+        }) 
+      );
+    }
+    return new Grid({
+      size: new Bounds({
+        x: 10,
+        y: 10,
+        z: 10
+      }),
+      spacing: new Bounds({
+        x: 1,
+        y: 1,
+        z: 1
+      }),
+      children: gridChilds
+    });
     // return new Container({
     //   pos: new Pos({"x":4}),
     //   children: [

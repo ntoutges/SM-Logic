@@ -80,7 +80,7 @@ export class Bits extends Container {
       bits.push(
         new Bit({
           key: key,
-          pos: pos.add(new Pos({"y": i})),
+          pos: pos.add(new Pos({"z": i})),
           rotate,
           color
         })

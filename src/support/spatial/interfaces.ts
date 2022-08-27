@@ -14,6 +14,8 @@ export interface RelativePosInterface {
   pos: Pos,
 }
 
+export interface BoundsInterface extends PosInterface {}
+
 export interface RotateInterface {
   direction?: Direction,
   orientation?: Orientation,

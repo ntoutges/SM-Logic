@@ -1,9 +1,9 @@
-import { Block } from "../classes/blocks/basics";
+import { Block, Logic } from "../classes/blocks/basics";
 import { Color } from "../support/colors/classes";
 import { BasicKey, Key, Keyless } from "../support/context/classes";
-import { Pos, Rotate } from "../support/spatial/classes";
+import { Bounds, Pos, Rotate } from "../support/spatial/classes";
 import { Equatable } from "../support/support/classes";
-import { BodyInterface, ContainerInterface, UnitInterface } from "./interfaces";
+import { BodyInterface, ContainerInterface, GridInterface, UnitInterface } from "./interfaces";
 
 export abstract class Unit extends Equatable {
   private _pos: Pos;
@@ -58,7 +58,7 @@ export class Container extends Unit {
 
   build(offset=new Pos({})) {
     let childBlueprints: Array<string> = [];
-    this._childs.forEach((child: Block) => {
+    this._childs.forEach((child: Unit) => {
       childBlueprints.push(
         child.build(
           new Pos({
@@ -72,6 +72,62 @@ export class Container extends Unit {
     return childBlueprints.join(",");
   }
 }
+
+export class Contracted extends Container {
+  build(offset=new Pos({})) {
+    // set all shapes to be at the same positino
+    this.children.forEach((child: Unit) => {
+      child.pos = new Pos({
+        x: 0,
+        y: 0,
+        z: 0
+      });
+    });
+    return super.build(offset);
+  }
+}
+
+export class Grid extends Container {
+  private readonly _size: Bounds;
+  private readonly _spacing: Bounds
+  constructor({
+    pos,
+    rotate,
+    child,
+    children,
+    color,
+    key = new Keyless(),
+    size,
+    spacing = new Bounds({})
+  }: GridInterface) {
+    super({pos,rotate,child,children,color,key});
+    this._size = size;
+    this._spacing = spacing;
+  }
+  build(offset=new Pos({})) {
+    if (this.children.length != this._size.x * this._size.y * this._size.z)
+      throw new Error("Amound of children does not match bounds");
+    
+    let posCounter: Pos = new Pos({x:0,y:0,z:0});
+    let position: Pos = this.pos.add(offset);
+    let childBlueprints: Array<string> = [];
+    this.children.forEach((child: Unit) => {
+      if (posCounter.x >= this._size.x) {
+        posCounter = posCounter.add( new Pos({x: -posCounter.x, y:1}) ); // reset x // add 1 to y
+        position = position.add( new Pos({ x: -position.x, y:this._spacing.y }) );
+        if (posCounter.y >= this._size.y) {
+          posCounter = posCounter.add( new Pos({y: -posCounter.y, z:1}) ); // reset y // add 1 to z
+          position = position.add( new Pos({ y: -position.y, z:this._spacing.z }) );
+        }
+      }
+      childBlueprints.push( child.build( position.add(offset) ) );
+      posCounter = posCounter.add( new Pos({x:1}) );
+      position = position.add( new Pos({x:this._spacing.x}) );
+    });
+    return childBlueprints.join(",");
+  }
+}
+
 
 export abstract class GenericBody {
   private readonly _key: BasicKey;
