@@ -3,10 +3,14 @@ import { BasicKey } from "../../../support/context/classes";
 import { Pos, Rotate } from "../../../support/spatial/classes";
 
 export interface BitInterface {
-  key: BasicKey
+  key: BasicKey,
   pos?: Pos,
   rotate?: Rotate,
-  color?: Color
+  color?: Color,
+}
+
+export interface BitsInterface extends BitInterface {
+  depth: number
 }
 
 export interface ByteInterface extends BitInterface {}

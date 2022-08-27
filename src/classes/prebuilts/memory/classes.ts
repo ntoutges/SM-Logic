@@ -2,12 +2,12 @@
 
 import { Container } from "../../../containers/classes";
 import { Color } from "../../../support/colors/classes";
-import { UniqueCustomKey, Id, BasicKey, Key } from "../../../support/context/classes";
-import { Connections, Operation } from "../../../support/logic/classes";
+import { UniqueCustomKey, Id, BasicKey, Key, KeylessFutureId } from "../../../support/context/classes";
+import { BitMask, Connections, Operation } from "../../../support/logic/classes";
 import { LogicalOperation } from "../../../support/logic/enums";
 import { Pos, Rotate } from "../../../support/spatial/classes";
 import { Logic } from "../../blocks/basics";
-import { BitInterface, ByteInterface } from "./interfaces";
+import { BitInterface, BitsInterface, ByteInterface } from "./interfaces";
 
 export class Bit extends Container {
   private _io: Map<string,Key>
@@ -63,17 +63,20 @@ export class Bit extends Container {
   }
 }
 
-export class Byte extends Container {
+export class Bits extends Container {
   private readonly _bits: Array<Bit>;
   constructor({
     key,
+    depth = 8,
     pos = new Pos({}),
     rotate = new Rotate({}),
     color = new Color(),
-  }: ByteInterface
+  }: BitsInterface
   ) {
+    if (depth < 1)
+      throw new Error("Bit depth must be at least 1");
     let bits: Array<Bit> = [];
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < depth; i++) {
       bits.push(
         new Bit({
           key: key,
@@ -81,7 +84,7 @@ export class Byte extends Container {
           rotate,
           color
         })
-      )
+      );
     }
     super({
       key: key,
@@ -89,12 +92,71 @@ export class Byte extends Container {
     });
     this._bits = bits;
   }
-  get bit0(): Bit { return this._bits[0]; }
-  get bit1(): Bit { return this._bits[1]; }
-  get bit2(): Bit { return this._bits[2]; }
-  get bit3(): Bit { return this._bits[3]; }
-  get bit4(): Bit { return this._bits[4]; }
-  get bit5(): Bit { return this._bits[5]; }
-  get bit6(): Bit { return this._bits[6]; }
-  get bit7(): Bit { return this._bits[7]; }
+  get bits(): Array<Bit> { return this._bits; }
+  getBit(place: number): Bit { return this.bits[place]; }
+  get reset(): Id {
+    const ids = new KeylessFutureId();
+    for (let bit of this._bits) { ids.addId(bit.resetId); }
+    return ids;
+  }
+  set(map: BitMask): Id {
+    const ids = new KeylessFutureId();
+    for (let i = 0; i < this._bits.length; i++) {
+      if (i >= map.mask.length)
+        ids.addId( this._bits[i].resetId );
+      else if (map.mask[i])
+        ids.addId( this.bits[i].setId ); // enabled
+      else
+        ids.addId( this.bits[i].resetId ); // disabled
+    }
+    return ids;
+  }
+}
+
+export class Nibble extends Bits {
+  constructor({
+    key,
+    pos = new Pos({}),
+    rotate = new Rotate({}),
+    color = new Color(),
+  }: ByteInterface
+  ) {
+    super({
+      key: key,
+      depth: 4,
+      pos: pos,
+      rotate: rotate,
+      color: color
+    });
+  }
+  get bit0(): Bit { return super.getBit(0); }
+  get bit1(): Bit { return super.getBit(1); }
+  get bit2(): Bit { return super.getBit(2); }
+  get bit3(): Bit { return super.getBit(3); }
+}
+
+export class Byte extends Bits {
+  constructor({
+    key,
+    pos = new Pos({}),
+    rotate = new Rotate({}),
+    color = new Color(),
+  }: ByteInterface
+  ) {
+    super({
+      key: key,
+      depth: 8,
+      pos: pos,
+      rotate: rotate,
+      color: color
+    });
+  }
+  get bit0(): Bit { return super.getBit(0); }
+  get bit1(): Bit { return super.getBit(1); }
+  get bit2(): Bit { return super.getBit(2); }
+  get bit3(): Bit { return super.getBit(3); }
+  get bit4(): Bit { return super.getBit(4); }
+  get bit5(): Bit { return super.getBit(5); }
+  get bit6(): Bit { return super.getBit(6); }
+  get bit7(): Bit { return super.getBit(7); }
 }

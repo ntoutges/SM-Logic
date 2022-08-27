@@ -3,7 +3,7 @@ import { Logic } from "./classes/blocks/basics";
 import { Bit, Byte } from "./classes/prebuilts/memory/classes";
 import { Container, GenericBody, Unit } from "./containers/classes";
 import { CustomKey, BasicKey, Id } from "./support/context/classes";
-import { Connections } from "./support/logic/classes";
+import { Connections, RawBitMask } from "./support/logic/classes";
 import { Pos, Rotate } from "./support/spatial/classes";
 
 export class Body extends GenericBody {
@@ -12,9 +12,27 @@ export class Body extends GenericBody {
   }
   build() {
     const key = this.key;
-    return new Byte({
-      key: key,
-    });
+    
+    const byte = new Byte({ key: key });
+    return new Container({
+      children: [
+        byte,
+        new Logic({
+          key: key,
+          pos: new Pos({x: 3}),
+          connections: new Connections( byte.reset )
+        }),
+        new Logic({
+          key: key,
+          pos: new Pos({x: 4}),
+          connections: new Connections(
+            byte.set(
+              new RawBitMask(0b11000011)
+            )
+          )
+        })
+      ]
+    })
     // return new Container({
     //   pos: new Pos({"x":4}),
     //   children: [
