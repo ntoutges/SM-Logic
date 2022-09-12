@@ -2,8 +2,8 @@ import { Builder } from "./builders/classes";
 import { Logic } from "./classes/blocks/basics";
 import { Bit, Byte } from "./classes/prebuilts/memory/classes";
 import { Container, GenericBody, Grid, Unit } from "./containers/classes";
-import { CustomKey, BasicKey, Id } from "./support/context/classes";
-import { Connections, RawBitMask } from "./support/logic/classes";
+import { CustomKey, BasicKey, Id, UniqueCustomKey } from "./support/context/classes";
+import { Connections, Delay, RawBitMask } from "./support/logic/classes";
 import { Bounds, Pos, Rotate } from "./support/spatial/classes";
 
 export class Body extends GenericBody {
@@ -12,27 +12,57 @@ export class Body extends GenericBody {
   }
   build() {
     const key = this.key;
-    
-    var gridChilds = [];
-    for (var i = 0; i < 1000; i++) {
-      gridChilds.push(
-        new Logic({
-          key: key
-        }) 
+
+    var keys: Array<UniqueCustomKey> = [];
+    for (var i = 0; i < 11; i++) {
+      keys.push(
+        new UniqueCustomKey({
+          key: key,
+          identifier: "key" + i
+        })
       );
     }
-    return new Grid({
-      size: new Bounds({
-        x: 10,
-        y: 10,
-        z: 10
-      }),
-      spacing: new Bounds({
-        x: 1,
-        y: 1,
-        z: 1
-      }),
-      children: gridChilds
+
+    var logics: Array<Logic> = [];
+    for (var i = 0; i < 10; i++) {
+      logics.push(
+        new Logic({
+          key: keys[i],
+          pos: new Pos({
+            x: i
+          }),
+          connections: (i != 0) ? new Connections(
+            new Id( keys[i - 1] )
+          )
+          : new Connections( [] )
+        })
+      );
+    }
+
+    logics.push(
+      new Logic({
+        key: keys[10],
+        pos: new Pos({
+          x: 10
+        }),
+        connections: new Connections(
+          [
+            new Id( keys[4] ),
+            new Id( keys[9] ),
+            new Id( keys[0] )
+          ]
+        )
+      })
+    )
+
+    console.log(
+      key.getDelay(
+        new Id(keys[10]),
+        new Id(keys[0])
+      )
+    );
+    return new Container({
+      children: logics
     });
     // return new Container({
     //   pos: new Pos({"x":4}),

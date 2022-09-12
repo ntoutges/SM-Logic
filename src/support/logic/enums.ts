@@ -19,3 +19,10 @@ export enum LogicalOperation {
   Buffer,
   Not,
 }
+
+export enum Time {
+  Tick = 1,
+  Millisecond = 0.025,
+  Second = 40,
+  Minute = 2400
+}

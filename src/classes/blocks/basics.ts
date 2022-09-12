@@ -3,7 +3,7 @@ import { Unit } from "../../containers/classes";
 import { Color } from "../../support/colors/classes";
 import { Colors } from "../../support/colors/enums";
 import { Id } from "../../support/context/classes";
-import { Connections, Operation } from "../../support/logic/classes";
+import { Connections, Delay, Operation } from "../../support/logic/classes";
 import { LogicalOperation } from "../../support/logic/enums";
 import { Pos, Rotate } from "../../support/spatial/classes";
 import { ShapeIds } from "../shapeIds";
@@ -30,7 +30,7 @@ export abstract class Block extends Unit {
   }
   get id() { return this._id; }
 
-  abstract build(offset: Pos)
+  abstract build(offset: Pos);
 }
 
 // note: SM connections work as an id in the logic "sender"
@@ -52,6 +52,9 @@ export class Logic extends Block {
     this.colorSet = false;
     this.op = operation;
     this._conns = connections;
+    
+    for (let id of connections.connections) { key.addConnection(this.id, id); }
+
     if ( !this.updateTypeColor() )
       this.color = color;
   }

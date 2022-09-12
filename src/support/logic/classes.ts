@@ -1,8 +1,8 @@
 import { Id, KeylessId } from "../context/classes";
 import { Pos } from "../spatial/classes";
 import { Equatable } from "../support/classes";
-import { LogicalOperation, LogicalType } from "./enums";
-import { OperationInterface } from "./interfaces";
+import { LogicalOperation, LogicalType, Time } from "./enums";
+import { DelayInterface, OperationInterface } from "./interfaces";
 
 export class Operation extends Equatable {
   private op: LogicalOperation;
@@ -54,6 +54,11 @@ export class Connections extends Equatable {
       this._conns = connections;
   }
   get connections(): Array<Id> { return this._conns; }
+  addConnection(id: Id) {
+    for (let numId of id.ids) {
+      this._conns.push( new KeylessId(numId) );
+    }
+  }
   build() {
     if (this._conns.length == 0)
       return null;
@@ -90,5 +95,51 @@ export class RawBitMask extends BitMask {
     }
     console.log(newMask)
     super(newMask);
+  }
+}
+
+export class Delay extends Equatable {
+  private _delay: number; // measured in ticks
+  constructor({
+    delay,
+    unit = Time.Tick
+  }: DelayInterface) {
+    super(["_delay"]);
+    this._delay = Math.round(delay * unit); // don't allow fractional components
+  }
+  getDelay(unit:Time = Time.Tick): number { return this._delay / unit; }
+  add(delay: Delay): Delay {
+    return new Delay({
+      delay: this.getDelay() + delay.getDelay(),
+    });
+  }
+}
+
+export class NoDelay extends Delay {
+  constructor() { super({ delay: -1 }); }
+  add(delay: Delay): Delay { return new NoDelay() } // do nothing
+}
+
+export class Delays extends Equatable {
+  private _delays: Array<Delay>;
+  constructor(delays: Array<Delay>) {
+    super(["_delays"])
+    this._delays = delays;
+  }
+  add(delay: Delay) { this._delays.push(delay) }
+  concat(delays: Array<Delay>) {
+    for (let delay of delays) {
+      this.add(delay);
+    }
+  }
+  get length() { return this._delays.length; }
+  get delays() { return this._delays; }
+  get validDelays(): Array<Delay> {
+    let valids = [];
+    for (let delay of this._delays) {
+      if (delay.getDelay() != -1)
+        valids.push(delay);
+    }
+    return valids;
   }
 }
