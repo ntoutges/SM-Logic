@@ -7,6 +7,7 @@ export interface BitInterface {
   pos?: Pos,
   rotate?: Rotate,
   color?: Color,
+  placeValue?: number
 }
 
 export interface BitsInterface extends BitInterface {

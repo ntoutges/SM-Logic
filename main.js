@@ -4,7 +4,7 @@ const fs = require("fs");
 
 const BLUEPRINT_VERSION = 4;
 // const outputPath = __dirname + "/_output";
-const outputPath = "C:/Users/Nicholas/AppData/Roaming/Axolot Games/Scrap Mechanic/User/User_76561198278723162/Blueprints/049a3c64-a5b6-43db-92ee-d9d9987676cf";
+const outputPath = "C:/Users/Nicholas/AppData/Roaming/Axolot Games/Scrap Mechanic/User/User_76561198278723162/Blueprints/85690878-eb06-4368-8c96-73cf112ad87d";
 
 if (!("Body" in mains))
   throw new Error("main.js must export class [Body]");
@@ -22,6 +22,7 @@ const descriptionString = body.description;
 
 const bytes = blueprintString.length;
 console.log(`Writing to file(${bytes} bytes).`)
+
 
 var outputCount = 0;
 fs.writeFile(outputPath + "/blueprint.json", blueprintString, "utf-8", checkIfDone);

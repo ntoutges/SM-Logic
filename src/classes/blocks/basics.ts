@@ -94,10 +94,10 @@ export class Logic extends Block {
         "joints": null,
         "mode": this.op.type
       },
-      "pos": this.pos.add(offset).build(),
+      "pos": this.pos.add(offset).add( this.rotation.offset ).build(),
       "shapeId": this.shapeId,
-      "xaxis": -3,
-      "zaxis": 1
+      "xaxis": this.rotation.xAxis,
+      "zaxis": this.rotation.zAxis
     }
     return JSON.stringify(json);
   }

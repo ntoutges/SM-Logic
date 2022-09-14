@@ -10,12 +10,14 @@ import { Logic } from "../../blocks/basics";
 import { BitInterface, BitsInterface, ByteInterface } from "./interfaces";
 
 export class Bit extends Container {
-  private _io: Map<string,Key>
+  private _io: Map<string,Key>;
+  private readonly _placeValue: number;
   constructor({
     key,
     pos = new Pos({}),
     rotate = new Rotate({}),
-    color = new Color()
+    color = new Color(),
+    placeValue = 1
   }: BitInterface) {
     const setBitKey = new UniqueCustomKey({ key: key, identifier: "bit0" });
     const resetBitKey = new UniqueCustomKey({ key: key, identifier: "bit1" });
@@ -36,7 +38,7 @@ export class Bit extends Container {
           key: resetBitKey,
           connections: new Connections([ new Id(bufferBitKey) ]),
           operation: new Operation({ operation: LogicalOperation.Nor }),
-          pos: pos.add(new Pos({"y": 1})),
+          pos: pos.add(new Pos({"y": -1})),
           color
         }),
         new Logic({
@@ -50,9 +52,11 @@ export class Bit extends Container {
     this._io = new Map<string,Key>();
     this._io.set("set", setBitKey);
     this._io.set("reset", resetBitKey);
+    this._placeValue = placeValue;
   }
   get setId(): Id { return new Id(this._io.get("set")); }
   get resetId(): Id { return new Id(this._io.get("reset")); }
+  get placeValue(): number { return this._placeValue; }
 
   build(offset=new Pos({})) {
     return (
@@ -71,6 +75,7 @@ export class Bits extends Container {
     pos = new Pos({}),
     rotate = new Rotate({}),
     color = new Color(),
+    placeValue = 1
   }: BitsInterface
   ) {
     if (depth < 1)
@@ -82,7 +87,8 @@ export class Bits extends Container {
           key: key,
           pos: pos.add(new Pos({"z": i})),
           rotate,
-          color
+          color,
+          placeValue: placeValue * Math.pow(2,i)
         })
       );
     }

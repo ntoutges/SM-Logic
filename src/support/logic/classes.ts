@@ -85,7 +85,6 @@ export class RawBitMask extends BitMask {
     const itts = Math.floor(Math.log(mask) / Math.LN2);
     for (let i = 0; i <= itts; i++) {
       let pow = Math.pow(2,itts-i);
-      console.log(mask,pow)
       if (mask >= pow) {
         mask -= pow
         newMask.push(true)
@@ -93,7 +92,6 @@ export class RawBitMask extends BitMask {
       else
         newMask.push(false)
     }
-    console.log(newMask)
     super(newMask);
   }
 }

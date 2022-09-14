@@ -1,5 +1,5 @@
 import { BoundsInterface, PosInterface, RelativePosInterface, RotateInterface } from "./interfaces";
-import { Direction, Orientation } from "./enums";
+import { Direction, Orientation, rotateTable } from "./enums";
 import { Equatable } from "../support/classes";
 
 export class Pos extends Equatable {
@@ -83,5 +83,15 @@ export class Rotate extends Equatable {
   }
   get orientation(): Orientation {
     return this.or;
+  }
+  get xAxis(): number { return rotateTable[this.dir][this.or].xAxis; }
+  get zAxis(): number { return rotateTable[this.dir][this.or].zAxis; }
+  get offset(): Pos {
+    let entry = rotateTable[this.dir][this.or];
+    return new Pos({
+      x: entry.x,
+      y: entry.y,
+      z: entry.z
+    });
   }
 }
