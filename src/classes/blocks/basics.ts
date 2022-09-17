@@ -5,7 +5,7 @@ import { Colors } from "../../support/colors/enums";
 import { Id } from "../../support/context/classes";
 import { Connections, Delay, Operation } from "../../support/logic/classes";
 import { LogicalOperation } from "../../support/logic/enums";
-import { Pos, Rotate } from "../../support/spatial/classes";
+import { Offset, Pos, Rotate } from "../../support/spatial/classes";
 import { ShapeIds } from "../shapeIds";
 import { BlockInterface, LogicInterface } from "./interfaces";
 
@@ -30,7 +30,7 @@ export abstract class Block extends Unit {
   }
   get id() { return this._id; }
 
-  abstract build(offset: Pos);
+  abstract build(offset: Offset);
 }
 
 // note: SM connections work as an id in the logic "sender"
@@ -63,12 +63,17 @@ export class Logic extends Block {
     switch (this.op.operation) {
       case LogicalOperation.Input:
         this.color = new Color(Colors.SM_Input);  
-        return true;
+        break;
       case LogicalOperation.Output:
         this.color = new Color(Colors.SM_Output);
-        return true;
+        break;
+      case LogicalOperation.Screen:
+        this.color = new Color(Colors.SM_Black);
+        break;
+      default:
+        return false;
     }
-    return false;
+    return true;
   }
 
   get operation(): Operation { return this.op; }
@@ -84,7 +89,9 @@ export class Logic extends Block {
   }
   get connections(): Array<Id> { return this._conns.connections; }
 
-  build(offset=new Pos({})) {
+  build(offset=new Offset({})) {
+    let rotation = this.rotation.add(offset.rotate);
+    let pos = this.pos.rotate(rotation);
     let json = {
       "color": this.color.hex,
       "controller": {
@@ -94,10 +101,10 @@ export class Logic extends Block {
         "joints": null,
         "mode": this.op.type
       },
-      "pos": this.pos.add(offset).add( this.rotation.offset ).build(),
+      "pos": pos.add(offset.pos).add( rotation.offset ).build(),
       "shapeId": this.shapeId,
-      "xaxis": this.rotation.xAxis,
-      "zaxis": this.rotation.zAxis
+      "xaxis": rotation.xAxis,
+      "zaxis": rotation.zAxis
     }
     return JSON.stringify(json);
   }

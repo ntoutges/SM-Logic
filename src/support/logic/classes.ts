@@ -1,5 +1,5 @@
+import { FrameInterface, FrameResizeInterface } from "../../classes/prebuilts/displays/interfaces";
 import { Id, KeylessId } from "../context/classes";
-import { Pos } from "../spatial/classes";
 import { Equatable } from "../support/classes";
 import { LogicalOperation, LogicalType, Time } from "./enums";
 import { DelayInterface, OperationInterface } from "./interfaces";
@@ -23,6 +23,7 @@ export class Operation extends Equatable {
       case LogicalOperation.Or:
       case LogicalOperation.Input:
       case LogicalOperation.Buffer:
+      case LogicalOperation.Screen:
         return LogicalType.Or;
       case LogicalOperation.Xor:
         return LogicalType.Xor;
@@ -73,9 +74,10 @@ export class Connections extends Equatable {
 export class BitMask extends Equatable {
   readonly mask: Array<boolean>;
   constructor(mask: Array<boolean>) {
-    super(["_mask"]);
+    super(["mask"]);
     this.mask = mask;
   }
+  get length() { return this.mask.length; }
 }
 
 /// pass in a number, such as 0xfc or 0x00110101
@@ -139,5 +141,70 @@ export class Delays extends Equatable {
         valids.push(delay);
     }
     return valids;
+  }
+}
+
+export class Frame extends Equatable {
+  private _width: number;
+  private _height: number;
+  private _value: Array<BitMask>;
+  public fallback: boolean
+  constructor({
+    width,
+    height,
+    value,
+    fallback=true
+  }: FrameInterface) {
+    super(["_width","_height","_value"]);
+    this._width = width;
+    this._height = height;
+    this._value = value;
+    this.fallback = fallback;
+    
+    this.resize({
+      height: height,
+      width: width
+    });
+  }
+  get rows(): Array<BitMask> { return this._value; }
+  get height(): number { return this._height; }
+  get width(): number { return this._width; }
+  add(other: Frame): Frame {
+    let newWidth: number = Math.max(this.width, other.width);
+    let newHeight: number = Math.max(this.height, other.height);
+    const value = [];
+    for (let y = 0; y < newHeight; y++) {
+      let bitMaskValue = [];
+      for (let x = 0; x < newWidth; x++) {
+        bitMaskValue.push(
+          (this.rows.length > y && this.rows[y].length > x) ? this.rows[y].mask[x] :
+          (other.rows.length > y && other.rows[y].length > x) ? other.rows[y].mask[x]: this.fallback
+        )
+      }
+      value.push( new BitMask(bitMaskValue) )
+    }
+    return new Frame({
+      width: newWidth,
+      height: newHeight,
+      value: value
+    })
+  }
+  resize({
+    height=this.height,
+    width=this.width
+  }: FrameResizeInterface): void {
+    const value: Array<BitMask> = []
+    for (let y = 0; y < height; y++) {
+      let bitMaskValue = [];
+      if (this._value.length > y && this._value[y].length == width)
+        value.push(this._value[y]);
+      else {
+        for (let x = 0; x < width; x++) {
+          bitMaskValue.push( (this._value.length > y && this._value[y].length > x) ? this._value[y].mask[x] : this.fallback );
+        }
+        value.push( new BitMask(bitMaskValue) );
+      }
+    }
+    this._value = value;
   }
 }

@@ -23,7 +23,6 @@ const descriptionString = body.description;
 const bytes = blueprintString.length;
 console.log(`Writing to file(${bytes} bytes).`)
 
-
 var outputCount = 0;
 fs.writeFile(outputPath + "/blueprint.json", blueprintString, "utf-8", checkIfDone);
 // fs.writeFile(outputPath + "/description.json", descriptionString, "utf-8", checkIfDone);

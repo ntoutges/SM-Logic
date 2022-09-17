@@ -18,6 +18,7 @@ export enum LogicalOperation {
   Output,
   Buffer,
   Not,
+  Screen
 }
 
 export enum Time {

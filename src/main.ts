@@ -4,9 +4,10 @@ import { Bit, Bits, Byte } from "./classes/prebuilts/memory/classes";
 import { Container, GenericBody, Grid, Unit } from "./containers/classes";
 import { Integer } from "./classes/prebuilts/numbers/classes";
 import { CustomKey, BasicKey, Id, UniqueCustomKey } from "./support/context/classes";
-import { Connections, Delay, RawBitMask } from "./support/logic/classes";
+import { BitMask, Connections, Delay, Frame, RawBitMask } from "./support/logic/classes";
 import { Bounds, Pos, Rotate } from "./support/spatial/classes";
 import { Direction, Orientation } from "./support/spatial/enums";
+import { BitMap } from "./classes/prebuilts/displays/classes";
 
 export class Body extends GenericBody {
   constructor() {
@@ -67,9 +68,21 @@ export class Body extends GenericBody {
     //   children: logics
     // });
 
-    return new Bits({
+    var map = new BitMap({
       key: key,
-      depth: 100
-    })
+      frame: new Frame({
+        height: 2,
+        width: 2,
+        value: [
+          new BitMask([false,true]),
+          new BitMask([true,false])
+        ],
+        fallback: true
+      })
+    });
+
+    console.log(map.enableId)
+
+    return map;
   }
 }

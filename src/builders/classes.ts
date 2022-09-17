@@ -1,7 +1,7 @@
 import { Block } from "../classes/blocks/basics";
 import { ShapeIds } from "../classes/shapeIds";
 import { Keyless } from "../support/context/classes";
-import { Pos } from "../support/spatial/classes";
+import { Offset } from "../support/spatial/classes";
 
 export class Builder extends Block {
   private readonly _builder: Function;
@@ -12,5 +12,5 @@ export class Builder extends Block {
     });
     this._builder = builder;
   }
-  build(offset: Pos) { return this._builder().build(offset); }
+  build(offset: Offset) { return this._builder().build(offset); }
 }

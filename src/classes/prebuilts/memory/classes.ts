@@ -5,7 +5,7 @@ import { Color } from "../../../support/colors/classes";
 import { UniqueCustomKey, Id, BasicKey, Key, KeylessFutureId } from "../../../support/context/classes";
 import { BitMask, Connections, Operation } from "../../../support/logic/classes";
 import { LogicalOperation } from "../../../support/logic/enums";
-import { Pos, Rotate } from "../../../support/spatial/classes";
+import { Offset, Pos, Rotate } from "../../../support/spatial/classes";
 import { Logic } from "../../blocks/basics";
 import { BitInterface, BitsInterface, ByteInterface } from "./interfaces";
 
@@ -31,20 +31,20 @@ export class Bit extends Container {
           key: setBitKey,
           connections: new Connections([ new Id(resetBitKey) ]),
           operation: new Operation({ operation: LogicalOperation.Nor }),
-          pos: pos.add(new Pos({"x": -1})),
+          pos: new Pos({"x": -1}),
           color
         }),
         new Logic({
           key: resetBitKey,
           connections: new Connections([ new Id(bufferBitKey) ]),
           operation: new Operation({ operation: LogicalOperation.Nor }),
-          pos: pos.add(new Pos({"y": -1})),
+          pos: new Pos({"y": -1}),
           color
         }),
         new Logic({
           key: bufferBitKey,
           connections: new Connections([ new Id(setBitKey) ]),
-          pos: pos.add(new Pos({"x": 1})),
+          pos: new Pos({"x": 1}),
           color
         })
       ]
@@ -56,14 +56,20 @@ export class Bit extends Container {
   }
   get setId(): Id { return new Id(this._io.get("set")); }
   get resetId(): Id { return new Id(this._io.get("reset")); }
+  get readId(): Id { return new Id(this._io.get("reset")); }
   get placeValue(): number { return this._placeValue; }
 
-  build(offset=new Pos({})) {
+  build(offset=new Offset({})) {
     return (
-      new Container({
-        children: this.children
-      })
-    ).build(offset);
+      new Container({ children: this.children })
+    ).build(
+      offset.add(
+        new Offset({
+          pos: this.pos,
+          rotate: this.rotation
+        })
+      )
+    );
   }
 }
 

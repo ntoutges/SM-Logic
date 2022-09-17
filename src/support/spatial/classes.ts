@@ -1,5 +1,5 @@
-import { BoundsInterface, PosInterface, RelativePosInterface, RotateInterface } from "./interfaces";
-import { Direction, Orientation, rotateTable } from "./enums";
+import { BoundsInterface, OffsetInterface, PosInterface, RelativePosInterface, RotateInterface } from "./interfaces";
+import { addDirectionTable, addOrientationTable, Direction, Orientation, rotateTable } from "./enums";
 import { Equatable } from "../support/classes";
 
 export class Pos extends Equatable {
@@ -26,6 +26,34 @@ export class Pos extends Equatable {
       "x": this.x + other.x,
       "y": this.y + other.y,
       "z": this.z + other.z
+    });
+  }
+  // rotates about the origin (0,0)
+  rotate(other: Rotate) { // only pays attention to direction (forwards/backwards/left/right)
+    let x = this.x;
+    let y = this.y;
+    let z = this.z;
+    switch (other.direction) {
+      // default:
+      // case Direction.Forwards:
+      //   break;
+      case Direction.Backwards:
+        x = -this.x;
+        y = -this.y;
+        break;
+      case Direction.Left:
+        x = this.y;
+        y = -this.x;
+        break;
+      case Direction.Right:
+        x = -this.y;
+        y = this.x;
+        break;
+    }
+    return new Pos({
+      x: x,
+      y: y,
+      z: z
     });
   }
   build() {
@@ -93,5 +121,33 @@ export class Rotate extends Equatable {
       y: entry.y,
       z: entry.z
     });
+  }
+  add(other: Rotate): Rotate {
+    return new Rotate({
+      direction: addDirectionTable[this.direction][other.direction],
+      orientation: addOrientationTable[this.orientation][other.orientation]
+    });
+  }
+}
+
+export class Offset extends Equatable {
+  private _pos: Pos;
+  private _rotate: Rotate;
+  constructor({
+    pos = new Pos({}),
+    rotate = new Rotate({})
+  }: OffsetInterface
+  ) {
+    super(["_pos", "_rotate"])
+    this._pos = pos
+    this._rotate = rotate
+  }
+  get pos(): Pos { return this._pos; }
+  get rotate(): Rotate { return this._rotate; }
+  add(offset: Offset) {
+    return new Offset({
+      pos: this.pos.rotate(this.rotate).add(offset.pos),
+      rotate: this.rotate.add(offset.rotate)
+    })
   }
 }

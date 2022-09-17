@@ -2,7 +2,7 @@ import { Block, Logic } from "../classes/blocks/basics";
 import { Color } from "../support/colors/classes";
 import { BasicKey, Id, Key, Keyless } from "../support/context/classes";
 import { Delay, Delays } from "../support/logic/classes";
-import { Bounds, Pos, Rotate } from "../support/spatial/classes";
+import { Bounds, Offset, Pos, Rotate } from "../support/spatial/classes";
 import { Equatable } from "../support/support/classes";
 import { BodyInterface, ContainerInterface, GridInterface, UnitInterface } from "./interfaces";
 
@@ -29,7 +29,7 @@ export abstract class Unit extends Equatable {
   set rotation(rotation: Rotate) { this._rot = rotation; }
   set color(color: Color) { this._color = color; }
   
-  abstract build(offset: Pos): string;
+  abstract build(offset: Offset): string;
 }
 
 export class Container extends Unit {
@@ -58,17 +58,15 @@ export class Container extends Unit {
   get children(): Array<Unit> { return this._childs; }
   get key(): Key { return this._key; }
 
-  build(offset=new Pos({})) {
+  build(offset=new Offset({})) {
     let childBlueprints: Array<string> = [];
+    const newOffset = new Offset({
+      pos: this.pos,
+      rotate: this.rotation
+    }).add(offset)
     this._childs.forEach((child: Unit) => {
       childBlueprints.push(
-        child.build(
-          new Pos({
-            "x": this.pos.x,
-            "y": this.pos.y,
-            "z": this.pos.z
-          }).add(offset)
-        )
+        child.build(newOffset)
       );
     });
     return childBlueprints.join(",");
@@ -76,7 +74,7 @@ export class Container extends Unit {
 }
 
 export class Contracted extends Container {
-  build(offset=new Pos({})) {
+  build(offset=new Offset({})) {
     // set all shapes to be at the same positino
     this.children.forEach((child: Unit) => {
       child.pos = new Pos({
@@ -106,12 +104,12 @@ export class Grid extends Container {
     this._size = size;
     this._spacing = spacing;
   }
-  build(offset=new Pos({})) {
+  build(offset=new Offset({})) {
     if (this.children.length != this._size.x * this._size.y * this._size.z)
       throw new Error("Amound of children does not match bounds");
     
     let posCounter: Pos = new Pos({x:0,y:0,z:0});
-    let position: Pos = this.pos.add(offset);
+    let position: Pos = this.pos.add(offset.pos);
     let childBlueprints: Array<string> = [];
     this.children.forEach((child: Unit) => {
       if (posCounter.x >= this._size.x) {
@@ -122,7 +120,11 @@ export class Grid extends Container {
           position = position.add( new Pos({ y: -position.y, z:this._spacing.z }) );
         }
       }
-      childBlueprints.push( child.build( position.add(offset) ) );
+      let localOffset: Offset = new Offset({
+        pos: position
+      });
+
+      childBlueprints.push( child.build( localOffset.add(offset) ) );
       posCounter = posCounter.add( new Pos({x:1}) );
       position = position.add( new Pos({x:this._spacing.x}) );
     });
