@@ -2,8 +2,8 @@
 
 import { Container } from "../../../containers/classes";
 import { Color } from "../../../support/colors/classes";
-import { UniqueCustomKey, Id, BasicKey, Key, KeylessFutureId } from "../../../support/context/classes";
-import { BitMask, Connections, Operation } from "../../../support/logic/classes";
+import { UniqueCustomKey, Id, BasicKey, Key, KeylessFutureId, Identifier } from "../../../support/context/classes";
+import { BitMask, Connections, MetaMultiConnections, MultiConnections, Operation } from "../../../support/logic/classes";
 import { LogicalOperation } from "../../../support/logic/enums";
 import { Offset, Pos, Rotate } from "../../../support/spatial/classes";
 import { Logic } from "../../blocks/basics";
@@ -17,7 +17,8 @@ export class Bit extends Container {
     pos = new Pos({}),
     rotate = new Rotate({}),
     color = new Color(),
-    placeValue = 1
+    placeValue = 1,
+    connections = new MultiConnections([])
   }: BitInterface) {
     const setBitKey = new UniqueCustomKey({ key: key, identifier: "bit0" });
     const resetBitKey = new UniqueCustomKey({ key: key, identifier: "bit1" });
@@ -29,21 +30,39 @@ export class Bit extends Container {
       children: [
         new Logic({
           key: setBitKey,
-          connections: new Connections([ new Id(resetBitKey) ]),
+          connections: new Connections([
+            new Id(resetBitKey)
+          ].concat(
+            connections.getConnection(
+              new Identifier([
+                "set",
+                "not"
+              ])
+            ).connections
+          )),
           operation: new Operation({ operation: LogicalOperation.Nor }),
           pos: new Pos({"x": -1}),
           color
         }),
         new Logic({
           key: resetBitKey,
-          connections: new Connections([ new Id(bufferBitKey) ]),
+          connections: new Connections([
+            new Id(bufferBitKey)
+          ].concat(
+            connections.getConnection(
+              new Identifier([
+                "reset",
+                "out"
+              ])
+            ).connections
+          )),
           operation: new Operation({ operation: LogicalOperation.Nor }),
           pos: new Pos({"y": -1}),
           color
         }),
         new Logic({
           key: bufferBitKey,
-          connections: new Connections([ new Id(setBitKey) ]),
+          connections: new Connections([ new Id(setBitKey) ].concat(connections.getConnection("buffer").connections)),
           pos: new Pos({"x": 1}),
           color
         })
@@ -81,20 +100,23 @@ export class Bits extends Container {
     pos = new Pos({}),
     rotate = new Rotate({}),
     color = new Color(),
-    placeValue = 1
+    placeValue = 1,
+    connections = new MetaMultiConnections([])
   }: BitsInterface
   ) {
     if (depth < 1)
       throw new Error("Bit depth must be at least 1");
     let bits: Array<Bit> = [];
     for (let i = 0; i < depth; i++) {
+      const thisPlaceValue = placeValue * Math.pow(2,i);
       bits.push(
         new Bit({
           key: key,
           pos: pos.add(new Pos({"z": i})),
           rotate,
           color,
-          placeValue: placeValue * Math.pow(2,i)
+          placeValue: thisPlaceValue,
+          connections: connections.getMultiConnection( thisPlaceValue.toString() )
         })
       );
     }
@@ -131,14 +153,16 @@ export class Nibble extends Bits {
     pos = new Pos({}),
     rotate = new Rotate({}),
     color = new Color(),
+    connections
   }: ByteInterface
   ) {
     super({
-      key: key,
+      key,
       depth: 4,
-      pos: pos,
-      rotate: rotate,
-      color: color
+      pos,
+      rotate,
+      color,
+      connections,
     });
   }
   get bit0(): Bit { return super.getBit(0); }
@@ -153,14 +177,16 @@ export class Byte extends Bits {
     pos = new Pos({}),
     rotate = new Rotate({}),
     color = new Color(),
+    connections
   }: ByteInterface
   ) {
     super({
-      key: key,
+      key,
       depth: 8,
-      pos: pos,
-      rotate: rotate,
-      color: color
+      pos,
+      rotate,
+      color,
+      connections
     });
   }
   get bit0(): Bit { return super.getBit(0); }

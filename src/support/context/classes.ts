@@ -125,6 +125,25 @@ export class Keyless extends Key {
   getDelay(from:Id, to:Id): Delays { throw new Error("Cannot get delay from type [Keyless]"); }
 }
 
+export class Identifier extends Equatable {
+  private _ids: Array<string>;
+  constructor(identifier: string | Array<string>) {
+    super(["_id"]);
+    if (Array.isArray(identifier))
+      this._ids = identifier;
+    else
+      this._ids = [identifier];
+  }
+  get ids(): Array<string> { return this._ids; }
+  addId(identifier: string) {
+    for (let i in this._ids) {
+      if (this._ids[i] == identifier) // check for duplicates
+        return;
+    }
+    this._ids.push(identifier);
+  }
+}
+
 export class Id extends Equatable {
   private _ids: Array<number>;
   constructor(key: Key) {

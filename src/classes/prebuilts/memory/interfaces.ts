@@ -1,5 +1,6 @@
 import { Color } from "../../../support/colors/classes";
 import { BasicKey } from "../../../support/context/classes";
+import { MetaMultiConnections, MultiConnections } from "../../../support/logic/classes";
 import { Pos, Rotate } from "../../../support/spatial/classes";
 
 export interface BitInterface {
@@ -7,11 +8,25 @@ export interface BitInterface {
   pos?: Pos,
   rotate?: Rotate,
   color?: Color,
-  placeValue?: number
+  placeValue?: number,
+  connections?: MultiConnections
 }
 
-export interface BitsInterface extends BitInterface {
-  depth: number
+export interface BitsInterface {
+  key: BasicKey,
+  depth: number,
+  pos?: Pos,
+  rotate?: Rotate,
+  color?: Color,
+  placeValue?: number,
+  connections?: MetaMultiConnections
 }
 
-export interface ByteInterface extends BitInterface {}
+export interface ByteInterface {
+  key: BasicKey,
+  pos?: Pos,
+  rotate?: Rotate,
+  color?: Color,
+  placeValue?: number,
+  connections?: MetaMultiConnections
+}

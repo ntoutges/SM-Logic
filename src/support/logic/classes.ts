@@ -1,8 +1,8 @@
 import { FrameInterface, FrameResizeInterface, FramesInterface, PhysicalFrameInterface } from "../../classes/prebuilts/displays/interfaces";
-import { Id, KeylessId } from "../context/classes";
+import { Id, Identifier, KeylessId } from "../context/classes";
 import { Equatable } from "../support/classes";
 import { LogicalOperation, LogicalType, Time } from "./enums";
-import { BitMaskExtendInterface, DelayInterface, OperationInterface } from "./interfaces";
+import { BitMaskExtendInterface, DelayInterface, MetaMultiConnectionsType, MultiConnectionsType, OperationInterface } from "./interfaces";
 
 export class Operation extends Equatable {
   private op: LogicalOperation;
@@ -68,6 +68,91 @@ export class Connections extends Equatable {
       connections = connections.concat( id.build() );
     });
     return connections;
+  }
+}
+
+export class MultiConnections extends Equatable {
+  private _conns: Map<string,Connections>;
+  constructor(
+    connections: MultiConnectionsType | Array<MultiConnectionsType>
+  ) {
+    super(["_conns"]);
+    this._conns = new Map();
+    if (Array.isArray(connections)) {
+      for (let connection of connections) {
+        this.addConnection(connection.conns, connection.id);
+      }
+    }
+    else
+      this.addConnection(connections.conns, connections.id);
+  }
+  get multiConnections(): Map<string,Connections> { return this._conns; }
+  addConnection(conn: Connections, ids: Identifier): void {
+    for (let id of ids.ids) {
+      this._conns.set(id, conn);
+    }
+  }
+  getConnection(id: Identifier | string): Connections {
+    if ((typeof id) == "string")
+      return this.getConnection(
+        new Identifier(
+          id as string
+        )
+      );
+    const conns = new Connections([]);
+    for (let identifier of (id as Identifier).ids) {
+      if (this._conns.has(identifier)) {
+        for (let connectionId of this._conns.get(identifier).connections) {
+          conns.addConnection(connectionId);
+        }
+      }
+    }
+    return conns;
+  }
+  get conns(): Map<string,Connections> { return this._conns; }
+}
+
+export class MetaMultiConnections extends Equatable {
+  private _conns: Map<string,MultiConnections>;
+  constructor(
+    connections: MetaMultiConnectionsType | Array<MetaMultiConnectionsType>
+  ) {
+    super(["_conns"]);
+    this._conns = new Map();
+    if (Array.isArray(connections)) {
+      for (let connection of connections) {
+        this.addConnection(connection.conns, connection.id);
+      }
+    }
+    else
+      this.addConnection(connections.conns, connections.id);
+  }
+  addConnection(conn: MultiConnections, ids: Identifier) {
+    for (let id of ids.ids) {
+      this._conns.set(id, conn);
+    }
+  }
+  getMultiConnection(id: Identifier | string): MultiConnections {
+    if ((typeof id) == "string")
+      return this.getMultiConnection(
+        new Identifier(
+          id as string
+        )
+      );
+    const conns = new MultiConnections([]);
+    for (let identifier of (id as Identifier).ids) {
+      if (this._conns.has(identifier)) {
+        for (let multiConnections of this._conns.get(identifier).multiConnections.entries()) {
+          conns.addConnection(
+            multiConnections[1],
+            new Identifier(
+              multiConnections[0]
+            )
+          )
+        }
+      }
+    }
+    return conns;
   }
 }
 
