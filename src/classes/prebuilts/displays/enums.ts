@@ -37,6 +37,8 @@ export enum Characters {
   Seven,
   Eight,
   Nine,
+  DollarSign,
+  Set,
   Undefined,
 }
 
@@ -507,6 +509,32 @@ export const CharacterFrames = [
       new VBitMask("    |"),
       new VBitMask("    |"),
       new VBitMask(" |||")
+    ]
+  }),
+  new Frame({
+    width: 5,
+    height: 7,
+    value: [
+      new VBitMask("  |  "),
+      new VBitMask(" ||| "),
+      new VBitMask("| |  "),
+      new VBitMask(" ||| "),
+      new VBitMask("  | |"),
+      new VBitMask(" ||| "),
+      new VBitMask("  |  ")
+    ]
+  }),
+  new Frame({
+    width: 5,
+    height: 7,
+    value: [
+      new VBitMask("     "),
+      new VBitMask("  |  "),
+      new VBitMask("   | "),
+      new VBitMask("|||||"),
+      new VBitMask("   | "),
+      new VBitMask("  |  "),
+      new VBitMask("     ")
     ]
   }),
   new Frame({

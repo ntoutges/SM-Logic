@@ -1,6 +1,6 @@
 import { Color } from "../../../support/colors/classes";
 import { BasicKey, Id } from "../../../support/context/classes";
-import { BitMask, Frame, Frames } from "../../../support/logic/classes";
+import { BitMask, Delay, Delays, Frame, Frames } from "../../../support/logic/classes";
 import { Pos, Rotate } from "../../../support/spatial/classes";
 
 export interface FrameInterface {
@@ -60,6 +60,23 @@ export interface SevenSegmentInterface {
 
 export interface CharacterDisplayInterface {
   key: BasicKey,
+  pos?: Pos,
+  rotate?: Rotate,
+  color?: Color
+}
+
+export interface VideoDisplayInterface {
+  key: BasicKey,
+  frames: Frames,
+  frameTime?: Delay,
+  pos?: Pos,
+  rotate?: Rotate,
+  color?: Color
+}
+
+export interface DelayUnitInterface {
+  key: BasicKey,
+  delays: Delays
   pos?: Pos,
   rotate?: Rotate,
   color?: Color

@@ -152,6 +152,14 @@ export class Delay extends Equatable {
       delay: this.getDelay() + delay.getDelay(),
     });
   }
+  build() {
+    const seconds = Math.min( Math.floor(this.getDelay(Time.Second)), 59 );
+    const ticks = this.getDelay(Time.Tick) - (seconds * Time.Second);
+    return {
+      "seconds": seconds,
+      "ticks": ticks
+    }
+  }
 }
 
 export class NoDelay extends Delay {

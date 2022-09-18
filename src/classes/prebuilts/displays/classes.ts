@@ -1,11 +1,12 @@
-import { Container, Grid } from "../../../containers/classes";
-import { CustomKey, Id, KeylessFutureId, UniqueCustomKey } from "../../../support/context/classes";
-import { BitMask, Frame, Frames, Operation, PhysicalFrame, VBitMask } from "../../../support/logic/classes";
-import { LogicalOperation } from "../../../support/logic/enums";
-import { Bounds, Pos } from "../../../support/spatial/classes";
-import { Block, Logic } from "../../blocks/basics";
+import { Container, Grid, Unit } from "../../../containers/classes";
+import { CustomKey, Id, KeylessFutureId, KeylessId, UniqueCustomKey } from "../../../support/context/classes";
+import { BitMask, Connections, Delay, Frame, Frames, Operation, PhysicalFrame, VBitMask } from "../../../support/logic/classes";
+import { LogicalOperation, Time } from "../../../support/logic/enums";
+import { Bounds, Pos, Rotate } from "../../../support/spatial/classes";
+import { Direction } from "../../../support/spatial/enums";
+import { Block, Logic, Timer } from "../../blocks/basics";
 import { CharacterFrames, Characters, NumToString } from "./enums";
-import { BitMapInterface, CharacterDisplayInterface, FutureBitMapInterface, SevenSegmentInterface, SimpleBitMapInterface } from "./interfaces";
+import { BitMapInterface, CharacterDisplayInterface, DelayUnitInterface, FutureBitMapInterface, SevenSegmentInterface, SimpleBitMapInterface, VideoDisplayInterface } from "./interfaces";
 
 export class FutureBitMap extends Grid {
   private readonly _height: number;
@@ -373,4 +374,140 @@ export class CharacterDisplay extends FutureBitMap {
       CharacterFrames[char]
     );
   }
+}
+
+// export class VideoDisplay extends BitMap {
+//   _frameTime: Delay;
+//   constructor({
+//     key,
+//     frames,
+//     frameTime = new Delay({ delay: 1, unit: Time.Tick }),
+//     color,
+//     pos,
+//     rotate,
+//   }: VideoDisplayInterface) {
+//     super({ key,frames,pos,rotate,color });
+//     if (frameTime.getDelay(Time.Second) > 60)
+//       throw new Error("Too much delay per frame (max of 60 seconds)");
+//     this._frameTime = frameTime;
+//   }
+// }
+
+export class DelayUnit extends Grid {
+  private readonly _timerIds: Array<Id>;
+  constructor({
+    key,
+    delays,
+    color,
+    pos,
+    rotate
+  }: DelayUnitInterface) {
+    const timers: Array<Timer> = [];
+    const timerIds: Array<Id> = [];
+    for (let i = delays.length-1; i >= 0; i--) {
+      timers.push(
+        new Timer({
+          key,
+          delay: delays.delays[i],
+          color,
+          connections: (timers.length > 0) ? new Connections(
+            timers[timers.length - 1].id
+          ) : new Connections()
+        })
+      )
+      timerIds.push( timers[timers.length-1].id );
+    }
+
+    super({
+      size: new Bounds({
+        x: delays.length
+      }),
+      key,color,pos,rotate,
+      children: timers
+    });
+    this._timerIds = timerIds.reverse();
+  }
+
+  get startId(): Id { return this._timerIds[0] }
+  getTimerId(i: number): Id {
+    if (i < 0)
+      i += this._timerIds.length; // emulate python wrap-around
+    return this._timerIds[i];
+  }
+  getTimer(i: number): Timer {
+    return (this.children[this.children.length - i - 1] as Timer)
+  }
+}
+
+export class SmartDelayUnit extends Grid {
+  private readonly _timerId: Id;
+  private readonly _logicId: Id;
+  private readonly _outputs: Array<Logic>;
+  constructor({
+    key,
+    delays,
+    color,
+    pos,
+    rotate
+  }: DelayUnitInterface) {
+    const timerUnits: Array<Container> = [];
+    const logicIds: Id = new KeylessFutureId;
+    const outputs: Array<Logic> = []
+    let prevTimerId: Id = null;
+    for (let i = delays.length-1; i >= 0; i--) {
+      const logic = new Logic({
+        key,
+        rotate: new Rotate({
+          direction: Direction.Up
+        }),
+        connections: (prevTimerId != null) ? new Connections(
+          prevTimerId
+        ) : new Connections()
+      });
+      logicIds.addId(logic.id);
+      outputs.push(logic);
+      const timer = new Timer({
+        key,
+        delay: new Delay({
+          delay: delays.delays[i].getDelay(Time.Tick) - 2,
+          unit: Time.Tick
+        }),
+        connections: new Connections( logic.id )
+      });
+      timerUnits.push(
+        new Container({
+          children: [
+            timer,
+            new Container({
+              child: logic,
+              pos: new Pos({
+                z: 2
+              })
+            })
+          ]
+        })
+      );
+      prevTimerId = timer.id;
+    }
+
+    super({
+      size: new Bounds({
+        x: delays.length
+      }),
+      key,color,pos,rotate,
+      children: timerUnits
+    });
+    this._timerId = prevTimerId;
+    this._logicId = logicIds;
+    this._outputs = outputs.reverse();
+  }
+  get startId(): Id { return this._logicId.add([ this._timerId ]) }
+  getTimerId(i: number): Id {
+    if (i < 0)
+      i += this._logicId.ids.length; // emulate python wrap-around
+    return new KeylessId(
+      this._logicId.ids[this._logicId.ids.length - i - 1]
+    );
+  }
+  getTimer(i: number): Logic { return this._outputs[i]; }
 }

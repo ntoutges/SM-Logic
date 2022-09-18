@@ -3,11 +3,12 @@ import { Unit } from "../../containers/classes";
 import { Color } from "../../support/colors/classes";
 import { Colors } from "../../support/colors/enums";
 import { Id } from "../../support/context/classes";
-import { Connections, Operation } from "../../support/logic/classes";
-import { LogicalOperation } from "../../support/logic/enums";
+import { Connections, Delay, Operation } from "../../support/logic/classes";
+import { LogicalOperation, Time } from "../../support/logic/enums";
 import { Offset, Pos, Rotate } from "../../support/spatial/classes";
+import { Direction } from "../../support/spatial/enums";
 import { ShapeIds } from "../shapeIds";
-import { BlockInterface, LogicInterface, ButtonInterface, BasicLogicInterface } from "./interfaces";
+import { BlockInterface, LogicInterface, ButtonInterface, BasicLogicInterface, TimerInterface } from "./interfaces";
 
 export abstract class Block extends Unit {
   private _id: Id;
@@ -52,6 +53,7 @@ export abstract class BasicLogic extends Block {
   get connections(): Array<Id> { return this._conns.connections; }
   get conns(): Connections { return this._conns; }
   abstract get controller();
+  connectTo(other: BasicLogic) { this.conns.addConnection(other.id); }
   build(offset=new Offset({})) {
     let rotation = this.rotation.add(offset.rotate);
     let pos = this.pos.rotate(rotation);
@@ -124,6 +126,37 @@ export class Logic extends BasicLogic {
       "id": this.id.ids[0],
       "joints": null,
       "mode": this.op.type
+    };
+  }
+}
+
+export class Timer extends BasicLogic {
+  _delay: Delay;
+  constructor({
+    key,
+    delay = new Delay({ delay:0, unit: Time.Tick }),
+    pos,
+    rotate = new Rotate({ direction: Direction.Up }),
+    color,
+    connections
+  }: TimerInterface) {
+    if (delay.getDelay(Time.Second) > 60)
+      throw new Error("Timer cannot have delay greater than 60 seconds")
+    super({
+      key,pos,rotate,color,connections,
+      shapeId: ShapeIds.Timer
+    });
+    this._delay = delay;
+  }
+  get controller() {
+    const timeDelay = this._delay.build();
+    return {
+      "active": false,
+      "controllers": this.conns.build(),
+      "id": this.id.ids[0],
+      "joints": null,
+      "seconds": timeDelay.seconds,
+      "ticks": timeDelay.ticks
     };
   }
 }

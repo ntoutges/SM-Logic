@@ -1,14 +1,14 @@
 import { Builder } from "./builders/classes";
-import { Button, Logic, Switch } from "./classes/blocks/basics";
+import { Button, Logic, Switch, Timer } from "./classes/blocks/basics";
 import { Bit, Bits, Byte } from "./classes/prebuilts/memory/classes";
 import { Container, GenericBody, Grid, Unit } from "./containers/classes";
 import { Integer } from "./classes/prebuilts/numbers/classes";
 import { CustomKey, BasicKey, Id, UniqueCustomKey, KeylessFutureId } from "./support/context/classes";
-import { BitMask, Connections, Delay, Frame, Frames, Operation, RawBitMask } from "./support/logic/classes";
+import { BitMask, Connections, Delay, Delays, Frame, Frames, Operation, RawBitMask } from "./support/logic/classes";
 import { Bounds, Pos, Rotate } from "./support/spatial/classes";
 import { Direction, Orientation } from "./support/spatial/enums";
-import { BitMap, CharacterDisplay, SevenSegment, SevenSegmentNumber, SimpleBitMap } from "./classes/prebuilts/displays/classes";
-import { LogicalOperation } from "./support/logic/enums";
+import { BitMap, CharacterDisplay, DelayUnit, SevenSegment, SevenSegmentNumber, SimpleBitMap, SmartDelayUnit } from "./classes/prebuilts/displays/classes";
+import { LogicalOperation, Time } from "./support/logic/enums";
 import { Characters } from "./classes/prebuilts/displays/enums";
 
 export class Body extends GenericBody {
@@ -18,37 +18,57 @@ export class Body extends GenericBody {
   build() {
     const key = this.key;
 
-    var display = new CharacterDisplay({
-      key: key
-    });
-
-    var letters: Array<Unit> = []
-    for (var i = 0; i < 37; i++) {
-      letters.push(
-        new Container({
-          child: new Switch({
-            key: key,
-            connections: new Connections(
-              display.getCharacter(i)
-            ),
-            rotate: new Rotate({
-              direction: Direction.Forwards
-            })
-          }),
-          pos: new Pos({
-            x: i - 18,
-            z: 8
-          })
+    var delayUnit = new SmartDelayUnit({
+      key: key,
+      delays: new Delays([
+        new Delay({
+          delay: 100
+        }),
+        new Delay({
+          delay: 20
+        }),
+        new Delay({
+          delay: 15
+        }),
+        new Delay({
+          delay: 2
         })
-      )
-    }
-
-    return new Container({
-      children: letters.concat([
-        display
       ])
     });
+    var button = new Container({
+      child: new Button({
+        key,
+        rotate: new Rotate({
+          direction: Direction.Up
+        }),
+        connections: new Connections(
+          delayUnit.startId
+        )
+      }),
+      pos: new Pos({
+        z: 3
+      })
+    });
 
+    var output = new Logic({
+      key,
+      pos: new Pos({
+        y:1
+      }),
+      rotate: new Rotate({
+        direction: Direction.Up
+      })
+    });
+
+    delayUnit.getTimer(0).connectTo(output);
+    
+    return new Container({
+      children: [
+        delayUnit,
+        button,
+        output
+      ]
+    });
 
     // var map = new SimpleBitMap({
     //   key: key,

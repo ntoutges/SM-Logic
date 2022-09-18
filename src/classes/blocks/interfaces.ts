@@ -1,6 +1,6 @@
 import { UnitInterface } from "../../containers/interfaces";
 import { Id, Key } from "../../support/context/classes";
-import { Connections, Operation } from "../../support/logic/classes";
+import { Connections, Delay, Operation } from "../../support/logic/classes";
 import { ShapeIds } from "../shapeIds";
 
 interface StandardInterface extends UnitInterface {
@@ -17,6 +17,11 @@ export interface BasicLogicInterface extends BlockInterface {
 
 export interface LogicInterface extends StandardInterface {
   operation?: Operation,
+  connections?: Connections
+}
+
+export interface TimerInterface extends StandardInterface {
+  delay?: Delay,
   connections?: Connections
 }
 
