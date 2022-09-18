@@ -99,7 +99,7 @@ export class Rotate extends Equatable {
   or: Orientation;
   constructor({
     direction = Direction.Forwards,
-    orientation = Orientation.Up,
+    orientation = Orientation.Up
   }: RotateInterface
   ) {
     super(["dir", "or"]);

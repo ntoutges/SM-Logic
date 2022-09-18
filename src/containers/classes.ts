@@ -104,9 +104,16 @@ export class Grid extends Container {
     this._size = size;
     this._spacing = spacing;
   }
+  getGridChild(pos: Pos): Unit {
+    if (pos.x >= this._size.x || pos.y >= this._size.y || pos.z >= this._size.z)
+      throw new Error(`Grid Child position outside working bounds (${this._size.x},${this._size.y},${this._size.z})`);
+    const index = (pos.z*this._size.x*this._size.y) + (pos.y*this._size.y) + (pos.x);
+    return this.children[index];
+  }
+
   build(offset=new Offset({})) {
     if (this.children.length != this._size.x * this._size.y * this._size.z)
-      throw new Error("Amound of children does not match bounds");
+      throw new Error("Amount of children does not match bounds");
     
     let posCounter: Pos = new Pos({x:0,y:0,z:0});
     let position: Pos = this.pos.add(offset.pos);

@@ -3,11 +3,11 @@ import { Unit } from "../../containers/classes";
 import { Color } from "../../support/colors/classes";
 import { Colors } from "../../support/colors/enums";
 import { Id } from "../../support/context/classes";
-import { Connections, Delay, Operation } from "../../support/logic/classes";
+import { Connections, Operation } from "../../support/logic/classes";
 import { LogicalOperation } from "../../support/logic/enums";
 import { Offset, Pos, Rotate } from "../../support/spatial/classes";
 import { ShapeIds } from "../shapeIds";
-import { BlockInterface, LogicInterface } from "./interfaces";
+import { BlockInterface, LogicInterface, ButtonInterface, BasicLogicInterface } from "./interfaces";
 
 export abstract class Block extends Unit {
   private _id: Id;
@@ -33,28 +33,58 @@ export abstract class Block extends Unit {
   abstract build(offset: Offset);
 }
 
-// note: SM connections work as an id in the logic "sender"
-export class Logic extends Block {
-  private op: Operation;
-  private colorSet: boolean; // should not be used in checking equality
+export abstract class BasicLogic extends Block {
   private _conns: Connections;
   constructor({
     key,
-    pos = new Pos({}),
-    rotate = new Rotate({}),
+    pos,
+    rotate,
+    color,
+    shapeId,
+    connections = new Connections()
+  }: BasicLogicInterface) {
+    super({ key,pos,rotate,color,shapeId })
+    this._addProps(["_conns"]);
+    this._conns = connections;
+
+    for (let id of connections.connections) { key.addConnection(this.id, id); }
+  }
+  get connections(): Array<Id> { return this._conns.connections; }
+  get conns(): Connections { return this._conns; }
+  abstract get controller();
+  build(offset=new Offset({})) {
+    let rotation = this.rotation.add(offset.rotate);
+    let pos = this.pos.rotate(rotation);
+    let json = {
+      "color": this.color.hex,
+      "controller": this.controller,
+      "pos": pos.add(offset.pos).add( rotation.offset ).build(),
+      "shapeId": this.shapeId,
+      "xaxis": rotation.xAxis,
+      "zaxis": rotation.zAxis
+    }
+    return JSON.stringify(json);
+  }
+}
+
+// note: SM connections work as an id in the logic "sender"
+export class Logic extends BasicLogic {
+  private op: Operation;
+  private colorSet: boolean; // should not be used in checking equality
+  constructor({
+    key,
+    pos,
+    rotate,
     operation = new Operation({}),
-    color = new Color(Colors.Lightgrey),
-    connections = new Connections(),
+    color = new Color(Colors.Grey),
+    connections
   }: LogicInterface
   ) {
-    super({pos, rotate, key, shapeId: ShapeIds.Logic});
-    this._addProps(["op","_color", "_conns"]);
+    super({pos, rotate, key, shapeId: ShapeIds.Logic, connections});
+    this._addProps(["op","_color"]);
     this.colorSet = false;
     this.op = operation;
-    this._conns = connections;
     
-    for (let id of connections.connections) { key.addConnection(this.id, id); }
-
     if ( !this.updateTypeColor() )
       this.color = color;
   }
@@ -87,25 +117,61 @@ export class Logic extends Block {
     if (!this.colorSet)
       this.updateTypeColor();
   }
-  get connections(): Array<Id> { return this._conns.connections; }
+  get controller() {
+    return {
+      "active": false,
+      "controllers": this.conns.build(),
+      "id": this.id.ids[0],
+      "joints": null,
+      "mode": this.op.type
+    };
+  }
+}
 
-  build(offset=new Offset({})) {
-    let rotation = this.rotation.add(offset.rotate);
-    let pos = this.pos.rotate(rotation);
-    let json = {
-      "color": this.color.hex,
-      "controller": {
-        "active": false,
-        "controllers": this._conns.build(),
-        "id": this.id.ids[0],
-        "joints": null,
-        "mode": this.op.type
-      },
-      "pos": pos.add(offset.pos).add( rotation.offset ).build(),
-      "shapeId": this.shapeId,
-      "xaxis": rotation.xAxis,
-      "zaxis": rotation.zAxis
+export class Button extends BasicLogic {
+  constructor({
+    key,
+    pos,
+    rotate,
+    color,
+    connections
+  }: ButtonInterface) {
+    super({
+      key,pos,rotate,color,
+      shapeId: ShapeIds.Button,
+      connections
+    });
+  }
+  get controller() {
+    return {
+      "active": false,
+      "controllers": this.conns.build(),
+      "id": this.id.ids[0],
+      "joints": null
     }
-    return JSON.stringify(json);
+  }
+}
+
+export class Switch extends BasicLogic {
+  constructor({
+    key,
+    pos,
+    rotate,
+    color,
+    connections
+  }: ButtonInterface) {
+    super({
+      key,pos,rotate,color,
+      shapeId: ShapeIds.Switch,
+      connections
+    });
+  }
+  get controller() {
+    return {
+      "active": false,
+      "controllers": this.conns.build(),
+      "id": this.id.ids[0],
+      "joints": null
+    }
   }
 }

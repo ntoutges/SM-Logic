@@ -74,7 +74,7 @@ export class BasicKey extends Key {
   }
 }
 
-export class CustomKey extends Key {
+export class CustomKey extends BasicKey {
   readonly key: BasicKey;
   readonly identifier: string;
   constructor({
@@ -82,13 +82,20 @@ export class CustomKey extends Key {
     identifier
   }: CustomKeyInterface
   ) {
-    super(["key", "identifier"]);
+    super({});
     this.key = key;
     this.identifier = identifier;
   }
-  get newId(): number { return this.key.customId( this.identifier ); }
+
+  // pass throughs
+  get newId(): number { return this.key.customId( this.customIdIdentifier ); }
+  get lastId(): number { return this.key.lastId; }
+  get nextId(): number { return this.key.nextId; }
+  customId(identifier: string): number { return this.key.customId(identifier); }
   addConnection(from:Id, to:Id) { this.key.addConnection(from,to); }
   getDelay(from:Id, to:Id) { return this.key.getDelay(from,to); }
+
+  get customIdIdentifier(): string { return this.identifier; }
 }
 
 export class UniqueCustomKey extends CustomKey {
@@ -103,10 +110,10 @@ export class UniqueCustomKey extends CustomKey {
   }
   get newId(): number {
     if (this._customId == -1) // unset
-      this._customId = this.key.customId( `@${this.identifier}-#${this.key.lastId}?` );
+      this._customId = this.key.customId( this.customIdIdentifier );
     return this._customId;
   }
-  get customId(): string { return `@${this.identifier}-#${this.key.lastId}?`; }
+  get customIdIdentifier(): string { return `@${this.identifier}-#${this.key.lastId}?`; }
 }
 
 export class Keyless extends Key {
@@ -125,7 +132,37 @@ export class Id extends Equatable {
     this._ids = [key.newId];
   }
   get ids(): Array<number> { return this._ids; }
-  addKey(key: Key): void { this._ids.push(key.newId) }
+  addKey(key: Key): void {
+    // check if [id] already exists in this Id
+    let id = key.newId;
+    for (let i in this._ids) {
+      if (this._ids[i] == id) {
+        return;
+      }
+    }
+    this._ids.push(id)
+  }
+  addId(id: number | Id): void {
+    if (id instanceof Id) {
+      for (let numId of id.ids) { this.addId(numId); }
+      return; 
+    }
+    // check if [id] already exists in this Id
+    for (let checkId of this.ids) {
+      if (checkId == id) {
+        return;
+      }
+    }
+    this.ids.push(id);
+  }
+  add(ids: Array<Id>): Id {
+    let newId = new KeylessFutureId();
+    newId.addId(this);
+    for (let id of ids) {
+      newId.addId(id);
+    }
+    return newId;
+  }
   build() {
     let ids = [];
     this._ids.forEach((id) => {
@@ -140,7 +177,6 @@ export class KeylessId extends Id {
   constructor(id: number) {
     super( new BasicKey({ startId:id  }) );
   }
-  addId(id: number): void { super.ids.push(id); }
   addKey(key: Key): void { throw new Error("Cannot add key to a keyless id, try using [addId]"); }
 }
 
@@ -156,10 +192,7 @@ export class KeylessFutureId extends KeylessId {
       super._resetKeys();
       this.setId = true;
     }
-    if (id instanceof Id)
-      for (let numId of id.ids) { this.addId(numId); }
-    else
-      super.addId(id);
+    super.addId(id)
   }
   get ids(): Array<number> {
     if (!this.setId)

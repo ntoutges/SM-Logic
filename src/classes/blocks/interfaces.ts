@@ -4,14 +4,22 @@ import { Connections, Operation } from "../../support/logic/classes";
 import { ShapeIds } from "../shapeIds";
 
 interface StandardInterface extends UnitInterface {
-  key: Key,
+  key: Key
 }
 
 export interface BlockInterface extends StandardInterface {
-  shapeId: ShapeIds,
+  shapeId: ShapeIds
+}
+
+export interface BasicLogicInterface extends BlockInterface {
+  connections?: Connections
 }
 
 export interface LogicInterface extends StandardInterface {
   operation?: Operation,
-  connections?: Connections,
+  connections?: Connections
+}
+
+export interface ButtonInterface extends StandardInterface {
+  connections?: Connections
 }

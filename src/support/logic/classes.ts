@@ -1,13 +1,13 @@
-import { FrameInterface, FrameResizeInterface } from "../../classes/prebuilts/displays/interfaces";
+import { FrameInterface, FrameResizeInterface, FramesInterface, PhysicalFrameInterface } from "../../classes/prebuilts/displays/interfaces";
 import { Id, KeylessId } from "../context/classes";
 import { Equatable } from "../support/classes";
 import { LogicalOperation, LogicalType, Time } from "./enums";
-import { DelayInterface, OperationInterface } from "./interfaces";
+import { BitMaskExtendInterface, DelayInterface, OperationInterface } from "./interfaces";
 
 export class Operation extends Equatable {
   private op: LogicalOperation;
   constructor({
-    operation = LogicalOperation.And,
+    operation = LogicalOperation.And
   }: OperationInterface
   ) {
     super(["op"]);
@@ -78,6 +78,34 @@ export class BitMask extends Equatable {
     this.mask = mask;
   }
   get length() { return this.mask.length; }
+  add(other: BitMask): BitMask {
+    const maxI = Math.max(this.length,other.length);
+    const mask: Array<boolean> = [];
+    for (let i = 0; i < maxI; i++) {
+      mask.push(
+        (this.length > i && this.mask[i]) || 
+        (other.length > i && other.mask[i])
+      )
+    }
+    return new BitMask(mask);
+  }
+  not(): BitMask {
+    const mask: Array<boolean> = [];
+    for (let val of this.mask) {
+      mask.push(!val);
+    }
+    return new BitMask(mask);
+  }
+  extend({
+    newLength,
+    fallback = false
+  }: BitMaskExtendInterface): BitMask {
+    const mask: Array<boolean> = [];
+    for (let i = 0; i < newLength; i++) {
+      mask.push( (this.length > i) ? this.mask[i] : fallback );
+    }
+    return new BitMask(mask);
+  }
 }
 
 /// pass in a number, such as 0xfc or 0x00110101
@@ -93,6 +121,17 @@ export class RawBitMask extends BitMask {
       }
       else
         newMask.push(false)
+    }
+    super(newMask);
+  }
+}
+
+// V stands for visual, but is shorter and works better when in its intended use case (visually creating bit masks)
+export class VBitMask extends BitMask {
+  constructor(mask: string, offCharacter=" ") {
+    const newMask: Array<boolean> = [];
+    for (let i = 0; i < mask.length; i++) {
+      newMask.push(mask[i] != offCharacter);
     }
     super(newMask);
   }
@@ -153,7 +192,7 @@ export class Frame extends Equatable {
     width,
     height,
     value,
-    fallback=true
+    fallback=false
   }: FrameInterface) {
     super(["_width","_height","_value"]);
     this._width = width;
@@ -174,37 +213,104 @@ export class Frame extends Equatable {
     let newHeight: number = Math.max(this.height, other.height);
     const value = [];
     for (let y = 0; y < newHeight; y++) {
-      let bitMaskValue = [];
-      for (let x = 0; x < newWidth; x++) {
-        bitMaskValue.push(
-          (this.rows.length > y && this.rows[y].length > x) ? this.rows[y].mask[x] :
-          (other.rows.length > y && other.rows[y].length > x) ? other.rows[y].mask[x]: this.fallback
-        )
-      }
-      value.push( new BitMask(bitMaskValue) )
+      let thisMask = (this.rows.length > y) ? this.rows[y] : new BitMask([]);
+      let otherMask = (other.rows.length > y) ? other.rows[y] : new BitMask([]);
+      value.push(
+        thisMask.extend({
+          newLength: newWidth,
+          fallback: this.fallback
+        }).add(
+          otherMask
+          )
+        );
     }
     return new Frame({
       width: newWidth,
       height: newHeight,
       value: value
-    })
+    });
   }
   resize({
-    height=this.height,
-    width=this.width
+    width=this.width,
+    height=this.height
   }: FrameResizeInterface): void {
     const value: Array<BitMask> = []
     for (let y = 0; y < height; y++) {
-      let bitMaskValue = [];
-      if (this._value.length > y && this._value[y].length == width)
-        value.push(this._value[y]);
-      else {
-        for (let x = 0; x < width; x++) {
-          bitMaskValue.push( (this._value.length > y && this._value[y].length > x) ? this._value[y].mask[x] : this.fallback );
-        }
-        value.push( new BitMask(bitMaskValue) );
-      }
+      let thisMask = (this.rows.length > y) ? this.rows[y] : new BitMask([]);
+      value.push(
+        thisMask.extend({
+          newLength: width,
+          fallback: this.fallback
+        })
+      );
     }
     this._value = value;
   }
+  resized({
+    width=this.width,
+    height=this.height
+  }: FrameResizeInterface): Frame {
+    const value: Array<BitMask> = []
+    for (let y = 0; y < height; y++) {
+      let thisMask = (this.rows.length > y) ? this.rows[y] : new BitMask([]);
+      value.push(
+        thisMask.extend({
+          newLength: width,
+          fallback: this.fallback
+        })
+      );
+    }
+    return new Frame({
+      width: width,
+      height: height,
+      value: value
+    })
+  }
+}
+
+export class PhysicalFrame extends Equatable {
+  private readonly _frame: Frame;
+  private readonly _id: Id;
+  constructor({
+    frame,
+    id
+  }: PhysicalFrameInterface) {
+    super(["_frame", "_id"]);
+    this._frame = frame;
+    this._id = id;
+  }
+  get frame(): Frame { return this._frame; }
+  get id(): Id { return this._id; }
+}
+
+export class Frames extends Equatable {
+  private readonly _frames: Array<Frame>;
+  private readonly _width: number;
+  private readonly _height: number;
+  constructor({
+    frames,
+    width=0,
+    height=0
+  }: FramesInterface) {
+    super(["_frames", "_width","_height"]);
+    this._frames = frames;
+
+    let maxHeight = 0;
+    let maxWidth = 0;
+    for (let i in frames) {
+      maxHeight = Math.max(maxHeight, frames[i].height);
+      maxWidth = Math.max(maxWidth, frames[i].width);
+    }
+    this._height = (height == 0) ? maxHeight : height;
+    this._width = (height == 0) ? maxWidth : width;
+    for (let i in frames) {
+      frames[i].resize({
+        height: this._height,
+        width: this._width
+      });
+    }
+  }
+  get height(): number { return this._height; }
+  get width(): number { return this._width; }
+  get frames(): Array<Frame> { return this._frames; }
 }

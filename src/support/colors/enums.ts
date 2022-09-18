@@ -148,7 +148,8 @@ export enum Colors { // literally just a list of all CSS colors
   Yellowgreen = "9acd32",
   Rebeccapurple = "663399",
 
-  SM_Black = "afb4c4",
+  SM_Black = "222222",
   SM_Input = "25c922",
   SM_Output = "c92222",
+  SM_Default = "df7f01"
 }

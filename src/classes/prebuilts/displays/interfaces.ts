@@ -1,6 +1,6 @@
 import { Color } from "../../../support/colors/classes";
-import { BasicKey } from "../../../support/context/classes";
-import { BitMask, Frame } from "../../../support/logic/classes";
+import { BasicKey, Id } from "../../../support/context/classes";
+import { BitMask, Frame, Frames } from "../../../support/logic/classes";
 import { Pos, Rotate } from "../../../support/spatial/classes";
 
 export interface FrameInterface {
@@ -10,14 +10,56 @@ export interface FrameInterface {
   fallback?: boolean
 }
 
+export interface FramesInterface {
+  frames: Array<Frame>,
+  height?: number,
+  width?: number
+}
+
 export interface FrameResizeInterface {
   width?: number
   height?: number
 }
 
+export interface PhysicalFrameInterface {
+  frame: Frame,
+  id: Id
+}
+
+export interface FutureBitMapInterface {
+  key: BasicKey,
+  height: number,
+  width: number,
+  pos?: Pos,
+  rotate?: Rotate,
+  color?: Color
+}
+
 export interface BitMapInterface {
   key: BasicKey,
+  frames: Frames,
+  pos?: Pos,
+  rotate?: Rotate,
+  color?: Color
+}
+
+export interface SimpleBitMapInterface {
+  key: BasicKey,
   frame: Frame,
+  pos?: Pos,
+  rotate?: Rotate,
+  color?: Color
+}
+
+export interface SevenSegmentInterface {
+  key: BasicKey,
+  pos?: Pos,
+  rotate?: Rotate,
+  color?: Color
+}
+
+export interface CharacterDisplayInterface {
+  key: BasicKey,
   pos?: Pos,
   rotate?: Rotate,
   color?: Color
