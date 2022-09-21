@@ -3,7 +3,7 @@
 import { Container } from "../../../containers/classes";
 import { Color } from "../../../support/colors/classes";
 import { UniqueCustomKey, Id, BasicKey, Key, KeylessFutureId, Identifier } from "../../../support/context/classes";
-import { BitMask, Connections, MetaMultiConnections, MultiConnections, Operation } from "../../../support/logic/classes";
+import { BitMask, Connections, MultiConnections, Operation } from "../../../support/logic/classes";
 import { LogicalOperation } from "../../../support/logic/enums";
 import { Offset, Pos, Rotate } from "../../../support/spatial/classes";
 import { Logic } from "../../blocks/basics";
@@ -101,7 +101,7 @@ export class Bits extends Container {
     rotate = new Rotate({}),
     color = new Color(),
     placeValue = 1,
-    connections = new MetaMultiConnections([])
+    connections = new MultiConnections([])
   }: BitsInterface
   ) {
     if (depth < 1)
@@ -116,7 +116,7 @@ export class Bits extends Container {
           rotate,
           color,
           placeValue: thisPlaceValue,
-          connections: connections.getMultiConnection( thisPlaceValue.toString() )
+          connections: connections.getMetaConnection( thisPlaceValue.toString() )
         })
       );
     }

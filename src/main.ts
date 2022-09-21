@@ -4,7 +4,7 @@ import { Bit, Bits, Byte } from "./classes/prebuilts/memory/classes";
 import { Container, GenericBody, Grid, Unit } from "./containers/classes";
 import { Integer } from "./classes/prebuilts/numbers/classes";
 import { CustomKey, BasicKey, Id, UniqueCustomKey, KeylessFutureId, Identifier } from "./support/context/classes";
-import { BitMask, Connections, Delay, Delays, Frame, Frames, MetaMultiConnections, MultiConnections, Operation, RawBitMask } from "./support/logic/classes";
+import { BitMask, Connections, Delay, Delays, Frame, Frames, MultiConnections, Operation, RawBitMask } from "./support/logic/classes";
 import { Bounds, Pos, Rotate } from "./support/spatial/classes";
 import { Direction, Orientation } from "./support/spatial/enums";
 import { BitMap, CharacterDisplay, DelayUnit, SevenSegment, SevenSegmentNumber, SimpleBitMap, SmartDelayUnit } from "./classes/prebuilts/displays/classes";
@@ -26,7 +26,7 @@ export class Body extends GenericBody {
 
     var byte = new Byte({
       key: key,
-      connections: new MetaMultiConnections([
+      connections: new MultiConnections([
         {
           conns: new MultiConnections([
             {

@@ -87,9 +87,23 @@ export class MultiConnections extends Equatable {
       this.addConnection(connections.conns, connections.id);
   }
   get multiConnections(): Map<string,Connections> { return this._conns; }
-  addConnection(conn: Connections, ids: Identifier): void {
+  addConnection(conn: Connections | MultiConnections, ids: Identifier): void {
+    if (conn instanceof Connections)
+      this.addRawConnection(conn, ids);
+    else // conn instanceof MultiConnections
+      this.addMultiConnection(conn, ids);
+  }
+  private addRawConnection(conn: Connections, ids: Identifier): void {
     for (let id of ids.ids) {
       this._conns.set(id, conn);
+    }
+  }
+  private addMultiConnection(conn: MultiConnections, ids: Identifier): void {
+    for (let id of ids.ids) {
+      conn.conns.forEach((metaConn, metaId) => {
+        const connId = `${id}?+:${metaId}`;
+        this._conns.set(connId, metaConn);
+      });
     }
   }
   getConnection(id: Identifier | string): Connections {
@@ -109,51 +123,28 @@ export class MultiConnections extends Equatable {
     }
     return conns;
   }
-  get conns(): Map<string,Connections> { return this._conns; }
-}
-
-export class MetaMultiConnections extends Equatable {
-  private _conns: Map<string,MultiConnections>;
-  constructor(
-    connections: MetaMultiConnectionsType | Array<MetaMultiConnectionsType>
-  ) {
-    super(["_conns"]);
-    this._conns = new Map();
-    if (Array.isArray(connections)) {
-      for (let connection of connections) {
-        this.addConnection(connection.conns, connection.id);
-      }
-    }
-    else
-      this.addConnection(connections.conns, connections.id);
-  }
-  addConnection(conn: MultiConnections, ids: Identifier) {
-    for (let id of ids.ids) {
-      this._conns.set(id, conn);
-    }
-  }
-  getMultiConnection(id: Identifier | string): MultiConnections {
+  getMetaConnection(id: Identifier | string): MultiConnections {
     if ((typeof id) == "string")
-      return this.getMultiConnection(
+      return this.getMetaConnection(
         new Identifier(
           id as string
         )
       );
     const conns = new MultiConnections([]);
     for (let identifier of (id as Identifier).ids) {
-      if (this._conns.has(identifier)) {
-        for (let multiConnections of this._conns.get(identifier).multiConnections.entries()) {
+      for (let id in this._conns.keys()) {
+        if (id.replace(/\?\+:.+/, "") == identifier) { // regex gives only text before first ?+: (indicates different levels of MultiConnections)
           conns.addConnection(
-            multiConnections[1],
+            this._conns.get(id),
             new Identifier(
-              multiConnections[0]
+              id.replace(/.*?\?\+:/, "") // regex gives only text after first ?+: (indicates different levels of MultiConnections)
             )
-          )
+          );
         }
       }
     }
-    return conns;
   }
+  get conns(): Map<string,Connections> { return this._conns; }
 }
 
 export class BitMask extends Equatable {

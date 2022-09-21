@@ -17,7 +17,7 @@ export interface BitMaskExtendInterface {
 }
 
 export interface MultiConnectionsType {
-  conns: Connections,
+  conns: Connections | MultiConnections,
   id: Identifier
 }
 
