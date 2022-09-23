@@ -13,7 +13,7 @@ export class BasicKey extends Key {
   private customIds: Map<string,number>;
   private allConns: Map<number,Connections>
   constructor({
-    startId = 2000,
+    startId = 2000
   }: KeyInterface
   ) {
     super(["ids", "customIds"]);
@@ -99,7 +99,7 @@ export class CustomKey extends BasicKey {
 }
 
 export class UniqueCustomKey extends CustomKey {
-  _customId: number;
+  private _customId: number;
   constructor({
     key,
     identifier
@@ -114,6 +114,120 @@ export class UniqueCustomKey extends CustomKey {
     return this._customId;
   }
   get customIdIdentifier(): string { return `@${this.identifier}-#${this.key.lastId}?`; }
+}
+
+export class Keys extends Equatable {
+  readonly keys: Array<BasicKey>;
+  constructor(keys: Array<BasicKey>) {
+    super(["keys"]);
+    this.keys = keys;
+  }
+  addKey(key: BasicKey) { this.keys.push(key); }
+}
+
+export class KeyGen extends Equatable {
+  private readonly _key: BasicKey;
+  private readonly keys: Map<number,number>;
+  constructor(key: BasicKey) {
+    super(["_key","keys"]);
+    this._key = key;
+    this.keys = new Map<number,number>;
+  }
+  key(id: number): CustomKey {
+    if (this.keys.has(id)) {
+      return new CustomKey({
+        key: this._key,
+        identifier: "kG#?+" + id.toString()
+      });
+    }
+    let newId = this._key.newId;
+    this.keys.set(id, newId);
+    return this.key(id);
+  }
+  id(id: number): Id {
+    return new Id(this.key(id));
+  }
+  range(start: number, end: number): Array<CustomKey> {
+    const keys = [];
+    for (let i = start; i < end; i++) {
+      keys.push(this.key(i));
+    }
+    return keys;
+  }
+}
+
+export class StringKeyGen extends Equatable {
+  private readonly _key: BasicKey;
+  private readonly keys: Map<string,number>;
+  constructor(key: BasicKey) {
+    super(["_key", "keys"]);
+    this._key = key;
+    this.keys = new Map<string,number>;
+  }
+  key(id: string): CustomKey {
+    if (this.keys.has(id)) {
+      return new CustomKey({
+        key: this._key,
+        identifier: "kG#?+" + id
+      });
+    }
+    let newId = this._key.newId;
+    this.keys.set(id, newId);
+    return this.key(id);
+  }
+  id(id: string): Id {
+    return new Id(this.key(id));
+  }
+  range(identifier: Identifier | Array<string>): KeyMap {
+    if (Array.isArray(identifier))
+      return this.range(new Identifier(identifier));
+    
+    const keys = new Map<string,CustomKey>();
+    for (let id of identifier.ids) {
+      keys.set(id, this.key(id));
+    }
+    return new KeyMap(keys);
+  }
+}
+
+export class KeyMap extends Equatable {
+  readonly ids: Map<string,CustomKey>;
+  constructor(
+    ids: Map<string,CustomKey> = new Map<string,CustomKey>()
+  ) {
+    super(["ids"]);
+    this.ids = ids;
+  }
+  narrow(ids: Identifier): KeyMap {
+    const map = new Map<string,CustomKey>;
+    this.ids.forEach((key, id) => {
+      for (let idStr of ids.ids) { // inefficient - O(n^2)
+        if (id.replace(/,.*/, "") == idStr) {
+          map.set(
+            id.replace(/.*?,/, ""),
+            key
+          );
+        }
+      }
+    });
+    return new KeyMap(map);
+  }
+  get(ids: Identifier): Array<CustomKey> {
+    const keys: Array<CustomKey> = [];
+    for (let id of ids.ids) {
+      if (this.ids.has(id)) {
+        keys.push(this.ids.get(id));
+      }
+    }
+    return keys;
+  }
+  get1(ids: Identifier): CustomKey {
+    for (let id of ids.ids) {
+      if (this.ids.has(id)) {
+        return this.ids.get(id)
+      }
+    }
+  }
 }
 
 export class Keyless extends Key {
@@ -197,6 +311,17 @@ export class KeylessId extends Id {
     super( new BasicKey({ startId:id  }) );
   }
   addKey(key: Key): void { throw new Error("Cannot add key to a keyless id, try using [addId]"); }
+}
+
+export class KeylessIds extends KeylessId {
+  constructor(ids: Array<number>) {
+    if (ids.length == 0)
+      throw new Error("KeylessIds must have at least one id");
+    super(ids[0]);
+    for (let i = 1; i < ids.length; i++) {
+      this.addId(ids[i]);
+    }
+  }
 }
 
 /// A KeylessId to be used when the id number has not yet been decided

@@ -2,11 +2,12 @@
 
 import { Container } from "../../../containers/classes";
 import { Color } from "../../../support/colors/classes";
-import { UniqueCustomKey, Id, BasicKey, Key, KeylessFutureId, Identifier } from "../../../support/context/classes";
+import { UniqueCustomKey, Id, BasicKey, Key, KeylessFutureId, Identifier, KeylessIds, KeyMap } from "../../../support/context/classes";
 import { BitMask, Connections, MultiConnections, Operation } from "../../../support/logic/classes";
 import { LogicalOperation } from "../../../support/logic/enums";
 import { Offset, Pos, Rotate } from "../../../support/spatial/classes";
 import { Logic } from "../../blocks/basics";
+import { BitIdentifiers } from "./enums";
 import { BitInterface, BitsInterface, ByteInterface } from "./interfaces";
 
 export class Bit extends Container {
@@ -18,11 +19,12 @@ export class Bit extends Container {
     rotate = new Rotate({}),
     color = new Color(),
     placeValue = 1,
-    connections = new MultiConnections([])
+    connections = new MultiConnections([]),
+    bitKeys = new KeyMap()
   }: BitInterface) {
-    const setBitKey = new UniqueCustomKey({ key: key, identifier: "bit0" });
-    const resetBitKey = new UniqueCustomKey({ key: key, identifier: "bit1" });
-    const bufferBitKey = new UniqueCustomKey({ key: key, identifier: "bit2" });
+    const setBitKey = (bitKeys.ids.has(BitIdentifiers.Set)) ? bitKeys.ids.get(BitIdentifiers.Set) : new UniqueCustomKey({ key: key, identifier: "bit0" });
+    const resetBitKey = (bitKeys.ids.has(BitIdentifiers.Reset)) ? bitKeys.ids.get(BitIdentifiers.Reset) : new UniqueCustomKey({ key: key, identifier: "bit1" });
+    const bufferBitKey = (bitKeys.ids.has(BitIdentifiers.Buffer)) ? bitKeys.ids.get(BitIdentifiers.Buffer) : new UniqueCustomKey({ key: key, identifier: "bit2" });
     super({
       key,
       pos,
@@ -35,8 +37,8 @@ export class Bit extends Container {
           ].concat(
             connections.getConnection(
               new Identifier([
-                "set",
-                "not"
+                BitIdentifiers.Set,
+                BitIdentifiers.Not
               ])
             ).connections
           )),
@@ -51,8 +53,8 @@ export class Bit extends Container {
           ].concat(
             connections.getConnection(
               new Identifier([
-                "reset",
-                "out"
+                BitIdentifiers.Reset,
+                BitIdentifiers.Output
               ])
             ).connections
           )),
@@ -62,7 +64,7 @@ export class Bit extends Container {
         }),
         new Logic({
           key: bufferBitKey,
-          connections: new Connections([ new Id(setBitKey) ].concat(connections.getConnection("buffer").connections)),
+          connections: new Connections([ new Id(setBitKey) ].concat(connections.getConnection(BitIdentifiers.Buffer).connections)),
           pos: new Pos({"x": 1}),
           color
         })
@@ -101,11 +103,13 @@ export class Bits extends Container {
     rotate = new Rotate({}),
     color = new Color(),
     placeValue = 1,
-    connections = new MultiConnections([])
+    connections = new MultiConnections([]),
+    bitKeys = null
   }: BitsInterface
   ) {
     if (depth < 1)
       throw new Error("Bit depth must be at least 1");
+
     let bits: Array<Bit> = [];
     for (let i = 0; i < depth; i++) {
       const thisPlaceValue = placeValue * Math.pow(2,i);
@@ -116,7 +120,8 @@ export class Bits extends Container {
           rotate,
           color,
           placeValue: thisPlaceValue,
-          connections: connections.getMetaConnection( thisPlaceValue.toString() )
+          connections: connections.getMetaConnection( thisPlaceValue.toString() ),
+          bitKeys: (bitKeys) ? bitKeys.narrow( new Identifier(thisPlaceValue.toString()) ) : undefined
         })
       );
     }
@@ -153,7 +158,8 @@ export class Nibble extends Bits {
     pos = new Pos({}),
     rotate = new Rotate({}),
     color = new Color(),
-    connections
+    connections,
+    bitKeys
   }: ByteInterface
   ) {
     super({
@@ -163,6 +169,7 @@ export class Nibble extends Bits {
       rotate,
       color,
       connections,
+      bitKeys
     });
   }
   get bit0(): Bit { return super.getBit(0); }
@@ -177,7 +184,8 @@ export class Byte extends Bits {
     pos = new Pos({}),
     rotate = new Rotate({}),
     color = new Color(),
-    connections
+    connections,
+    bitKeys
   }: ByteInterface
   ) {
     super({
@@ -186,7 +194,8 @@ export class Byte extends Bits {
       pos,
       rotate,
       color,
-      connections
+      connections,
+      bitKeys
     });
   }
   get bit0(): Bit { return super.getBit(0); }

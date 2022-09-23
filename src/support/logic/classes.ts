@@ -132,7 +132,7 @@ export class MultiConnections extends Equatable {
       );
     const conns = new MultiConnections([]);
     for (let identifier of (id as Identifier).ids) {
-      for (let id in this._conns.keys()) {
+      this._conns.forEach((val, id) => {
         if (id.replace(/\?\+:.+/, "") == identifier) { // regex gives only text before first ?+: (indicates different levels of MultiConnections)
           conns.addConnection(
             this._conns.get(id),
@@ -141,8 +141,9 @@ export class MultiConnections extends Equatable {
             )
           );
         }
-      }
+      })
     }
+    return conns;
   }
   get conns(): Map<string,Connections> { return this._conns; }
 }

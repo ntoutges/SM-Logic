@@ -1,5 +1,3 @@
-import { Color } from "../colors/classes";
-
 export class Equatable {
   private _props: Map<string,boolean>;
   constructor(propNames: Array<string>) {

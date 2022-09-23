@@ -16,3 +16,11 @@ export enum ByteIdentifiers {
   Bit6 = "64",
   Bit7 = "128"
 }
+
+export function combineIds(...ids: Array<string>): string {
+  let output = ""
+  for (let id of ids) {
+    output += id + ",";
+  }
+  return output.substring(0, output.length-1); // remove trailing ","
+}

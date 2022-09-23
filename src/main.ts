@@ -3,14 +3,14 @@ import { Button, Logic, Switch, Timer } from "./classes/blocks/basics";
 import { Bit, Bits, Byte } from "./classes/prebuilts/memory/classes";
 import { Container, GenericBody, Grid, Unit } from "./containers/classes";
 import { Integer } from "./classes/prebuilts/numbers/classes";
-import { CustomKey, BasicKey, Id, UniqueCustomKey, KeylessFutureId, Identifier } from "./support/context/classes";
+import { CustomKey, BasicKey, Id, UniqueCustomKey, KeylessFutureId, Identifier, KeyGen, Keys, StringKeyGen } from "./support/context/classes";
 import { BitMask, Connections, Delay, Delays, Frame, Frames, MultiConnections, Operation, RawBitMask } from "./support/logic/classes";
 import { Bounds, Pos, Rotate } from "./support/spatial/classes";
 import { Direction, Orientation } from "./support/spatial/enums";
 import { BitMap, CharacterDisplay, DelayUnit, SevenSegment, SevenSegmentNumber, SimpleBitMap, SmartDelayUnit } from "./classes/prebuilts/displays/classes";
 import { LogicalOperation, Time } from "./support/logic/enums";
 import { Characters } from "./classes/prebuilts/displays/enums";
-import { BitIdentifiers, ByteIdentifiers } from "./classes/prebuilts/memory/enums";
+import { BitIdentifiers, ByteIdentifiers, combineIds } from "./classes/prebuilts/memory/enums";
 
 export class Body extends GenericBody {
   constructor() {
@@ -18,40 +18,40 @@ export class Body extends GenericBody {
   }
   build() {
     const key = this.key;
-
-    var outputKey = new CustomKey({
-      key: key,
-      identifier: "abcd"
-    });
-
-    var byte = new Byte({
-      key: key,
-      connections: new MultiConnections([
-        {
-          conns: new MultiConnections([
-            {
-              conns: new Connections([
-                new Id(
-                  outputKey
-                )
-              ]),
-              id: new Identifier(
-                BitIdentifiers.Output
-              )
-            }
-          ]),
-          id: new Identifier(
-            ByteIdentifiers.Bit0
-          )
-        }
-      ])
-    });
+    const gen = new StringKeyGen(key)
+    
 
     return new Container({
       children: [
-        byte,
+        new Bits({
+          key: gen.key("0"),
+          depth: 1,
+          connections: new MultiConnections([
+            {
+              conns: new MultiConnections([
+                {
+                  conns: new Connections([
+                    new Id(
+                      gen.key("1")
+                    )
+                  ]),
+                  id: new Identifier(
+                    BitIdentifiers.Output
+                  )
+                }
+              ]),
+              id: new Identifier(
+                ByteIdentifiers.Bit0
+              )
+            }
+          ]),
+          bitKeys: gen.range([
+            combineIds(ByteIdentifiers.Bit0, BitIdentifiers.Set),
+            combineIds(ByteIdentifiers.Bit0, BitIdentifiers.Reset)
+          ])
+        }),
         new Logic({
-          key: outputKey,
+          key: gen.key("1"),
           pos: new Pos({
             x: 5
           })
@@ -62,7 +62,7 @@ export class Body extends GenericBody {
             x: -2
           }),
           connections: new Connections(
-            byte.bit0.setId
+            gen.id(combineIds(ByteIdentifiers.Bit0, BitIdentifiers.Reset))
           )
         }),
         new Button({
@@ -72,11 +72,11 @@ export class Body extends GenericBody {
             z: 1
           }),
           connections: new Connections(
-            byte.bit0.resetId
+            gen.id(combineIds(ByteIdentifiers.Bit0, BitIdentifiers.Set))
           )
         })
       ]
-    })
+    });
 
     // var map = new SimpleBitMap({
     //   key: key,

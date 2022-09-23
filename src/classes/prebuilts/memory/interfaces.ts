@@ -1,5 +1,5 @@
 import { Color } from "../../../support/colors/classes";
-import { BasicKey } from "../../../support/context/classes";
+import { BasicKey, CustomKey, KeyMap, Keys } from "../../../support/context/classes";
 import { MultiConnections } from "../../../support/logic/classes";
 import { Pos, Rotate } from "../../../support/spatial/classes";
 
@@ -9,7 +9,8 @@ export interface BitInterface {
   rotate?: Rotate,
   color?: Color,
   placeValue?: number,
-  connections?: MultiConnections
+  connections?: MultiConnections,
+  bitKeys?: KeyMap
 }
 
 export interface BitsInterface {
@@ -19,7 +20,8 @@ export interface BitsInterface {
   rotate?: Rotate,
   color?: Color,
   placeValue?: number,
-  connections?: MultiConnections
+  connections?: MultiConnections,
+  bitKeys?: KeyMap
 }
 
 export interface ByteInterface {
@@ -28,5 +30,6 @@ export interface ByteInterface {
   rotate?: Rotate,
   color?: Color,
   placeValue?: number,
-  connections?: MultiConnections
+  connections?: MultiConnections,
+  bitKeys?: KeyMap
 }
