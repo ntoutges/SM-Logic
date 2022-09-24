@@ -1,4 +1,5 @@
 import { Frame, VBitMask } from "../../../support/logic/classes";
+import { Bounds2d } from "../../../support/spatial/classes";
 
 export enum Characters {
   A=0,
@@ -42,10 +43,10 @@ export enum Characters {
   Undefined,
 }
 
+const characterSize = new Bounds2d({ x:5,y:7 });
 export const CharacterFrames = [
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask(" ||| "),
       new VBitMask("|   |"),
@@ -57,8 +58,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|||| "),
       new VBitMask("|   |"),
@@ -70,8 +70,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask(" ||| "),
       new VBitMask("|   |"),
@@ -83,8 +82,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("||||"),
       new VBitMask("|   |"),
@@ -96,8 +94,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|||||"),
       new VBitMask("|    "),
@@ -109,8 +106,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|||||"),
       new VBitMask("|    "),
@@ -122,8 +118,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask(" ||| "),
       new VBitMask("|   |"),
@@ -135,8 +130,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|   |"),
       new VBitMask("|   |"),
@@ -148,8 +142,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|||||"),
       new VBitMask("  |  "),
@@ -161,8 +154,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|||||"),
       new VBitMask("  |  "),
@@ -174,8 +166,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|   |"),
       new VBitMask("|  | "),
@@ -187,8 +178,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|    "),
       new VBitMask("|    "),
@@ -200,8 +190,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|   |"),
       new VBitMask("|| ||"),
@@ -213,8 +202,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|   |"),
       new VBitMask("|   |"),
@@ -226,8 +214,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask(" ||| "),
       new VBitMask("|   |"),
@@ -239,8 +226,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|||| "),
       new VBitMask("|   |"),
@@ -252,8 +238,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask(" ||| "),
       new VBitMask("|   |"),
@@ -265,8 +250,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|||| "),
       new VBitMask("|   |"),
@@ -278,8 +262,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask(" ||| "),
       new VBitMask("|   |"),
@@ -291,8 +274,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|||||"),
       new VBitMask("  |  "),
@@ -304,8 +286,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|   |"),
       new VBitMask("|   |"),
@@ -317,8 +298,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|   |"),
       new VBitMask("|   |"),
@@ -330,8 +310,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|   |"),
       new VBitMask("|   |"),
@@ -343,8 +322,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|   |"),
       new VBitMask("|   |"),
@@ -356,8 +334,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|   |"),
       new VBitMask("|   |"),
@@ -369,8 +346,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|||||"),
       new VBitMask("    |"),
@@ -382,8 +358,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask(" ||| "),
       new VBitMask("|  ||"),
@@ -395,8 +370,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("  |  "),
       new VBitMask(" ||  "),
@@ -408,8 +382,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask(" ||| "),
       new VBitMask("|   |"),
@@ -421,8 +394,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask(" ||| "),
       new VBitMask("|   |"),
@@ -434,8 +406,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|   |"),
       new VBitMask("|   |"),
@@ -447,8 +418,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|||||"),
       new VBitMask("|    "),
@@ -460,8 +430,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask(" ||| "),
       new VBitMask("|   |"),
@@ -473,8 +442,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("|||||"),
       new VBitMask("    |"),
@@ -486,8 +454,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask(" ||| "),
       new VBitMask("|   |"),
@@ -499,8 +466,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask(" ||| "),
       new VBitMask("|   |"),
@@ -512,8 +478,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("  |  "),
       new VBitMask(" ||| "),
@@ -525,8 +490,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask("     "),
       new VBitMask("  |  "),
@@ -538,8 +502,7 @@ export const CharacterFrames = [
     ]
   }),
   new Frame({
-    width: 5,
-    height: 7,
+    size: characterSize,
     value: [
       new VBitMask(" ||| "),
       new VBitMask("|   |"),

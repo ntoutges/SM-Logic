@@ -1,4 +1,4 @@
-import { BoundsInterface, OffsetInterface, PosInterface, RelativePosInterface, RotateInterface } from "./interfaces";
+import { Bounds2dInterface, Bounds2dRemapInterface, BoundsInterface, OffsetInterface, Pos2dInterface, PosInterface, RelativePosInterface, RotateInterface } from "./interfaces";
 import { addDirectionTable, addOrientationTable, Direction, Orientation, rotateTable } from "./enums";
 import { Equatable } from "../support/classes";
 
@@ -65,6 +65,15 @@ export class Pos extends Equatable {
   }
 }
 
+export class Pos2d extends Pos {
+  constructor({
+    x=0,
+    y=0
+  }: Pos2dInterface) {
+    super({x,y});
+  }
+}
+
 export class RelativePos extends Pos {
   private other: Pos;
   constructor({
@@ -127,6 +136,44 @@ export class Rotate extends Equatable {
       direction: addDirectionTable[this.direction][other.direction],
       orientation: addOrientationTable[this.orientation][other.orientation]
     });
+  }
+}
+
+export class Bounds2d extends Bounds {
+  constructor({
+    x=1,
+    y=1
+  }: Bounds2dInterface) {
+    super({x,y});
+  }
+  to3d({
+    xMap="x",
+    yMap="y"
+  }: Bounds2dRemapInterface) {
+    if (xMap == yMap)
+      throw new Error("xMap and yMap cannot have the same value");
+    var x = this.x;
+    var y = this.y;
+    var z = 1;
+    switch (xMap) {
+      case "y":
+        y = this.x;
+        x = this.y;
+        break;
+      case "z":
+        z = this.x;
+        x = this.z;
+        break;
+    }
+    switch (yMap) {
+      case "x":
+        x = this.y;
+        y = this.x;
+      case "z":
+        z = this.y;
+        y = this.z;
+    }
+    return new Bounds({ x,y,z });
   }
 }
 

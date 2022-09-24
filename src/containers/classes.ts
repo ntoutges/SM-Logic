@@ -110,7 +110,9 @@ export class Grid extends Container {
     const index = (pos.z*this._size.x*this._size.y) + (pos.y*this._size.y) + (pos.x);
     return this.children[index];
   }
-
+  get width() { return this._size.x; }
+  get depth() { return this._size.y; }
+  get height() { return this._size.z; }
   build(offset=new Offset({})) {
     if (this.children.length != this._size.x * this._size.y * this._size.z)
       throw new Error("Amount of children does not match bounds");

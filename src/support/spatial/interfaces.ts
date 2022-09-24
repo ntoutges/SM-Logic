@@ -7,6 +7,11 @@ export interface PosInterface {
   z?: number,
 }
 
+export interface Pos2dInterface {
+  x?: number,
+  y?: number
+}
+
 export interface RelativePosInterface {
   x?: number,
   y?: number,
@@ -15,6 +20,12 @@ export interface RelativePosInterface {
 }
 
 export interface BoundsInterface extends PosInterface {}
+export interface Bounds2dInterface extends Pos2dInterface {}
+
+export interface Bounds2dRemapInterface {
+  xMap?: string,
+  yMap?: string
+}
 
 export interface RotateInterface {
   direction?: Direction,

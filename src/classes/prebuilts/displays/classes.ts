@@ -1,30 +1,30 @@
 import { Container, Grid, Unit } from "../../../containers/classes";
-import { CustomKey, Id, KeylessFutureId, KeylessId, UniqueCustomKey } from "../../../support/context/classes";
+import { CustomKey, Id, KeylessFutureId, KeylessId, KeyMap, UniqueCustomKey } from "../../../support/context/classes";
 import { BitMask, Connections, Delay, Frame, Frames, Operation, PhysicalFrame, VBitMask } from "../../../support/logic/classes";
 import { LogicalOperation, Time } from "../../../support/logic/enums";
-import { Bounds, Pos, Rotate } from "../../../support/spatial/classes";
+import { Bounds, Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";
 import { Direction } from "../../../support/spatial/enums";
 import { Block, Logic, Timer } from "../../blocks/basics";
+import { combineIds } from "../memory/enums";
 import { CharacterFrames, Characters, NumToString } from "./enums";
 import { BitMapInterface, CharacterDisplayInterface, DelayUnitInterface, FutureBitMapInterface, SevenSegmentInterface, SimpleBitMapInterface, VideoDisplayInterface } from "./interfaces";
 
 export class FutureBitMap extends Grid {
-  private readonly _height: number;
-  private readonly _width: number;
   constructor({
     key,
-    width,
-    height,
+    size,
     pos,
     rotate,
-    color
+    color,
+    bitKeys = new KeyMap()
   }: FutureBitMapInterface) {
     let screen: Array<Logic> = [];
-    for (let z = 0; z < height; z++) {
-      for (let x = 0; x < width; x++) {
+    for (let z = 0; z < size.y; z++) {
+      for (let x = 0; x < size.x; x++) {
+        const identifierString = combineIds(x.toString(),z.toString());
         screen.push(
           new Logic({
-            key: key,
+            key: bitKeys.ids.has(identifierString) ? bitKeys.ids.get(identifierString) : key,
             color: color,
             operation: new Operation({
               operation: LogicalOperation.Screen
@@ -34,27 +34,22 @@ export class FutureBitMap extends Grid {
       }
     }
     super({
-      key: key,
-      size: new Bounds({
-        x: width,
-        z: height
-      }),
-      pos: pos,
-      rotate: rotate,
-      color: color,
+      key,
+      size: size.to3d({ yMap:"z" }),
+      pos,
+      rotate,
+      color,
       children: screen
     });
     this._addProps(["_height","_width"]);
-    this._height = height;
-    this._width = width;
   }
-  get height(): number { return this._height; }
-  get width(): number { return this._width; }
   getFrameId(frame: Frame): Id {
-    const newFrame = frame.resized({
-      height: this.height,
-      width: this.width
-    });
+    const newFrame = frame.resized(
+      new Bounds2d({
+        x: this.width,
+        y: this.height
+      })
+    );
     const newId = new KeylessFutureId();
     for (let z = 0; z < newFrame.rows.length; z++) {
       for (let x = 0; x < newFrame.rows[z].mask.length; x++) {
@@ -83,7 +78,8 @@ export class BitMap extends Grid {
     frames,
     pos,
     rotate,
-    color
+    color,
+    bitKeys = new KeyMap()
   }: BitMapInterface) {
     if (frames.frames.length == 0)
       throw new Error("frames must contain at least one Frame");
@@ -98,6 +94,10 @@ export class BitMap extends Grid {
     for (let z = 0; z < frames.height; z++) {
       for (let x = 0; x < frames.width; x++) {
         const blockKey = new UniqueCustomKey({ key: key, identifier: `screen${x}:${z}` });
+        const identifierString = combineIds(x.toString(),z.toString());
+        if (bitKeys.ids.has(identifierString))
+          bitKeys.ids.set(identifierString, blockKey);
+
         for (let i in frames.frames) {
           if (frames.frames[i].rows[z].mask[x])
             enableIds[i].addId(blockKey.newId);
@@ -152,7 +152,8 @@ export class SimpleBitMap extends BitMap {
     frame,
     color,
     pos,
-    rotate
+    rotate,
+    bitKeys
   }: SimpleBitMapInterface) {
     super({
       key,
@@ -163,7 +164,8 @@ export class SimpleBitMap extends BitMap {
       }),
       color,
       pos,
-      rotate
+      rotate,
+      bitKeys
     });
   }
   get physicalFrame(): PhysicalFrame { return this.physicalFrames[0]; }
@@ -176,22 +178,25 @@ export class SevenSegment extends BitMap {
     key,
     color,
     pos,
-    rotate
+    rotate,
+    bitKeys
   }: SevenSegmentInterface) {
+    const frameSize = new Bounds2d({
+      x: 3,
+      y: 5
+    });
     super({
       key,
       frames: new Frames({
         frames: [
           new Frame({
-            height: 5,
-            width: 3,
+            size: frameSize,
             value: [
               new BitMask([true,true,true])
             ]
           }),
           new Frame({
-            height: 5,
-            width: 3,
+            size: frameSize,
             value: [
               new BitMask([]),
               new BitMask([]),
@@ -199,8 +204,7 @@ export class SevenSegment extends BitMap {
             ]
           }),
           new Frame({
-            height: 5,
-            width: 3,
+            size: frameSize,
             value: [
               new BitMask([]),
               new BitMask([]),
@@ -210,8 +214,7 @@ export class SevenSegment extends BitMap {
             ]
           }),
           new Frame({
-            height: 5,
-            width: 3,
+            size: frameSize,
             value: [
               new BitMask([true]),
               new BitMask([true]),
@@ -219,8 +222,7 @@ export class SevenSegment extends BitMap {
             ]
           }),
           new Frame({
-            height: 5,
-            width: 3,
+            size: frameSize,
             value: [
               new BitMask([]),
               new BitMask([]),
@@ -230,8 +232,7 @@ export class SevenSegment extends BitMap {
             ]
           }),
           new Frame({
-            height: 5,
-            width: 3,
+            size: frameSize,
             value: [
               new BitMask([false,false,true]),
               new BitMask([false,false,true]),
@@ -239,8 +240,7 @@ export class SevenSegment extends BitMap {
             ]
           }),
           new Frame({
-            height: 5,
-            width: 3,
+            size: frameSize,
             value: [
               new BitMask([]),
               new BitMask([]),
@@ -250,12 +250,12 @@ export class SevenSegment extends BitMap {
             ]
           }),
         ],
-        height: 5,
-        width: 3
+        size: frameSize,
       }),
       color,
       pos,
-      rotate
+      rotate,
+      bitKeys
     });
   }
   get topId(): Id { return this.getEnableId(0); }
@@ -268,14 +268,15 @@ export class SevenSegment extends BitMap {
 }
 
 export class SevenSegmentNumber extends SevenSegment {
-  constructor({
-    key,
-    color,
-    pos,
-    rotate
-  }: SevenSegmentInterface) {
-    super({ key,color,pos,rotate });
-  }
+  // constructor({
+  //   key,
+  //   color,
+  //   pos,
+  //   rotate,
+  //   bitKeys
+  // }: SevenSegmentInterface) {
+  //   super({ key,color,pos,rotate,bitKeys });
+  // }
   get num0Id(): Id {
     return this.topId.add([
       this.bottomId,
@@ -354,12 +355,15 @@ export class CharacterDisplay extends FutureBitMap {
     key,
     color,
     pos,
-    rotate
+    rotate,
+    bitKeys
   }: CharacterDisplayInterface) {
     super({
-      key,color,pos,rotate,
-      width: 5,
-      height: 7
+      key,color,pos,rotate,bitKeys,
+      size: new Bounds2d({
+        x: 5,
+        y: 7
+      })
     })
   }
   getCharacter(char: Characters | string): Id {

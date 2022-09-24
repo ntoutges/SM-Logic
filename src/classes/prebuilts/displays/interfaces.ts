@@ -1,24 +1,17 @@
 import { Color } from "../../../support/colors/classes";
-import { BasicKey, Id } from "../../../support/context/classes";
+import { BasicKey, Id, KeyMap } from "../../../support/context/classes";
 import { BitMask, Delay, Delays, Frame, Frames } from "../../../support/logic/classes";
-import { Pos, Rotate } from "../../../support/spatial/classes";
+import { Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";
 
 export interface FrameInterface {
-  width: number,
-  height: number,
+  size: Bounds2d,
   value: Array<BitMask>,
   fallback?: boolean
 }
 
 export interface FramesInterface {
   frames: Array<Frame>,
-  height?: number,
-  width?: number
-}
-
-export interface FrameResizeInterface {
-  width?: number
-  height?: number
+  size?: Bounds2d
 }
 
 export interface PhysicalFrameInterface {
@@ -28,11 +21,11 @@ export interface PhysicalFrameInterface {
 
 export interface FutureBitMapInterface {
   key: BasicKey,
-  height: number,
-  width: number,
+  size: Bounds2d,
   pos?: Pos,
   rotate?: Rotate,
-  color?: Color
+  color?: Color,
+  bitKeys?: KeyMap
 }
 
 export interface BitMapInterface {
@@ -40,7 +33,8 @@ export interface BitMapInterface {
   frames: Frames,
   pos?: Pos,
   rotate?: Rotate,
-  color?: Color
+  color?: Color,
+  bitKeys?: KeyMap
 }
 
 export interface SimpleBitMapInterface {
@@ -48,21 +42,24 @@ export interface SimpleBitMapInterface {
   frame: Frame,
   pos?: Pos,
   rotate?: Rotate,
-  color?: Color
+  color?: Color,
+  bitKeys?: KeyMap
 }
 
 export interface SevenSegmentInterface {
   key: BasicKey,
   pos?: Pos,
   rotate?: Rotate,
-  color?: Color
+  color?: Color,
+  bitKeys?: KeyMap
 }
 
 export interface CharacterDisplayInterface {
   key: BasicKey,
   pos?: Pos,
   rotate?: Rotate,
-  color?: Color
+  color?: Color,
+  bitKeys?: KeyMap
 }
 
 export interface VideoDisplayInterface {
@@ -71,7 +68,8 @@ export interface VideoDisplayInterface {
   frameTime?: Delay,
   pos?: Pos,
   rotate?: Rotate,
-  color?: Color
+  color?: Color,
+  bitKeys?: KeyMap
 }
 
 export interface DelayUnitInterface {

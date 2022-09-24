@@ -1,5 +1,6 @@
-import { FrameInterface, FrameResizeInterface, FramesInterface, PhysicalFrameInterface } from "../../classes/prebuilts/displays/interfaces";
+import { FrameInterface, FramesInterface, PhysicalFrameInterface } from "../../classes/prebuilts/displays/interfaces";
 import { Id, Identifier, KeylessId } from "../context/classes";
+import { Bounds2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
 import { LogicalOperation, LogicalType, Time } from "./enums";
 import { BitMaskExtendInterface, DelayInterface, MetaMultiConnectionsType, MultiConnectionsType, OperationInterface } from "./interfaces";
@@ -269,30 +270,24 @@ export class Delays extends Equatable {
 }
 
 export class Frame extends Equatable {
-  private _width: number;
-  private _height: number;
+  private _size: Bounds2d;
   private _value: Array<BitMask>;
   public fallback: boolean
   constructor({
-    width,
-    height,
+    size,
     value,
     fallback=false
   }: FrameInterface) {
     super(["_width","_height","_value"]);
-    this._width = width;
-    this._height = height;
+    this._size = size;
     this._value = value;
     this.fallback = fallback;
     
-    this.resize({
-      height: height,
-      width: width
-    });
+    this.resize(this._size);
   }
   get rows(): Array<BitMask> { return this._value; }
-  get height(): number { return this._height; }
-  get width(): number { return this._width; }
+  get height(): number { return this._size.y; }
+  get width(): number { return this._size.x; }
   add(other: Frame): Frame {
     let newWidth: number = Math.max(this.width, other.width);
     let newHeight: number = Math.max(this.height, other.height);
@@ -310,44 +305,36 @@ export class Frame extends Equatable {
         );
     }
     return new Frame({
-      width: newWidth,
-      height: newHeight,
+      size: this._size,
       value: value
     });
   }
-  resize({
-    width=this.width,
-    height=this.height
-  }: FrameResizeInterface): void {
+  resize(size: Bounds2d): void {
     const value: Array<BitMask> = []
-    for (let y = 0; y < height; y++) {
+    for (let y = 0; y < size.y; y++) {
       let thisMask = (this.rows.length > y) ? this.rows[y] : new BitMask([]);
       value.push(
         thisMask.extend({
-          newLength: width,
+          newLength: size.x,
           fallback: this.fallback
         })
       );
     }
     this._value = value;
   }
-  resized({
-    width=this.width,
-    height=this.height
-  }: FrameResizeInterface): Frame {
+  resized(size: Bounds2d): Frame {
     const value: Array<BitMask> = []
-    for (let y = 0; y < height; y++) {
+    for (let y = 0; y < size.y; y++) {
       let thisMask = (this.rows.length > y) ? this.rows[y] : new BitMask([]);
       value.push(
         thisMask.extend({
-          newLength: width,
+          newLength: size.x,
           fallback: this.fallback
         })
       );
     }
     return new Frame({
-      width: width,
-      height: height,
+      size,
       value: value
     })
   }
@@ -374,8 +361,7 @@ export class Frames extends Equatable {
   private readonly _height: number;
   constructor({
     frames,
-    width=0,
-    height=0
+    size = null
   }: FramesInterface) {
     super(["_frames", "_width","_height"]);
     this._frames = frames;
@@ -386,13 +372,15 @@ export class Frames extends Equatable {
       maxHeight = Math.max(maxHeight, frames[i].height);
       maxWidth = Math.max(maxWidth, frames[i].width);
     }
-    this._height = (height == 0) ? maxHeight : height;
-    this._width = (height == 0) ? maxWidth : width;
-    for (let i in frames) {
-      frames[i].resize({
-        height: this._height,
-        width: this._width
+    this._height = (size) ? size.y : maxHeight;
+    this._width = (size) ? size.x: maxWidth;
+    if (size == null)
+      size = new Bounds2d({
+        x: this._width,
+        y: this._height
       });
+    for (let i in frames) {
+      frames[i].resize(size);
     }
   }
   get height(): number { return this._height; }
