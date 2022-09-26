@@ -3,11 +3,11 @@
 import { Container } from "../../../containers/classes";
 import { Color } from "../../../support/colors/classes";
 import { UniqueCustomKey, Id, BasicKey, Key, KeylessFutureId, Identifier, KeylessIds, KeyMap } from "../../../support/context/classes";
+import { BitIdentifiers } from "../../../support/context/enums";
 import { BitMask, Connections, MultiConnections, Operation } from "../../../support/logic/classes";
 import { LogicalOperation } from "../../../support/logic/enums";
 import { Offset, Pos, Rotate } from "../../../support/spatial/classes";
 import { Logic } from "../../blocks/basics";
-import { BitIdentifiers } from "./enums";
 import { BitInterface, BitsInterface, ByteInterface } from "./interfaces";
 
 export class Bit extends Container {
@@ -42,7 +42,7 @@ export class Bit extends Container {
               ])
             ).connections
           )),
-          operation: new Operation({ operation: LogicalOperation.Nor }),
+          operation: new Operation( LogicalOperation.Nor ),
           pos: new Pos({"x": -1}),
           color
         }),
@@ -58,7 +58,7 @@ export class Bit extends Container {
               ])
             ).connections
           )),
-          operation: new Operation({ operation: LogicalOperation.Nor }),
+          operation: new Operation( LogicalOperation.Nor ),
           pos: new Pos({"y": -1}),
           color
         }),
@@ -78,6 +78,8 @@ export class Bit extends Container {
   get setId(): Id { return new Id(this._io.get("set")); }
   get resetId(): Id { return new Id(this._io.get("reset")); }
   get readId(): Id { return new Id(this._io.get("reset")); }
+  get notRead(): Logic { return this.children[0] as Logic; }
+  get read(): Logic { return this.children[1] as Logic; }
   get placeValue(): number { return this._placeValue; }
 
   build(offset=new Offset({})) {

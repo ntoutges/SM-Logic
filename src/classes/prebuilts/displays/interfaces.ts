@@ -1,6 +1,6 @@
 import { Color } from "../../../support/colors/classes";
 import { BasicKey, Id, KeyMap } from "../../../support/context/classes";
-import { BitMask, Delay, Delays, Frame, Frames } from "../../../support/logic/classes";
+import { BitMask, Delay, Delays, Frame, Frames, MultiConnections } from "../../../support/logic/classes";
 import { Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";
 
 export interface FrameInterface {
@@ -70,12 +70,4 @@ export interface VideoDisplayInterface {
   rotate?: Rotate,
   color?: Color,
   bitKeys?: KeyMap
-}
-
-export interface DelayUnitInterface {
-  key: BasicKey,
-  delays: Delays
-  pos?: Pos,
-  rotate?: Rotate,
-  color?: Color
 }

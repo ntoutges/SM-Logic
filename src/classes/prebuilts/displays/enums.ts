@@ -408,10 +408,10 @@ export const CharacterFrames = [
   new Frame({
     size: characterSize,
     value: [
-      new VBitMask("|   |"),
-      new VBitMask("|   |"),
-      new VBitMask("|   |"),
-      new VBitMask(" ||||"),
+      new VBitMask("   ||"),
+      new VBitMask("  | |"),
+      new VBitMask(" |  |"),
+      new VBitMask("|||||"),
       new VBitMask("    |"),
       new VBitMask("    |"),
       new VBitMask("    |")
@@ -425,8 +425,8 @@ export const CharacterFrames = [
       new VBitMask("|    "),
       new VBitMask("|||| "),
       new VBitMask("    |"),
-      new VBitMask("    |"),
-      new VBitMask("||||")
+      new VBitMask("|   |"),
+      new VBitMask(" |||")
     ]
   }),
   new Frame({
@@ -473,7 +473,7 @@ export const CharacterFrames = [
       new VBitMask("|   |"),
       new VBitMask(" ||||"),
       new VBitMask("    |"),
-      new VBitMask("    |"),
+      new VBitMask("|   |"),
       new VBitMask(" |||")
     ]
   }),

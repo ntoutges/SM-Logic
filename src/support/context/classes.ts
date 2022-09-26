@@ -198,10 +198,13 @@ export class KeyMap extends Equatable {
     super(["ids"]);
     this.ids = ids;
   }
-  narrow(ids: Identifier): KeyMap {
+  narrow(ids: Identifier | string): KeyMap {
+    if ((typeof ids) == "string")
+      return this.narrow( new Identifier(ids as string) )
+    
     const map = new Map<string,CustomKey>;
     this.ids.forEach((key, id) => {
-      for (let idStr of ids.ids) { // inefficient - O(n^2)
+      for (let idStr of (ids as Identifier).ids) { // inefficient - O(n^2)
         if (id.replace(/,.*/, "") == idStr) {
           map.set(
             id.replace(/.*?,/, ""),

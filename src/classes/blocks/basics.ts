@@ -77,18 +77,21 @@ export class Logic extends BasicLogic {
     key,
     pos,
     rotate,
-    operation = new Operation({}),
-    color = new Color(Colors.Grey),
+    operation = new Operation(),
+    color = null,
     connections
   }: LogicInterface
   ) {
     super({pos, rotate, key, shapeId: ShapeIds.Logic, connections});
-    this._addProps(["op","_color"]);
-    this.colorSet = false;
+    this._addProps(["op","colorSet"]);
+    this.colorSet = color != null;
     this.op = operation;
     
-    if ( !this.updateTypeColor() )
+    if (this.colorSet)
       this.color = color;
+    else if ( !this.updateTypeColor() )
+      this.color = new Color(Colors.Grey);
+      
   }
   updateTypeColor(): boolean { // returns if color was updated
     this.colorSet = false;
@@ -131,7 +134,7 @@ export class Logic extends BasicLogic {
 }
 
 export class Timer extends BasicLogic {
-  _delay: Delay;
+  readonly delay: Delay;
   constructor({
     key,
     delay = new Delay({ delay:0, unit: Time.Tick }),
@@ -146,10 +149,10 @@ export class Timer extends BasicLogic {
       key,pos,rotate,color,connections,
       shapeId: ShapeIds.Timer
     });
-    this._delay = delay;
+    this.delay = delay;
   }
   get controller() {
-    const timeDelay = this._delay.build();
+    const timeDelay = this.delay.build();
     return {
       "active": false,
       "controllers": this.conns.build(),

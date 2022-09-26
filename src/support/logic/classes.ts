@@ -3,14 +3,11 @@ import { Id, Identifier, KeylessId } from "../context/classes";
 import { Bounds2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
 import { LogicalOperation, LogicalType, Time } from "./enums";
-import { BitMaskExtendInterface, DelayInterface, MetaMultiConnectionsType, MultiConnectionsType, OperationInterface } from "./interfaces";
+import { BitMaskExtendInterface, DelayInterface, MetaMultiConnectionsType, MultiConnectionsType } from "./interfaces";
 
 export class Operation extends Equatable {
   private op: LogicalOperation;
-  constructor({
-    operation = LogicalOperation.And
-  }: OperationInterface
-  ) {
+  constructor( operation: LogicalOperation = LogicalOperation.And ) {
     super(["op"]);
     this.op = operation;
   }
@@ -184,13 +181,20 @@ export class BitMask extends Equatable {
     }
     return new BitMask(mask);
   }
+  reverse(): BitMask {
+    const mask: Array<boolean> = [];
+    for (let i = this.mask.length-1; i >= 0; i--) {
+      mask.push(this.mask[i]);
+    }
+    return new BitMask(mask);
+  }
 }
 
 /// pass in a number, such as 0xfc or 0x00110101
 export class RawBitMask extends BitMask {
-  constructor(mask: number) {
+  constructor(mask: number, length=0) {
     const newMask: Array<boolean> = [];
-    const itts = Math.floor(Math.log(mask) / Math.LN2);
+    const itts = (length == 0) ? Math.floor(Math.log(mask) / Math.LN2) : length-1;
     for (let i = 0; i <= itts; i++) {
       let pow = Math.pow(2,itts-i);
       if (mask >= pow) {

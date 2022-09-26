@@ -122,18 +122,19 @@ export class Grid extends Container {
     let childBlueprints: Array<string> = [];
     this.children.forEach((child: Unit) => {
       if (posCounter.x >= this._size.x) {
+        position = position.add( new Pos({ x: -posCounter.x, y:this._spacing.y }) );
         posCounter = posCounter.add( new Pos({x: -posCounter.x, y:1}) ); // reset x // add 1 to y
-        position = position.add( new Pos({ x: -position.x, y:this._spacing.y }) );
         if (posCounter.y >= this._size.y) {
+          position = position.add( new Pos({ y: -posCounter.y, z:this._spacing.z }) );
           posCounter = posCounter.add( new Pos({y: -posCounter.y, z:1}) ); // reset y // add 1 to z
-          position = position.add( new Pos({ y: -position.y, z:this._spacing.z }) );
         }
       }
       let localOffset: Offset = new Offset({
-        pos: position
+        pos: position,
+        rotate: offset.rotate
       });
 
-      childBlueprints.push( child.build( localOffset.add(offset) ) );
+      childBlueprints.push( child.build( localOffset ) );
       posCounter = posCounter.add( new Pos({x:1}) );
       position = position.add( new Pos({x:this._spacing.x}) );
     });

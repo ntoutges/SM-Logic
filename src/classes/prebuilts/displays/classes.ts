@@ -1,13 +1,12 @@
 import { Container, Grid, Unit } from "../../../containers/classes";
-import { CustomKey, Id, KeylessFutureId, KeylessId, KeyMap, UniqueCustomKey } from "../../../support/context/classes";
-import { BitMask, Connections, Delay, Frame, Frames, Operation, PhysicalFrame, VBitMask } from "../../../support/logic/classes";
+import { BasicKey, CustomKey, Id, Key, KeylessFutureId, KeylessId, KeyMap, UniqueCustomKey } from "../../../support/context/classes";
+import { combineIds } from "../../../support/context/enums";
+import { BitMask, Connections, Delay, Frame, Frames, MultiConnections, Operation, PhysicalFrame, VBitMask } from "../../../support/logic/classes";
 import { LogicalOperation, Time } from "../../../support/logic/enums";
 import { Bounds, Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";
-import { Direction } from "../../../support/spatial/enums";
 import { Block, Logic, Timer } from "../../blocks/basics";
-import { combineIds } from "../memory/enums";
 import { CharacterFrames, Characters, NumToString } from "./enums";
-import { BitMapInterface, CharacterDisplayInterface, DelayUnitInterface, FutureBitMapInterface, SevenSegmentInterface, SimpleBitMapInterface, VideoDisplayInterface } from "./interfaces";
+import { BitMapInterface, CharacterDisplayInterface, FutureBitMapInterface, SevenSegmentInterface, SimpleBitMapInterface, VideoDisplayInterface } from "./interfaces";
 
 export class FutureBitMap extends Grid {
   constructor({
@@ -26,9 +25,7 @@ export class FutureBitMap extends Grid {
           new Logic({
             key: bitKeys.ids.has(identifierString) ? bitKeys.ids.get(identifierString) : key,
             color: color,
-            operation: new Operation({
-              operation: LogicalOperation.Screen
-            })
+            operation: new Operation( LogicalOperation.Screen )
           })
         );
       }
@@ -106,9 +103,7 @@ export class BitMap extends Grid {
           new Logic({
             key: blockKey,
             color: color,
-            operation: new Operation({
-              operation: LogicalOperation.Screen
-            })
+            operation: new Operation( LogicalOperation.Screen )
           })
         );
       }
@@ -369,9 +364,11 @@ export class CharacterDisplay extends FutureBitMap {
   getCharacter(char: Characters | string): Id {
     if (typeof char == "string") {
       return this.getCharacter(
-        (Characters[char] != undefined) ? Characters[char] :
-        (char in NumToString) ? Characters[NumToString[char]] :
-        Characters.Undefined
+        (isNaN(parseInt(char)))
+          ? (Characters[char] == undefined)
+            ? Characters.Undefined
+            : Characters[char]
+          : Characters[NumToString[char]]
       )
     }
     return this.getFrameId(
@@ -396,122 +393,3 @@ export class CharacterDisplay extends FutureBitMap {
 //     this._frameTime = frameTime;
 //   }
 // }
-
-export class DelayUnit extends Grid {
-  private readonly _timerIds: Array<Id>;
-  constructor({
-    key,
-    delays,
-    color,
-    pos,
-    rotate
-  }: DelayUnitInterface) {
-    const timers: Array<Timer> = [];
-    const timerIds: Array<Id> = [];
-    for (let i = delays.length-1; i >= 0; i--) {
-      timers.push(
-        new Timer({
-          key,
-          delay: delays.delays[i],
-          color,
-          connections: (timers.length > 0) ? new Connections(
-            timers[timers.length - 1].id
-          ) : new Connections()
-        })
-      )
-      timerIds.push( timers[timers.length-1].id );
-    }
-
-    super({
-      size: new Bounds({
-        x: delays.length
-      }),
-      key,color,pos,rotate,
-      children: timers
-    });
-    this._timerIds = timerIds.reverse();
-  }
-
-  get startId(): Id { return this._timerIds[0] }
-  getTimerId(i: number): Id {
-    if (i < 0)
-      i += this._timerIds.length; // emulate python wrap-around
-    return this._timerIds[i];
-  }
-  getTimer(i: number): Timer {
-    return (this.children[this.children.length - i - 1] as Timer)
-  }
-}
-
-export class SmartDelayUnit extends Grid {
-  private readonly _timerId: Id;
-  private readonly _logicId: Id;
-  private readonly _outputs: Array<Logic>;
-  constructor({
-    key,
-    delays,
-    color,
-    pos,
-    rotate
-  }: DelayUnitInterface) {
-    const timerUnits: Array<Container> = [];
-    const logicIds: Id = new KeylessFutureId;
-    const outputs: Array<Logic> = []
-    let prevTimerId: Id = null;
-    for (let i = delays.length-1; i >= 0; i--) {
-      const logic = new Logic({
-        key,
-        rotate: new Rotate({
-          direction: Direction.Up
-        }),
-        connections: (prevTimerId != null) ? new Connections(
-          prevTimerId
-        ) : new Connections()
-      });
-      logicIds.addId(logic.id);
-      outputs.push(logic);
-      const timer = new Timer({
-        key,
-        delay: new Delay({
-          delay: delays.delays[i].getDelay(Time.Tick) - 2,
-          unit: Time.Tick
-        }),
-        connections: new Connections( logic.id )
-      });
-      timerUnits.push(
-        new Container({
-          children: [
-            timer,
-            new Container({
-              child: logic,
-              pos: new Pos({
-                z: 2
-              })
-            })
-          ]
-        })
-      );
-      prevTimerId = timer.id;
-    }
-
-    super({
-      size: new Bounds({
-        x: delays.length
-      }),
-      key,color,pos,rotate,
-      children: timerUnits
-    });
-    this._timerId = prevTimerId;
-    this._logicId = logicIds;
-    this._outputs = outputs.reverse();
-  }
-  get startId(): Id { return this._logicId.add([ this._timerId ]) }
-  getTimerId(i: number): Id {
-    if (i < 0)
-      i += this._logicId.ids.length; // emulate python wrap-around
-    return new KeylessId(
-      this._logicId.ids[this._logicId.ids.length - i - 1]
-    );
-  }
-  getTimer(i: number): Logic { return this._outputs[i]; }
-}
