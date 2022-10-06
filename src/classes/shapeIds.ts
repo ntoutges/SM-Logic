@@ -3,5 +3,6 @@ export enum ShapeIds {
   Timer = "8f7fd0e7-c46e-4944-a414-7ce2437bb30f",
   Button = "1e8d93a4-506b-470d-9ada-9c0a321e2db5",
   Switch = "7cf717d7-d167-4f2d-a6e7-6b2c70aa3986",
-  None = "",
+  Wood = "df953d9c-234f-4ac2-af5e-f0490b223e71",
+  None = ""
 }

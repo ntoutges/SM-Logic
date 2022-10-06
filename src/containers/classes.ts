@@ -63,8 +63,10 @@ export class Container extends Unit {
     const newOffset = new Offset({
       pos: this.pos,
       rotate: this.rotation
-    }).add(offset)
+    }).add(offset);
+
     this._childs.forEach((child: Unit) => {
+      child.pos = child.pos.rotate(newOffset.rotate);
       childBlueprints.push(
         child.build(newOffset)
       );
@@ -118,7 +120,7 @@ export class Grid extends Container {
       throw new Error("Amount of children does not match bounds");
     
     let posCounter: Pos = new Pos({x:0,y:0,z:0});
-    let position: Pos = this.pos.add(offset.pos);
+    let position: Pos = this.pos;
     let childBlueprints: Array<string> = [];
     this.children.forEach((child: Unit) => {
       if (posCounter.x >= this._size.x) {
@@ -129,9 +131,10 @@ export class Grid extends Container {
           posCounter = posCounter.add( new Pos({y: -posCounter.y, z:1}) ); // reset y // add 1 to z
         }
       }
+      const totalRotation = offset.rotate.add(this.rotation);
       let localOffset: Offset = new Offset({
-        pos: position,
-        rotate: offset.rotate
+        pos: position.rotate(totalRotation).add(offset.pos),
+        rotate: totalRotation
       });
 
       childBlueprints.push( child.build( localOffset ) );

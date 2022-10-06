@@ -28,6 +28,13 @@ export class Pos extends Equatable {
       "z": this.z + other.z
     });
   }
+  sub(other: Pos): Pos {
+    return new Pos({
+      "x": this.x - other.x,
+      "y": this.y - other.y,
+      "z": this.z - other.z
+    });
+  }
   // rotates about the origin (0,0)
   rotate(other: Rotate) { // only pays attention to direction (forwards/backwards/left/right)
     let x = this.x;
@@ -100,6 +107,21 @@ export class Bounds extends Pos {
     if (x < 1 || y < 1 || z < 1)
       throw new Error("value in Bounds cannot be less than one")
     super({x,y,z});
+  }
+  rotate(other: Rotate) {
+    if (other.direction == Direction.Forwards || other.direction == Direction.Backwards)
+      return new Bounds({
+        x: this.x,
+        y: this.y,
+        z: this.z
+      });
+    else if (other.direction == Direction.Right || other.direction == Direction.Left) {
+      return new Bounds({
+        x: this.y,
+        y: this.x,
+        z: this.z
+      });
+    }
   }
 }
 

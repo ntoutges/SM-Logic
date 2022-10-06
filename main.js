@@ -15,13 +15,21 @@ const body = new mains.Body();
 if (!(body instanceof GenericBody))
   throw new Error("class [Body] does not extend class [GenericBody]");
 
+const startTime = new Date();
+
 console.log("Creating JSON.");
 const blueprintObjects = body.build();
 const blueprintString = `{\"bodies\":[{\"childs\":[${blueprintObjects.build()}]}],\"version\":${BLUEPRINT_VERSION}}`;
 
+const midTime = new Date();
+const delta1 = midTime.getTime() - startTime.getTime();
+if (delta1 > 100) {
+  console.log(`--- Took ${delta1}ms --- `);
+}
+
 const descriptionString = body.description;
 
-const bytes = blueprintString.length;
+const bytes = blueprintString.length * 8;
 console.log(`Writing to file(${bytes} bytes).`)
 
 var outputCount = 0;
@@ -30,7 +38,13 @@ fs.writeFile(outputPath + "/blueprint.json", blueprintString, "utf-8", checkIfDo
 
 function checkIfDone() {
   outputCount++;
-  if (outputCount < 2)
+  if (outputCount < 1)
     return;
   console.log("Done.");
+
+  const endTime = new Date();
+  const delta2 = endTime.getTime() - midTime.getTime();
+  if (delta2 > 100) {
+    console.log(`--- Took ${delta2}ms ---`);
+}
 }

@@ -1,7 +1,7 @@
 import { Container, Grid } from "../../../../containers/classes";
 import { Color } from "../../../../support/colors/classes";
 import { Colors } from "../../../../support/colors/enums";
-import { CustomKey, Id, Identifier, KeylessId, KeyMap, UniqueCustomKey } from "../../../../support/context/classes";
+import { CustomKey, Id, Identifier, KeylessFutureId, KeylessId, KeyMap, UniqueCustomKey } from "../../../../support/context/classes";
 import { combineIds, MemoryIdentifiers } from "../../../../support/context/enums";
 import { Connections, Delay, MultiConnections, Operation } from "../../../../support/logic/classes";
 import { LogicalOperation, Time } from "../../../../support/logic/enums";
@@ -44,6 +44,8 @@ export class MemoryRow extends Grid {
 }
 
 export class AddressableMemoryRow extends Container {
+  readonly setId: Id;
+  readonly resetId: Id;
   constructor({
     key,
     signal,
@@ -191,10 +193,13 @@ export class AddressableMemoryRow extends Container {
         })
       ]
     });
+    this.resetId = resetAll.id;
+    this.setId = reset.id;
   }
 }
 
-export class MemoryGrid extends Grid {
+export class MemoryGrid extends Container {
+  readonly resetId: Id;
   constructor ({
     key,
     signal,
@@ -206,26 +211,105 @@ export class MemoryGrid extends Grid {
     size = new Bounds2d({ x:8, y:8 })
   }: MemoryGridInterface) {
     const memoryRows: Array<AddressableMemoryRow> = [];
-    const xSignal = signal.slice(0, size.x);
+    
+    const xBits = Math.ceil(Math.log(size.x) / Math.LN2);
+    const yBits = Math.ceil(Math.log(size.y) / Math.LN2);
+    const xSignal = signal.slice(0, xBits);
+    const ySignal = signal.slice(xBits, xBits+yBits);
+
+    const resetIds = new KeylessFutureId();
+    const selectorConnections: Array<MultiConnectionsType> = [];
     for (let y = 0; y < size.y; y++) {
-      memoryRows.push(
-        new AddressableMemoryRow({
-          key,
-          signal: xSignal,
-          connections: connections.getMetaConnection(y.toString()),
-          bitKeys: bitKeys.narrow(y.toString()),
-          length: size.x
-        })
-      );
+      const memoryRow = new AddressableMemoryRow({
+        key,
+        signal: xSignal,
+        connections: connections.getMetaConnection(y.toString()),
+        bitKeys: bitKeys.narrow(y.toString()),
+        length: size.x
+      });
+      memoryRows.push(memoryRow);
+      selectorConnections.push({
+        conns: new Connections(memoryRow.setId),
+        id: new Identifier(combineIds(y.toString(), "0"))
+      });
+      resetIds.addId(memoryRow.resetId);
     }
 
+    const bitKeyEnable = new Map<string, CustomKey>();
+    bitKeyEnable.set(
+      MemoryIdentifiers.Set,
+      new UniqueCustomKey({
+        key,
+        identifier: "set"
+      })
+    );
+    const selector = new MemorySelector({
+      key,
+      signal: ySignal,
+      connections: new MultiConnections(selectorConnections),
+      bitKeys: new KeyMap( bitKeyEnable ),
+      size: new Bounds2d({
+        x: size.y,
+        y: 1
+      }),
+      rotate: new Rotate({
+        direction: Direction.Right
+      })
+    });
+
     super({
-      size: new Bounds({ y: size.y }),
-      spacing: new Bounds({ y: 6 }),
-      children: memoryRows,
+      children: [
+        new Grid({
+          size: new Bounds({ y: size.y }),
+          spacing: new Bounds({ y: 6 }),
+          children: memoryRows,
+          pos: new Pos({
+            x: 10
+          })
+        }),
+        new Container({
+          child: selector,
+          pos: new Pos({
+            y: (size.y * 2),
+            z: 1
+          })
+        })
+      ],
       color,
       pos,
       rotate
+    });
+    this.resetId = resetIds;
+  }
+}
+
+export class MemoryGridUnit extends Container {
+  readonly resetId: Id;
+  constructor ({
+    key,
+    signal,
+    bitKeys = new KeyMap(),
+    connections = new MultiConnections([]),
+    color,
+    pos,
+    rotate,
+    size = new Bounds2d({ x:8, y:8 })
+  }: MemoryGridInterface) {
+    const memoryGrid = new MemoryGrid({
+      key,signal,bitKeys,connections,size,
+      pos: new Pos({
+        x: 1,
+        y: 1
+      })
+    });
+
+    super({
+      pos,
+      color,
+      rotate,
+      children: [
+        memoryGrid
+      ]
     })
   }
 }

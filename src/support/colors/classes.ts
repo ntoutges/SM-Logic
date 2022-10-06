@@ -31,7 +31,7 @@ export class Color extends Equatable {
     super(["_color"]);
     this._color = color;
   }
-  private hexToRGB(hex: string): RGB {
+  _hexToRGB(hex: string): RGB {
     hex = hex.replace("#", ""); // remove any '#' if they are passed in
     let rgbNum: number = parseInt(hex, 16);
     // extract rgb values from [rgbNum]
@@ -40,8 +40,14 @@ export class Color extends Equatable {
     let b: number =            rgbNum                    % 256;
     return new RGB({r,g,b});
   }
-  get rgb(): RGB { return this.hexToRGB(this._color); }
+  get rgb(): RGB { return this._hexToRGB(this._color); }
   get hex(): string { return this._color; }
   get color(): Colors { return this._color; }
   set color(color: Colors) { this._color = color };
+}
+
+export class HexColor extends Color {
+  constructor(rgb: String) {
+    super(rgb as Colors);
+  }
 }
