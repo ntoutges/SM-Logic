@@ -17,12 +17,17 @@ export class RGB extends Equatable {
     this._g = g;
     this._b = b;
   }
-  get r(): number { return this.r; }
-  get g(): number { return this.g; }
-  get b(): number { return this.b; }
+  get r(): number { return this._r; }
+  get g(): number { return this._g; }
+  get b(): number { return this._b; }
   set r(r:number) { this._r = r; }
   set g(g:number) { this._g = g; }
   set b(b:number) { this._b = b; }
+
+  get hex(): string {
+    // garuntee leading '0's in hex string
+    return (16777216 + (this._r * 65536) + (this._g * 256) + (this._b)).toString(16).substring(1,7);
+  }
 }
 
 export class Color extends Equatable {

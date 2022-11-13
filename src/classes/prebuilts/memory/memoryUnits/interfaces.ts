@@ -15,7 +15,8 @@ export interface MemoryRowInterface {
 }
 
 export interface AddressableMemoryRowInterface extends MemoryRowInterface {
-  signal: Array<Logic>
+  signal: Array<Logic>,
+  padding?: number
 }
 
 export interface MemoryGridInterface {
@@ -26,7 +27,8 @@ export interface MemoryGridInterface {
   pos?: Pos,
   rotate?: Rotate,
   color?: Color,
-  size?: Bounds2d
+  size?: Bounds2d,
+  padding?: number
 }
 
 export interface MemorySelectorInterface {

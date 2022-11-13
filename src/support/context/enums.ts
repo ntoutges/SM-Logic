@@ -37,9 +37,11 @@ export enum CompareIdentifiers {
 
 export enum MemoryIdentifiers {
   Set = "set",
+  Set1 = "set1", // only set bottom row
   Reset = "reset",
   Row = "row",
   Selector = "selector",
+  Getter = "getter"
 }
 
 export function combineIds(...ids: Array<string>): string {

@@ -1,5 +1,5 @@
 import { Container, Grid } from "../../../../containers/classes";
-import { Color } from "../../../../support/colors/classes";
+import { Color, HexColor, RGB } from "../../../../support/colors/classes";
 import { Colors } from "../../../../support/colors/enums";
 import { CustomKey, Id, Identifier, KeylessFutureId, KeylessId, KeyMap, UniqueCustomKey } from "../../../../support/context/classes";
 import { combineIds, MemoryIdentifiers } from "../../../../support/context/enums";
@@ -41,11 +41,19 @@ export class MemoryRow extends Grid {
       spacing: new Bounds({ x: 4 })
     });
   }
+  getInteger(index: number): Integer {
+    return this.getGridChild(
+      new Pos({
+        x: index
+      })
+    ) as Integer
+  }
 }
 
 export class AddressableMemoryRow extends Container {
   readonly setId: Id;
   readonly resetId: Id;
+  readonly reader: MemoryRowReader;
   constructor({
     key,
     signal,
@@ -54,12 +62,13 @@ export class AddressableMemoryRow extends Container {
     color,
     pos,
     rotate,
-    length = 8
+    length = 8,
+    padding = 5
   }: AddressableMemoryRowInterface) {
     const memoryRow = new MemoryRow({
       key,connections,
       pos: new Pos({
-        x: length + 2
+        x: 2*length + 2 + padding
       }),
       bitKeys: bitKeys.narrow(MemoryIdentifiers.Row),
       length: length
@@ -104,6 +113,9 @@ export class AddressableMemoryRow extends Container {
         x: length,
         y: 9 // 1 extra y height for reset capabilities
       }),
+      pos: new Pos({
+        x: padding + length
+      }),
       connections: new MultiConnections(conns),
       bitKeys: bitKeys.narrow(MemoryIdentifiers.Selector)
     });
@@ -129,11 +141,49 @@ export class AddressableMemoryRow extends Container {
       connections: new Connections( timerConns )
     });
 
+    const outSignal: Array<Logic> = [];
+    for (let byte = 0; byte < length; byte++) {
+      let integerSignal = memoryRow.getInteger(byte).signal
+      for (let bit of integerSignal) {
+        outSignal.push(bit);
+      }
+    }
+    const reader = new MemoryRowReader({
+      key,
+      signal: outSignal,
+      bitKeys: bitKeys.narrow(MemoryIdentifiers.Getter),
+      size: new Bounds2d({
+        x: length,
+        y: 8
+      })
+    });
+
+    for (let i = 0; i < selector.header.children.length; i++) {
+      let buffer = (selector.header.children[i] as Container).children[0] as Logic;
+      let invert = (selector.header.children[i] as Container).children[1] as Logic;
+
+      let step = 2 ** i;
+      let isOn = true;
+      let ct = 0;
+      for (let j = 0; j < length; j++) {
+        if (isOn)
+          invert.connectTo(reader.getHeader(j));
+        else
+          buffer.connectTo(reader.getHeader(j));
+        
+        ct++;
+        if (ct >= step) {
+          isOn = !isOn
+          ct = 0;
+        }
+      }
+    }
+
     const resetConns: Array<Id> = [];
     for (let x = 0; x < length; x++) {
       const logic = selector.matrix.getGridChild( new Pos({ x,z:8 }) ) as Logic;
       resetConns.push( logic.id );
-      logic.color = new Color(Colors.SM_Red1)
+      logic.color = new Color(Colors.SM_Red1);
     }
 
     const reset = new Logic({
@@ -168,9 +218,11 @@ export class AddressableMemoryRow extends Container {
       children: [
         memoryRow,
         selector,
+        reader,
         new Container({
           child: timer,
           pos: new Pos({
+            x: length+padding,
             y: 1,
             z: 5
           })
@@ -178,7 +230,7 @@ export class AddressableMemoryRow extends Container {
         new Container({
           child: reset,
           pos: new Pos({
-            x: 2,
+            x: 2+length+padding,
             y: 1,
             z: 5
           })
@@ -186,7 +238,7 @@ export class AddressableMemoryRow extends Container {
         new Container({
           child: resetAll,
           pos: new Pos({
-            x: 2,
+            x: 2+length+padding,
             y: 1,
             z: 6
           })
@@ -195,6 +247,7 @@ export class AddressableMemoryRow extends Container {
     });
     this.resetId = resetAll.id;
     this.setId = reset.id;
+    this.reader = reader;
   }
 }
 
@@ -208,7 +261,8 @@ export class MemoryGrid extends Container {
     color,
     pos,
     rotate,
-    size = new Bounds2d({ x:8, y:8 })
+    size = new Bounds2d({ x:8, y:8 }),
+    padding = 5
   }: MemoryGridInterface) {
     const memoryRows: Array<AddressableMemoryRow> = [];
     
@@ -225,19 +279,32 @@ export class MemoryGrid extends Container {
         signal: xSignal,
         connections: connections.getMetaConnection(y.toString()),
         bitKeys: bitKeys.narrow(y.toString()),
-        length: size.x
+        length: size.x,
+        padding
       });
       memoryRows.push(memoryRow);
-      selectorConnections.push({
-        conns: new Connections(memoryRow.setId),
-        id: new Identifier(combineIds(y.toString(), "0"))
-      });
+      
+      const conn = new Connections();
+      for (let child of memoryRow.reader.header.children as Logic[]) {
+        conn.addConnection(child.id);
+      }
+
+      selectorConnections.push(
+        {
+          conns: new Connections(memoryRow.setId),
+          id: new Identifier(combineIds(y.toString(), "0"))
+        },
+        {
+          conns: conn,
+          id: new Identifier(combineIds(y.toString(), "1"))
+        }
+      );
       resetIds.addId(memoryRow.resetId);
     }
 
     const bitKeyEnable = new Map<string, CustomKey>();
     bitKeyEnable.set(
-      MemoryIdentifiers.Set,
+      MemoryIdentifiers.Set1,
       new UniqueCustomKey({
         key,
         identifier: "set"
@@ -250,7 +317,7 @@ export class MemoryGrid extends Container {
       bitKeys: new KeyMap( bitKeyEnable ),
       size: new Bounds2d({
         x: size.y,
-        y: 1
+        y: 2
       }),
       rotate: new Rotate({
         direction: Direction.Right
@@ -262,14 +329,12 @@ export class MemoryGrid extends Container {
         new Grid({
           size: new Bounds({ y: size.y }),
           spacing: new Bounds({ y: 6 }),
-          children: memoryRows,
-          pos: new Pos({
-            x: 10
-          })
+          children: memoryRows
         }),
         new Container({
           child: selector,
           pos: new Pos({
+            x: size.x + 8,
             y: (size.y * 2),
             z: 1
           })
@@ -300,7 +365,8 @@ export class MemoryGridUnit extends Container {
       pos: new Pos({
         x: 1,
         y: 1
-      })
+      }),
+      padding: 16
     });
 
     super({
@@ -317,6 +383,7 @@ export class MemoryGridUnit extends Container {
 export class MemorySelector extends Container {
   readonly enable: Logic;
   readonly matrix: Grid;
+  readonly header: Container;
   constructor({
     key,
     signal,
@@ -411,6 +478,23 @@ export class MemorySelector extends Container {
         rotate: new Rotate({ direction: Direction.Backwards })
       })
     }
+    else if (bitKeys.ids.has(MemoryIdentifiers.Set1)) {
+      const conns: Array<Id> = [];
+      for (let i = 0; i < size.x; i++) {
+        conns.push(matrix[i].id);
+      }
+      setLogic = new Logic({
+        key: bitKeys.ids.get(MemoryIdentifiers.Set1),
+        connections: new Connections(conns),
+        rotate: new Rotate({ direction: Direction.Backwards })
+      })
+    }
+
+
+    const header = new Container({
+      children: xBits,
+      pos: new Pos({ y: 1, z: size.y-1 })
+    });
 
     super({
       color,
@@ -418,10 +502,7 @@ export class MemorySelector extends Container {
       rotate,
       children: [
         matrixGrid,
-        new Container({
-          children: xBits,
-          pos: new Pos({ y: 1, z: size.y-1 })
-        })
+        header
       ].concat(
         (setLogic == null)
           ? []
@@ -436,5 +517,107 @@ export class MemorySelector extends Container {
 
     this.enable = setLogic;
     this.matrix = matrixGrid;
+    this.header = header
+  }
+}
+
+export class MemoryRowReader extends Container {
+  readonly header: Container;
+  readonly grid: Grid;
+  constructor({
+    key,
+    signal,
+    bitKeys = new KeyMap(),
+    size = new Bounds2d({ x:8, y:8 }),
+    connections = new MultiConnections([]),
+    pos,
+    rotate,
+    color
+  }: MemorySelectorInterface) {
+    let logics: Array<Logic> = [];
+    for (let i = 0; i < size.y; i++) {
+      for (let byte = 0; byte < size.x; byte++) {
+        const logic = new Logic({
+          key: (bitKeys.get1(
+            new Identifier(
+              byte + "." + i
+            )
+          )) || key,
+          operation: new Operation( LogicalOperation.And ),
+          color: new Color(Colors.SM_Black),
+          connections: connections.getConnection(byte + "." + i)
+        })
+        logics.push(logic);
+
+        if (signal.length > byte*size.x + i)
+          signal[byte*size.x + i].connectTo(logic);
+      }
+    }
+    const grid = new Grid({
+      size: size.to3d({
+        xMap: "x",
+        yMap: "z"
+      }),
+      children: logics
+    });
+
+    let headerLogics: Array<Logic> = []; 
+    for (let column = 0; column < size.x; column++) {
+      let ids = new KeylessFutureId();
+      for (let i = 0; i < grid.height; i++) {
+        ids.addId(
+          (grid.getGridChild(
+            new Pos({
+              x: column,
+              z: i
+            })
+          ) as Logic).id
+        )
+      }
+
+      headerLogics.push(
+        new Logic({
+          key: key,
+          pos: new Pos({
+            x: column,
+            z: size.y
+          }),
+          connections: new Connections(ids)
+        })
+      )
+    }
+    const header = new Container({ children: headerLogics });
+    
+    super({
+      children: [
+        header,
+        grid
+      ],
+      color: color,
+      pos: pos,
+      rotate: rotate
+    });
+
+    this.header = header
+    this.grid = grid
+  }
+  
+  getHeader(bitValue: number): Logic {
+    return this.header.children[bitValue] as Logic;
+  }
+
+  getRow(row: number) {
+    let key = new KeylessFutureId();
+    for (let i = 0; i < this.grid.height; i++) {
+      key.addId(
+        (this.grid.getGridChild(
+          new Pos({
+            x: i,
+            z: 0
+          })
+        ) as Logic).id
+      );
+    }
+    return key;
   }
 }

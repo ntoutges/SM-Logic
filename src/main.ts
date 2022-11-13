@@ -13,7 +13,7 @@ import { Characters } from "./classes/prebuilts/displays/enums";
 import { DelayUnit } from "./classes/prebuilts/delays/classes";
 import { BitIdentifiers, ByteIdentifiers, combineIds, MemoryIdentifiers } from "./support/context/enums";
 import { CompareOperation } from "./classes/prebuilts/numbers/enums";
-import { AddressableMemoryRow, MemoryGrid, MemoryRow, MemorySelector } from "./classes/prebuilts/memory/memoryUnits/classes";
+import { AddressableMemoryRow, MemoryGrid, MemoryGridUnit, MemoryRow, MemoryRowReader, MemorySelector } from "./classes/prebuilts/memory/memoryUnits/classes";
 import { Color } from "./support/colors/classes";
 import { Colors } from "./support/colors/enums";
 
@@ -23,18 +23,40 @@ export class Body extends GenericBody {
   }
   build() {
     const key = this.key;
-    const gen = new StringKeyGen(key)
+    const gen = new StringKeyGen(key);
 
-    return new Wood({
+    const byte = new Integer({
       key,
-      bounds: new Bounds({
-        x: 10,
-        y: 20
+      pos: new Pos({
+        x: -40
       }),
-      rotate: new Rotate({
-        direction: Direction.Forwards
-      })
-    })
+      depth: 8
+    });
+
+    return new Container({
+      children: [
+        new MemoryGridUnit({
+          key,
+          signal: byte.signal
+        }),
+        byte,
+        new Button({
+          key,
+          pos: new Pos({
+            x: -40,
+            y: -2,
+          }),
+          connections: new Connections(
+            byte.reset
+          )
+        })
+      ]
+    });
+
+    // return new MemoryRowReader({
+    //   key: key,
+    //   signal: []
+    // })
 
     // const depth = 8;
 
