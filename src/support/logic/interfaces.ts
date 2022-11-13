@@ -1,5 +1,6 @@
 import { Identifier } from "../context/classes";
-import { Connections, MultiConnections } from "./classes";
+import { Bounds2d } from "../spatial/classes";
+import { Connections, Frame, MultiConnections } from "./classes";
 import { LogicalOperation, Time } from "./enums";
 
 export interface DelayInterface {
@@ -20,4 +21,10 @@ export interface MultiConnectionsType {
 export interface MetaMultiConnectionsType {
   conns: MultiConnections,
   id: Identifier
+}
+
+export interface SpriteInterface {
+  frame: Frame,
+  movement?: Bounds2d,
+  step?: Bounds2d
 }

@@ -41,7 +41,7 @@ export class FutureBitMap extends Grid {
     this._addProps(["_height","_width"]);
   }
   getFrameId(frame: Frame): Id {
-    const newFrame = frame.resized(
+    const newFrame = frame.resize(
       new Bounds2d({
         x: this.width,
         y: this.height

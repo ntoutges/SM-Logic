@@ -30,6 +30,6 @@ export interface ButtonInterface extends StandardInterface {
   connections?: Connections
 }
 
-export interface WoodInterface extends StandardInterface {
+export interface ScalableInterface extends StandardInterface {
   bounds: Bounds
 }

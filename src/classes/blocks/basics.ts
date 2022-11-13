@@ -1,14 +1,14 @@
 /// basic Scrap Mechanic block classes
 import { Unit } from "../../containers/classes";
-import { Color, HexColor } from "../../support/colors/classes";
+import { Color } from "../../support/colors/classes";
 import { Colors } from "../../support/colors/enums";
 import { Id } from "../../support/context/classes";
 import { Connections, Delay, Operation } from "../../support/logic/classes";
 import { LogicalOperation, Time } from "../../support/logic/enums";
-import { Bounds, Offset, Pos, Rotate } from "../../support/spatial/classes";
+import { Offset, Pos, Rotate } from "../../support/spatial/classes";
 import { Direction } from "../../support/spatial/enums";
 import { ShapeIds } from "../shapeIds";
-import { BlockInterface, LogicInterface, ButtonInterface, BasicLogicInterface, TimerInterface, WoodInterface } from "./interfaces";
+import { BlockInterface, LogicInterface, ButtonInterface, BasicLogicInterface, TimerInterface } from "./interfaces";
 
 export abstract class Block extends Unit {
   private _id: Id;
@@ -209,35 +209,5 @@ export class Switch extends BasicLogic {
       "id": this.id.ids[0],
       "joints": null
     }
-  }
-}
-
-export class Wood extends Block {
-  readonly bounds: Bounds;
-  constructor({
-    key,
-    bounds,
-    color = new HexColor("9B683A"),
-    pos,
-    rotate
-  }: WoodInterface) {
-    super({
-      key,pos,rotate,color,
-      shapeId: ShapeIds.Wood
-    });
-    this.bounds = bounds;
-  }
-  build(offset: Offset = new Offset({})) {
-    const rotation = this.rotation.add(offset.rotate);
-    const pos = this.pos.rotate(rotation).add(offset.pos).add( rotation.offset );
-    const json = {
-      "bounds": this.bounds.rotate(rotation).build(),
-      "color": this.color.hex,
-      "pos": this.pos.build(),
-      "shapeId": this.shapeId,
-      "xaxis": 1,
-      "zaxis": 3
-    }
-    return JSON.stringify(json);
   }
 }
