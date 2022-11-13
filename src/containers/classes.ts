@@ -1,10 +1,9 @@
-import { Block, Logic } from "../classes/blocks/basics";
+import { Glass, Wood } from "../classes/blocks/basics";
 import { Color } from "../support/colors/classes";
-import { BasicKey, Id, Key, Keyless } from "../support/context/classes";
-import { Delay, Delays } from "../support/logic/classes";
+import { BasicKey, Key, Keyless } from "../support/context/classes";
 import { Bounds, Offset, Pos, Rotate } from "../support/spatial/classes";
 import { Equatable } from "../support/support/classes";
-import { BodyInterface, ContainerInterface, GridInterface, UnitInterface } from "./interfaces";
+import { BlocInterface, BodyInterface, ContainerInterface, GridInterface, UnitInterface } from "./interfaces";
 
 export abstract class Unit extends Equatable {
   private _pos: Pos;
@@ -45,7 +44,7 @@ export class Container extends Unit {
   }: ContainerInterface
   ) {
     super({pos,rotate,color});
-    this._addProps(["_childs"])
+    this._addProps(["_childs"]);
     this._key = key;
 
     if (child != null && children != null)
@@ -145,6 +144,111 @@ export class Grid extends Container {
   }
 }
 
+export class Bloc extends Container {
+  readonly size: Bounds;
+  readonly inner: Unit;
+  constructor({
+    key,
+    size,
+    child,
+    color,
+    pos,
+    rotate
+  }: BlocInterface) {
+    const flooring = new Wood({
+      key,
+      bounds: new Bounds({
+        x: size.x + 2,
+        y: size.y + 2
+      }),
+      pos: new Pos({
+        x: -1,
+        y: -1,
+        z: -1
+      })
+    });
+    const ceiling = new Wood({
+      key,
+      bounds: new Bounds({
+        x: size.x + 2,
+        y: size.y + 2
+      }),
+      pos: new Pos({
+        x: -1,
+        y: -1,
+        z: size.z + 1
+      })
+    });
+    const wall1 = new Glass({
+      key,
+      bounds: new Bounds({
+        x: size.x,
+        z: size.z
+      }),
+      pos: new Bounds({
+        y: -1
+      })
+    });
+    const wall2 = new Glass({
+      key,
+      bounds: new Bounds({
+        x: size.x,
+        z: size.z
+      }),
+      pos: new Pos({
+        y: size.y + 2
+      })
+    });
+    const wall3 = new Glass({
+      key,
+      bounds: new Bounds({
+        y: size.y,
+        z: size.z
+      }),
+      pos: new Pos({
+        x: -1
+      })
+    });
+    const wall4 = new Glass({
+      key,
+      bounds: new Bounds({
+        y: size.y,
+        z: size.z
+      }),
+      pos: new Pos({
+        x: size.x + 2
+      })
+    });
+
+    const xPos = [-1, size.x+2];
+    const yPos = [-1, size.y+2];
+    const pillars: Array<Wood> = []
+    
+    for (let x of xPos) {
+      for (let y of yPos) {
+        pillars.push(
+          new Wood({
+            key,
+            bounds: new Bounds({ z: size.z }),
+            pos: new Pos({ x,y })
+          })
+        )
+      }
+    }
+    super({
+      children: [child, flooring,ceiling, wall1,wall2,wall3,wall4].concat(pillars),
+      pos: pos.add(
+        new Pos({ x:1, y:1, z:1 })
+      ),
+      color,key,rotate});
+    this._addProps(["size"]);
+    this.size = size;
+    this.inner = child;
+  }
+  build(offset=new Offset({})) {
+    return super.build(offset);
+  }
+}
 
 export abstract class GenericBody {
   private readonly _key: BasicKey;

@@ -1,9 +1,9 @@
 import { FrameInterface, FramesInterface, PhysicalFrameInterface } from "../../classes/prebuilts/displays/interfaces";
 import { Id, Identifier, KeylessId } from "../context/classes";
-import { Bounds2d } from "../spatial/classes";
+import { Bounds, Bounds2d, Pos, Pos2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
 import { LogicalOperation, LogicalType, Time } from "./enums";
-import { BitMaskExtendInterface, DelayInterface, MetaMultiConnectionsType, MultiConnectionsType } from "./interfaces";
+import { BitMaskExtendInterface, DelayInterface, MetaMultiConnectionsType, MultiConnectionsType, SpriteInterface } from "./interfaces";
 
 export class Operation extends Equatable {
   private op: LogicalOperation;
@@ -188,6 +188,19 @@ export class BitMask extends Equatable {
     }
     return new BitMask(mask);
   }
+  // shift right by 'count' bits
+  shift(count: number) {
+    if (count < 0)
+      count = (count % this.mask.length) + this.mask.length;
+
+    const mask: Array<boolean> = [];
+    for (let i in this.mask) {
+      mask.push(
+        this.mask[(+i + count) % this.mask.length]
+      )
+    }
+    return new BitMask(mask);
+  }
 }
 
 /// pass in a number, such as 0xfc or 0x00110101
@@ -287,7 +300,7 @@ export class Frame extends Equatable {
     this._value = value;
     this.fallback = fallback;
     
-    this.resize(this._size);
+    this.selfResize(this._size);
   }
   get rows(): Array<BitMask> { return this._value; }
   get height(): number { return this._size.y; }
@@ -313,7 +326,7 @@ export class Frame extends Equatable {
       value: value
     });
   }
-  resize(size: Bounds2d): void {
+  private selfResize(size: Bounds2d): void { // modify this frame
     const value: Array<BitMask> = []
     for (let y = 0; y < size.y; y++) {
       let thisMask = (this.rows.length > y) ? this.rows[y] : new BitMask([]);
@@ -326,7 +339,7 @@ export class Frame extends Equatable {
     }
     this._value = value;
   }
-  resized(size: Bounds2d): Frame {
+  resize(size: Bounds2d): Frame { // return new modified frame
     const value: Array<BitMask> = []
     for (let y = 0; y < size.y; y++) {
       let thisMask = (this.rows.length > y) ? this.rows[y] : new BitMask([]);
@@ -341,6 +354,22 @@ export class Frame extends Equatable {
       size,
       value: value
     })
+  }
+  shift(count:Pos2d) {
+    let y = count.y;
+    if (y < 0)
+      y = (count.y % this._value.length) + this._value.length;
+
+    const value = [];
+    for (let i in this._value) {
+      this._value[i] = this._value[(+i + count.y) % this._value.length].shift(count.x);
+    }
+
+    return new Frame({
+      size: this._size,
+      value: value,
+      fallback: this.fallback
+    });
   }
 }
 
@@ -384,10 +413,44 @@ export class Frames extends Equatable {
         y: this._height
       });
     for (let i in frames) {
-      frames[i].resize(size);
+      frames[i] = frames[i].resize(size);
     }
   }
   get height(): number { return this._height; }
   get width(): number { return this._width; }
   get frames(): Array<Frame> { return this._frames; }
+}
+
+export class FrameSprite extends Frames {
+  constructor({
+    frame,
+    movement = new Bounds2d({x: 5, y:5}),
+    step = new Bounds2d({})
+  }: SpriteInterface) {
+    const frames = []
+    const size = new Bounds2d({
+      x: frame.width + movement.x*step.x,
+      y: frame.height + movement.y*step.y
+    });
+
+    for (let x = 0; x < movement.x; x++) {
+      for (let y = 0; y < movement.y; y++) {
+        frames.push(
+          frame.resize(size).shift(
+            new Pos2d({
+              x: x * step.x,
+              y: y * step.y
+            })
+          )
+        );
+      }
+    }
+    super({ frames });
+  }
+  getPos(position: Pos2d): Frame {
+    const index: number = position.y + (position.x * this.height);
+    if (index > this.frames.length)
+      throw new Error(`Invalid sprite position (${position.x},${position.y})`);
+    return this.frames[index];
+  }
 }

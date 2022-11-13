@@ -21,6 +21,12 @@ export interface GridInterface extends ContainerInterface {
   spacing?: Bounds
 }
 
+export interface BlocInterface extends UnitInterface {
+  key: Key,
+  child: Unit,
+  size: Bounds
+}
+
 export interface BodyInterface {
   key?: BasicKey,
   name?: string,

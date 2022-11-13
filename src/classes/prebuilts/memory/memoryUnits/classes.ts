@@ -283,36 +283,36 @@ export class MemoryGrid extends Container {
   }
 }
 
-export class MemoryGridUnit extends Container {
-  readonly resetId: Id;
-  constructor ({
-    key,
-    signal,
-    bitKeys = new KeyMap(),
-    connections = new MultiConnections([]),
-    color,
-    pos,
-    rotate,
-    size = new Bounds2d({ x:8, y:8 })
-  }: MemoryGridInterface) {
-    const memoryGrid = new MemoryGrid({
-      key,signal,bitKeys,connections,size,
-      pos: new Pos({
-        x: 1,
-        y: 1
-      })
-    });
+// export class MemoryGridUnit extends Container {
+//   readonly resetId: Id;
+//   constructor ({
+//     key,
+//     signal,
+//     bitKeys = new KeyMap(),
+//     connections = new MultiConnections([]),
+//     color,
+//     pos,
+//     rotate,
+//     size = new Bounds2d({ x:8, y:8 })
+//   }: MemoryGridInterface) {
+//     const memoryGrid = new MemoryGrid({
+//       key,signal,bitKeys,connections,size,
+//       pos: new Pos({
+//         x: 1,
+//         y: 1
+//       })
+//     });
 
-    super({
-      pos,
-      color,
-      rotate,
-      children: [
-        memoryGrid
-      ]
-    })
-  }
-}
+//     super({
+//       pos,
+//       color,
+//       rotate,
+//       children: [
+//         memoryGrid
+//       ]
+//     })
+//   }
+// }
 
 export class MemorySelector extends Container {
   readonly enable: Logic;
