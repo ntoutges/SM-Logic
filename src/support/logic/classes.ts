@@ -1,3 +1,4 @@
+import { ScaleableDelaysInterface } from "../../classes/prebuilts/delays/interfaces";
 import { FrameInterface, FramesInterface, PhysicalFrameInterface } from "../../classes/prebuilts/displays/interfaces";
 import { Id, Identifier, KeylessId } from "../context/classes";
 import { Bounds, Bounds2d, Pos, Pos2d } from "../spatial/classes";
@@ -283,6 +284,19 @@ export class Delays extends Equatable {
         valids.push(delay);
     }
     return valids;
+  }
+}
+
+export class ScaleableDelays extends Delays {
+  constructor({
+    delay = new Delay({ delay: 0, unit: Time.Tick }),
+    amount=1
+  }: ScaleableDelaysInterface) {
+    const delays: Array<Delay> = [];
+    for (let i = 0; i < amount; i++) {
+      delays.push(delay);
+    }
+    super(delays);
   }
 }
 

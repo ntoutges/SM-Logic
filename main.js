@@ -1,5 +1,5 @@
 const mains = require("./lib/main.js");
-const GenericBody = require("./lib/containers/classes.js").GenericBody;
+const GenericBody = require("./lib/containers/genericBody.js").GenericBody;
 const fs = require("fs");
 
 const BLUEPRINT_VERSION = 4;

@@ -7,8 +7,7 @@ export class Builder extends Block {
   private readonly _builder: Function;
   constructor(builder: Function) {
     super({
-      shapeId: ShapeIds.None,
-      key: new Keyless()
+      shapeId: ShapeIds.None
     });
     this._builder = builder;
   }

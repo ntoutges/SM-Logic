@@ -148,10 +148,60 @@ export enum Colors { // literally just a list of all CSS colors
   Yellowgreen = "9acd32",
   Rebeccapurple = "663399",
 
-  SM_Black = "222222",
-  SM_Input = "25c922",
-  SM_Output = "c92222",
-  SM_Default = "df7f01",
-  SM_Red1 = "d02525",
-  SM_Red2 = "7c0000"
+  SM_Grey1 = "EEEEEE", SM_Gray1 = "EEEEEE", SM_White = "EEEEEE",
+  SM_Grey2 = "7F7F7F", SM_Gray2 = "7F7F7F", SM_LightGrey = "7F7F7F", SM_LightGray = "7F7F7F",
+  SM_Grey3 = "4A4A4A", SM_Gray3 = "4A4A4A", SM_DarkGrey = "4A4A4A", SM_DarkGray = "4A4A4A",
+  SM_Grey4 = "222222", SM_Gray4 = "222222", SM_Black = "222222",
+
+  SM_Orange1 = "EEAF5C", SM_Peach = "EEAF5C",
+  SM_Orange2 = "DF7F00", SM_Orange = "DF7F00",
+  SM_Orange3 = "673B00", SM_Brown1 = "673B00",
+  SM_Orange4 = "472800", SM_Brown2 = "472800",
+  
+  SM_Red1 = "F06767",
+  SM_Red2 = "D02525", SM_Red = "D02525",
+  SM_Red3 = "7C0000",
+  SM_Red4 = "560202", SM_DarkRed = "560202",
+
+  SM_Pink1 = "EE7BF0", SM_Pink = "EE7BF0",
+  SM_Pink2 = "CF11D2",
+  SM_Pink3 = "720A74",
+  SM_Pink4 = "520653",
+
+  SM_Purple1 = "AE79F0",
+  SM_Purple2 = "7514ED", SM_Purple = "7514ED",
+  SM_Purple3 = "500AA6",
+  SM_Purple4 = "35086C",
+
+  SM_Blue1 = "4C6FE3",
+  SM_Blue2 = "0A3EE2", SM_Blue = "0A3EE2",
+  SM_Blue3 = "0F2E91",
+  SM_Blue4 = "0A1D5A",
+
+  SM_LightBlue1 = "7EEDED",
+  SM_LightBlue2 = "2CE6E6", SM_LightBlue = "2CE6E6",
+  SM_LightBlue3 = "118787",
+  SM_LightBlue4 = "0A4444",
+
+  SM_Green1 = "68FF88",
+  SM_Green2 = "19E753", SM_Green = "19E753",
+  SM_Green3 = "0E8031",
+  SM_Green4 = "0E8031",
+
+  SM_YellowGreen1 = "CBF66F",
+  SM_YellowGreen2 = "A0EA00", SM_YellowGreen = "A0EA00",
+  SM_YellowGreen3 = "577D07",
+  SM_YellowGreen4 = "375000",
+
+  SM_Yellow1 = "F5F071",
+  SM_Yellow2 = "E2DB13", SM_Yellow = "E2DB13",
+  SM_Yellow3 = "817C00",
+  SM_Yellow4 = "323000",
+
+  
+  SM_M_Wood = "9B683A",
+  
+  SM_Input = "19E753",
+  SM_Output = "D02525",
+  SM_Default = "DF7F00"
 }

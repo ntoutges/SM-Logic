@@ -12,3 +12,13 @@ export enum ShapeIds {
   Bricks = "0603b36e-0bdb-4828-b90c-ff19abcdfe34",
   None = ""
 }
+
+export enum DraggableIds {
+  Wood = "df953d9c-234f-4ac2-af5e-f0490b223e71",
+  Glass = "5f41af56-df4c-4837-9b3c-10781335757f",
+  Cardboard = "f0cba95b-2dc4-4492-8fd9-36546a4cb5aa",
+  Concrete = "a6c6ce30-dd47-4587-b475-085d55c6a3b4",
+  Metal = "8aedf6c2-94e1-4506-89d4-a0227c552f1e",
+  Caution = "09ca2713-28ee-4119-9622-e85490034758",
+  Bricks = "0603b36e-0bdb-4828-b90c-ff19abcdfe34"
+}

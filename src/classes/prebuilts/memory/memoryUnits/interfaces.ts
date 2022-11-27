@@ -27,8 +27,7 @@ export interface MemoryGridInterface {
   pos?: Pos,
   rotate?: Rotate,
   color?: Color,
-  size?: Bounds2d,
-  padding?: number
+  size?: Bounds2d
 }
 
 export interface MemorySelectorInterface {

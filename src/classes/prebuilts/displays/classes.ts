@@ -1,10 +1,12 @@
 import { Container, Grid, Unit } from "../../../containers/classes";
-import { BasicKey, CustomKey, Id, Key, KeylessFutureId, KeylessId, KeyMap, UniqueCustomKey } from "../../../support/context/classes";
+import { BasicKey, CustomKey, Id, Identifier, Key, KeylessFutureId, KeylessId, KeyMap, UniqueCustomKey } from "../../../support/context/classes";
 import { combineIds } from "../../../support/context/enums";
-import { BitMask, Connections, Delay, Frame, Frames, MultiConnections, Operation, PhysicalFrame, VBitMask } from "../../../support/logic/classes";
+import { BitMask, Connections, Delay, Frame, Frames, MultiConnections, Operation, PhysicalFrame, ScaleableDelays, VBitMask } from "../../../support/logic/classes";
 import { LogicalOperation, Time } from "../../../support/logic/enums";
+import { MultiConnectionsType } from "../../../support/logic/interfaces";
 import { Bounds, Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";
 import { Block, Logic, Timer } from "../../blocks/basics";
+import { DelayUnit } from "../delays/classes";
 import { CharacterFrames, Characters, NumToString } from "./enums";
 import { BitMapInterface, CharacterDisplayInterface, FutureBitMapInterface, SevenSegmentInterface, SimpleBitMapInterface, VideoDisplayInterface } from "./interfaces";
 
@@ -377,19 +379,66 @@ export class CharacterDisplay extends FutureBitMap {
   }
 }
 
-// export class VideoDisplay extends BitMap {
-//   _frameTime: Delay;
-//   constructor({
-//     key,
-//     frames,
-//     frameTime = new Delay({ delay: 1, unit: Time.Tick }),
-//     color,
-//     pos,
-//     rotate,
-//   }: VideoDisplayInterface) {
-//     super({ key,frames,pos,rotate,color });
-//     if (frameTime.getDelay(Time.Second) > 60)
-//       throw new Error("Too much delay per frame (max of 60 seconds)");
-//     this._frameTime = frameTime;
-//   }
-// }
+export class VideoDisplay extends Container {
+  _frameTime: Delay;
+  readonly bitMap: BitMap
+  readonly delayUnit: DelayUnit
+  constructor({
+    key,
+    frames,
+    frameTime = new Delay({ delay: 1, unit: Time.Tick }),
+    color,
+    pos,
+    rotate,
+  }: VideoDisplayInterface) {
+    if (frameTime.getDelay(Time.Second) > 60)
+      throw new Error("Too much delay per frame (max of 60 seconds)");
+
+    const bitMap = new BitMap({
+      key,frames
+    });
+
+    const keys = new Map<string,UniqueCustomKey>();
+    const connections:Array<MultiConnectionsType> = [];
+    for (let i = 0; i < frames.frames.length; i++) {
+      keys.set(
+        i.toString(),
+        new UniqueCustomKey({
+          identifier: i.toString(),
+          key: key
+        })
+      );
+      connections.push({
+        conns: new Connections(bitMap.getEnableId(frames.frames.length-i-1)), // reverse the reversed order of frames (put frames back in the right order)
+        id: new Identifier(i.toString())
+      });
+    }
+    
+    const delayUnit = new DelayUnit({
+      key,
+      delays: new ScaleableDelays({
+        delay: frameTime,
+        amount: frames.frames.length
+      }),
+      pos: new Pos({
+        y: 1
+      }),
+      bitKeys: new KeyMap( keys ),
+      connections: new MultiConnections(connections),
+      compressed: true
+    })
+    
+    super({
+      pos,rotate,color,
+      children: [
+        bitMap,
+        delayUnit
+      ]
+    })
+    
+    this.bitMap = bitMap;
+    this.delayUnit = delayUnit;
+
+    this._frameTime = frameTime;
+  }
+}

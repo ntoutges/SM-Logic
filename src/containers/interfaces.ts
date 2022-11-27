@@ -30,5 +30,6 @@ export interface BlocInterface extends UnitInterface {
 export interface BodyInterface {
   key?: BasicKey,
   name?: string,
-  description?: string
+  description?: string,
+  debug?: boolean
 }

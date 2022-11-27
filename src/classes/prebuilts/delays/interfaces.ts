@@ -1,6 +1,6 @@
 import { Color } from "../../../support/colors/classes"
 import { BasicKey, KeyMap } from "../../../support/context/classes"
-import { Delays, MultiConnections } from "../../../support/logic/classes"
+import { Delay, Delays, MultiConnections } from "../../../support/logic/classes"
 import { Pos, Rotate } from "../../../support/spatial/classes"
 
 export interface DelayUnitInterface {
@@ -10,5 +10,11 @@ export interface DelayUnitInterface {
   rotate?: Rotate,
   color?: Color,
   bitKeys?: KeyMap,
-  connections?: MultiConnections
+  connections?: MultiConnections,
+  compressed: boolean
+}
+
+export interface ScaleableDelaysInterface {
+  delay: Delay,
+  amount: number
 }

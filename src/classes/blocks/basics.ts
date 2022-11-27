@@ -1,20 +1,20 @@
 /// basic Scrap Mechanic block classes
+
 import { Unit } from "../../containers/classes";
 import { Color } from "../../support/colors/classes";
 import { Colors } from "../../support/colors/enums";
-import { Id } from "../../support/context/classes";
+import { Id, KeylessId } from "../../support/context/classes";
 import { Connections, Delay, Operation } from "../../support/logic/classes";
 import { LogicalOperation, Time } from "../../support/logic/enums";
-import { Offset, Pos, Rotate } from "../../support/spatial/classes";
+import { Bounds, Offset, Pos, Rotate } from "../../support/spatial/classes";
 import { Direction } from "../../support/spatial/enums";
-import { ShapeIds } from "../shapeIds";
-import { BlockInterface, LogicInterface, ButtonInterface, BasicLogicInterface, TimerInterface } from "./interfaces";
+import { DraggableIds, ShapeIds } from "../shapeIds";
+import { BlockInterface, LogicInterface, ButtonInterface, BasicLogicInterface, TimerInterface, ScalableInterface } from "./interfaces";
 
 export abstract class Block extends Unit {
-  private _id: Id;
+  _id: Id;
   readonly shapeId: ShapeIds;
   constructor({
-    key,
     pos = new Pos({}),
     rotate = new Rotate({}),
     color = new Color(),
@@ -22,16 +22,49 @@ export abstract class Block extends Unit {
   }: BlockInterface) {
     super({pos,rotate,color});
     this._addProps(["shapeId", "_id"]);
-
+    
     this.pos = pos;
     this.rotation = rotate;
     this.color = color;
-    this._id = new Id(key);
+    this._id = null;
     this.shapeId = shapeId;
   }
   get id() { return this._id; }
-
+  
   abstract build(offset: Offset);
+}
+
+export class Scalable extends Block {
+  readonly bounds: Bounds;
+  constructor({
+    bounds,
+    color = new Color(Colors.Pink),
+    pos,
+    rotate
+  }: ScalableInterface, shapeId: DraggableIds) {
+    super({
+      pos,rotate,color,
+      shapeId: shapeId as unknown as ShapeIds
+    });
+    this.bounds = bounds;
+    this._addProps(["bounds"]);
+  }
+  /*
+    doc test
+  */
+  build(offset: Offset = new Offset({})) {
+    const rotation = this.rotation.add(offset.rotate);
+    const pos = this.pos.rotate(rotation).add(offset.pos).add( rotation.offset );
+    const json = {
+      "bounds": this.bounds.rotate(rotation).build(),
+      "color": this.color.hex,
+      "pos": pos.build(),
+      "shapeId": this.shapeId,
+      "xaxis": 1,
+      "zaxis": 3
+    }
+    return JSON.stringify(json);
+  }
 }
 
 export abstract class BasicLogic extends Block {
@@ -44,7 +77,8 @@ export abstract class BasicLogic extends Block {
     shapeId,
     connections = new Connections()
   }: BasicLogicInterface) {
-    super({ key,pos,rotate,color,shapeId })
+    super({ pos,rotate,color,shapeId })
+    this._id = new Id(key);
     this._addProps(["_conns"]);
     this._conns = connections;
 
