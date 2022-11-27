@@ -58,7 +58,8 @@ export class Custom2dShape extends Container {
     color,
     rotate,
     frame,
-    material = DraggableIds.Wood
+    trueMaterial = DraggableIds.Wood,
+    falseMaterial = DraggableIds.None
   }: Custom2dShapeInterface) {
     const children: Array<Scalable> = [];
 
@@ -66,7 +67,7 @@ export class Custom2dShape extends Container {
     let y = frame.rows.length - 1;
     for (let row of frame.rows) {
       for (let bit of row.mask) {
-        if (bit) {
+        if (bit && trueMaterial != DraggableIds.None) {
           children.push(
             new Scalable({
               bounds: new Bounds({}),
@@ -74,7 +75,18 @@ export class Custom2dShape extends Container {
                 x,y
               }),
               color: color
-            }, material)
+            }, trueMaterial)
+          )
+        }
+        else if (!bit && falseMaterial != DraggableIds.None) {
+          children.push(
+            new Scalable({
+              bounds: new Bounds({}),
+              pos: new Pos({
+                x,y
+              }),
+              color: color
+            }, falseMaterial)
           )
         }
         x++;

@@ -5,7 +5,7 @@ import { BitMask, Connections, Delay, Frame, Frames, MultiConnections, Operation
 import { LogicalOperation, Time } from "../../../support/logic/enums";
 import { MultiConnectionsType } from "../../../support/logic/interfaces";
 import { Bounds, Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";
-import { Block, Logic, Timer } from "../../blocks/basics";
+import { BasicLogic, Block, Logic, Timer } from "../../blocks/basics";
 import { DelayUnit } from "../delays/classes";
 import { CharacterFrames, Characters, NumToString } from "./enums";
 import { BitMapInterface, CharacterDisplayInterface, FutureBitMapInterface, SevenSegmentInterface, SimpleBitMapInterface, VideoDisplayInterface } from "./interfaces";
@@ -60,7 +60,7 @@ export class FutureBitMap extends Grid {
                   x: x,
                   z: newFrame.rows.length-z-1
                 })
-              ) as Block
+              ) as BasicLogic
             ).id
           )
         }

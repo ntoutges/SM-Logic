@@ -20,5 +20,6 @@ export enum DraggableIds {
   Concrete = "a6c6ce30-dd47-4587-b475-085d55c6a3b4",
   Metal = "8aedf6c2-94e1-4506-89d4-a0227c552f1e",
   Caution = "09ca2713-28ee-4119-9622-e85490034758",
-  Bricks = "0603b36e-0bdb-4828-b90c-ff19abcdfe34"
+  Bricks = "0603b36e-0bdb-4828-b90c-ff19abcdfe34",
+  None = ""
 }

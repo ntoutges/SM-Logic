@@ -1,10 +1,9 @@
 import { ScaleableDelaysInterface } from "../../classes/prebuilts/delays/interfaces";
-import { FrameInterface, FramesInterface, PhysicalFrameInterface } from "../../classes/prebuilts/displays/interfaces";
 import { Id, Identifier, KeylessId } from "../context/classes";
 import { Bounds, Bounds2d, Pos, Pos2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
 import { LogicalOperation, LogicalType, Time } from "./enums";
-import { BitMaskExtendInterface, DelayInterface, MetaMultiConnectionsType, MultiConnectionsType, SpriteInterface } from "./interfaces";
+import { BitMaskExtendInterface, DelayInterface, FrameInterface, FramesInterface, MappedRomFrameInterface, MetaMultiConnectionsType, MultiConnectionsType, PhysicalFrameInterface, ROMFrameInterface, SpriteInterface } from "./interfaces";
 
 export class Operation extends Equatable {
   private op: LogicalOperation;
@@ -149,9 +148,11 @@ export class MultiConnections extends Equatable {
 
 export class BitMask extends Equatable {
   readonly mask: Array<boolean>;
+  alignLeft: boolean; // determines which side to add [fallback] to when extending mask
   constructor(mask: Array<boolean>) {
     super(["mask"]);
     this.mask = mask;
+    this.alignLeft = true;
   }
   get length() { return this.mask.length; }
   add(other: BitMask): BitMask {
@@ -177,8 +178,16 @@ export class BitMask extends Equatable {
     fallback = false
   }: BitMaskExtendInterface): BitMask {
     const mask: Array<boolean> = [];
-    for (let i = 0; i < newLength; i++) {
-      mask.push( (this.length > i) ? this.mask[i] : fallback );
+    if (this.alignLeft) {
+      for (let i = 0; i < newLength; i++) {
+        mask.push( (this.length > i) ? this.mask[i] : fallback );
+      }
+    }
+    else { // align right
+      for (let i = 0; i < newLength; i++) {
+        const j = i - newLength + this.mask.length
+        mask.push( (j < 0) ? fallback : this.mask[j] )
+      }
     }
     return new BitMask(mask);
   }
@@ -219,6 +228,7 @@ export class RawBitMask extends BitMask {
         newMask.push(false)
     }
     super(newMask);
+    this.alignLeft = false; // align right
   }
 }
 
@@ -466,5 +476,108 @@ export class FrameSprite extends Frames {
     if (index > this.frames.length)
       throw new Error(`Invalid sprite position (${position.x},${position.y})`);
     return this.frames[index];
+  }
+}
+
+export class ROMFrame extends Frame {
+  constructor({
+    format,
+    jsonData,
+    depth = -1,
+    reverseBits = false, // if true: will reverse data bits (based on format); if false: will do nothing
+    reverseOrder = false // if true: will reverse order of data bits (based on format); if false: will do nothing
+  }: ROMFrameInterface) {
+    if (!Array.isArray(format))
+      format = [format]; // convert [format] into an array
+    if (!Array.isArray(jsonData))
+      jsonData = [jsonData]; // convert [jsonData] into an array
+    
+    if (reverseOrder)
+      format.reverse();
+
+    let totalLength = 0;
+    for (let romFormat of format) {
+      if (romFormat.bits < 1)
+        throw new Error(`[format] cannot have ${romFormat.bits} bits (minimum of 1)`)
+      totalLength += romFormat.bits;
+    }
+
+    if (depth != -1 && totalLength > depth)
+      throw new Error(`depth (${depth}) too small for ${totalLength} bits`);
+    if (depth == -1)
+      depth = totalLength;
+
+    const bitMasks = [];
+    for (let data of jsonData) {
+      // individual packets of data
+      let bitMaskData: number = 0; // theoretically safe up to 53 bits
+      let localDepth = 0;
+      for (let romFormat of format) {
+        // retrieve information in the form of [format] from [data]
+        if (romFormat.name in data) {
+          if ((typeof data[romFormat.name]) != "number")
+            throw new Error(`[data] values must be numbers, not ${typeof data[romFormat.name]}`);
+          if (data[romFormat.name] >= 2**romFormat.bits)
+            throw new Error(`[data] value too high. [format] specifies ${romFormat.bits} bits, giving a maximum value of ${2**romFormat.bits-1}`)
+
+          let dataNumber = data[romFormat.name]
+          if (reverseBits) {
+            let dataStr = dataNumber.toString(2); // convert to binary
+            for (let i = dataStr.length; i < romFormat.bits; i++) {
+              dataStr = "0" + dataStr; // fill out with requisite placeholder '0's
+            }
+            dataNumber = parseInt(dataStr.split("").reverse().join(""), 2); // reverse string 
+          }
+          bitMaskData += dataNumber * (2**localDepth);
+        }
+        localDepth += romFormat.bits
+      }
+      bitMasks.push(
+        new RawBitMask(
+          bitMaskData,
+          depth
+        )
+      )
+    }
+
+    super({
+      size: new Bounds2d({
+        x: depth,
+        y: bitMasks.length
+      }),
+      value: bitMasks
+    });
+  }
+}
+
+export class MappedROMFrame extends ROMFrame {
+  constructor({
+    format,
+    jsonData,
+    depth = -1,
+    reverseBits = false, // if true: will reverse data bits (based on format); if false: will do nothing
+    reverseOrder = false // if true: will reverse order of data bits (based on format); if false: will do nothing
+  }: MappedRomFrameInterface) {
+    if (!Array.isArray(format))
+      format = [format]; // convert [format] into an array
+    if (!Array.isArray(jsonData))
+      jsonData = [jsonData]; // convert [jsonData] into an array
+
+    for (let data of jsonData) {
+      for (let mappedFormat of format) {
+        if (!( mappedFormat.name in data )) // value doesnt' exist, so don't try to convert
+          continue;
+
+        if ("map" in mappedFormat && (typeof data[mappedFormat.name] == "string")) {
+          // data[mappedFormat.name]  // the input value
+          // mappedFormat.map      // possible values and their conversions
+          if (!(data[mappedFormat.name] in mappedFormat.map))
+            throw new Error(`[${data[mappedFormat.map]} is not a valid value given the format of name ${mappedFormat.name}]`);
+          data[mappedFormat.name] = mappedFormat.map[data[mappedFormat.name]]; // convert values via the map
+        }
+      }
+    }
+
+    super({ format,jsonData,depth,reverseBits,reverseOrder });
   }
 }

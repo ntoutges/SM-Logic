@@ -11,5 +11,6 @@ export interface AxisInterface {
 
 export interface Custom2dShapeInterface extends UnitInterface {
   frame: Frame,
-  material?: DraggableIds
+  trueMaterial?: DraggableIds,
+  falseMaterial?: DraggableIds
 }

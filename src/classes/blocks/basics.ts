@@ -12,7 +12,6 @@ import { DraggableIds, ShapeIds } from "../shapeIds";
 import { BlockInterface, LogicInterface, ButtonInterface, BasicLogicInterface, TimerInterface, ScalableInterface } from "./interfaces";
 
 export abstract class Block extends Unit {
-  _id: Id;
   readonly shapeId: ShapeIds;
   constructor({
     pos = new Pos({}),
@@ -26,10 +25,8 @@ export abstract class Block extends Unit {
     this.pos = pos;
     this.rotation = rotate;
     this.color = color;
-    this._id = null;
     this.shapeId = shapeId;
   }
-  get id() { return this._id; }
   
   abstract build(offset: Offset);
 }
@@ -69,6 +66,7 @@ export class Scalable extends Block {
 
 export abstract class BasicLogic extends Block {
   private _conns: Connections;
+  private _id: Id;
   constructor({
     key,
     pos,
@@ -86,6 +84,7 @@ export abstract class BasicLogic extends Block {
   }
   get connections(): Array<Id> { return this._conns.connections; }
   get conns(): Connections { return this._conns; }
+  get id() { return this._id; }
   abstract get controller();
   connectTo(other: BasicLogic) { this.conns.addConnection(other.id); }
   build(offset=new Offset({})) {

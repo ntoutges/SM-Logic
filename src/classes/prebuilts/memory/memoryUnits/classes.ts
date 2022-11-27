@@ -10,7 +10,7 @@ import { Bounds, Bounds2d, Pos, Rotate } from "../../../../support/spatial/class
 import { Direction } from "../../../../support/spatial/enums";
 import { Logic, Timer } from "../../../blocks/basics";
 import { Integer } from "../../numbers/classes";
-import { AddressableMemoryRowInterface, MemoryGridInterface, MemoryRowInterface, MemorySelectorInterface } from "./interfaces";
+import { AddressableMemoryRowInterface, MemoryGridInterface, MemoryRowInterface, MemorySelectorInterface, ROMInterface } from "./interfaces";
 
 export class MemoryRow extends Grid {
   constructor({
@@ -423,7 +423,8 @@ export class MemorySelector extends Container {
     connections = new MultiConnections([]),
     pos,
     rotate,
-    color
+    color,
+    compressed=true
   }: MemorySelectorInterface) {
     if (size.x < 2)
       throw new Error("Memory Selector must be at least 2x1");
@@ -527,6 +528,9 @@ export class MemorySelector extends Container {
       pos: new Pos({ y: 1, z: size.y-1 })
     });
 
+    if (compressed)
+      matrixGrid.compress();
+
     super({
       color,
       pos,
@@ -618,7 +622,7 @@ export class MemoryRowReader extends Container {
       )
     }
     const header = new Container({ children: headerLogics });
-    
+
     super({
       children: [
         header,
@@ -650,5 +654,75 @@ export class MemoryRowReader extends Container {
       );
     }
     return row;
+  }
+}
+
+export class ROM extends Container {
+  readonly selector: MemorySelector;
+  readonly signal: Array<Logic>;
+  constructor({
+    key,
+    signal,
+    connections = new MultiConnections([]),
+    data,
+    pos,
+    rotate,
+    color
+  }: ROMInterface) {
+    const outputLogics: Array<Logic> = [];
+    for (let i = 0; i < data.width; i++) {
+      outputLogics.push(
+        new Logic({
+          key,
+          operation: new Operation(LogicalOperation.Or)
+        })
+      );
+    }
+    const output = new Grid({
+      children: outputLogics,
+      size: new Bounds({
+        z: outputLogics.length
+      }),
+      pos: new Pos({
+        x: 1
+      }),
+      color: new Color(Colors.SM_Orange)
+    });
+
+    const innerConnections: Array<MultiConnectionsType> = [];
+    for (let [x, bitMask] of data.rows.entries()) {
+      const ids = new KeylessFutureId();
+      for (let [i,bit] of bitMask.mask.entries()) {
+        if (bit)
+          ids.addId(outputLogics[bitMask.mask.length-i-1].id);
+      }
+      innerConnections.push({
+        id: new Identifier(
+          combineIds(
+            x.toString(),
+            "0"
+          )
+        ),
+        conns: new Connections(ids)
+      });
+    }
+
+
+    const selector = new MemorySelector({
+      key,signal,
+      connections: new MultiConnections( innerConnections ),
+      size: new Bounds2d({ x: data.rows.length })
+    });
+
+    super({
+      pos,rotate,color,
+      children: [
+        output,
+        selector
+      ]
+    });
+
+    this.signal = outputLogics;
+    this.selector = selector;
   }
 }

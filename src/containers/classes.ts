@@ -33,6 +33,7 @@ export abstract class Unit extends Equatable {
 export class Container extends Unit {
   private _childs: Array<Unit>;
   private readonly _key: Key;
+  compressed: boolean;
   constructor({
     pos,
     rotate,
@@ -52,9 +53,23 @@ export class Container extends Unit {
       this._childs = [child];
     else if (children != null)
       this._childs = children;
+
+      if (color != undefined) {
+        for (let child of this._childs) {
+          child.color = color;
+        }
+      }
   }
   get children(): Array<Unit> { return this._childs; }
   get key(): Key { return this._key; }
+
+  compress() {
+    const zeroPos = new Pos({}); // x=0, y=0, z=0
+    for (let child of this._childs) {
+      child.pos = zeroPos;
+    }
+    this.compressed = true;
+  }
 
   build(offset=new Offset({})) {
     let childBlueprints: Array<string> = [];
@@ -73,19 +88,19 @@ export class Container extends Unit {
   }
 }
 
-export class Contracted extends Container {
-  build(offset=new Offset({})) {
-    // set all shapes to be at the same positino
-    this.children.forEach((child: Unit) => {
-      child.pos = new Pos({
-        x: 0,
-        y: 0,
-        z: 0
-      });
-    });
-    return super.build(offset);
-  }
-}
+// export class Contracted extends Container {
+//   build(offset=new Offset({})) {
+//     // set all shapes to be at the same positino
+//     this.children.forEach((child: Unit) => {
+//       child.pos = new Pos({
+//         x: 0,
+//         y: 0,
+//         z: 0
+//       });
+//     });
+//     return super.build(offset);
+//   }
+// }
 
 export class Grid extends Container {
   private readonly _size: Bounds;
@@ -130,12 +145,22 @@ export class Grid extends Container {
         }
       }
       const totalRotation = offset.rotate.add(this.rotation);
-      let localOffset: Offset = new Offset({
-        pos: position.rotate(totalRotation).add(offset.pos),
-        rotate: totalRotation
-      });
 
+      let localOffset: Offset;
+      if (!this.compressed) {
+        localOffset = new Offset({
+          pos: position.rotate(totalRotation).add(offset.pos),
+          rotate: totalRotation
+        });
+      }
+      else {
+        localOffset = new Offset({
+          pos: (new Pos({})).rotate(totalRotation).add(offset.pos),
+          rotate: totalRotation
+        });
+      }
       childBlueprints.push( child.build( localOffset ) );
+
       posCounter = posCounter.add( new Pos({x:1}) );
       position = position.add( new Pos({x:this._spacing.x}) );
     });

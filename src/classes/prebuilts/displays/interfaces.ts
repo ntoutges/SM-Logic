@@ -3,22 +3,6 @@ import { BasicKey, Id, KeyMap } from "../../../support/context/classes";
 import { BitMask, Delay, Delays, Frame, Frames, MultiConnections } from "../../../support/logic/classes";
 import { Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";
 
-export interface FrameInterface {
-  size: Bounds2d,
-  value: Array<BitMask>,
-  fallback?: boolean
-}
-
-export interface FramesInterface {
-  frames: Array<Frame>,
-  size?: Bounds2d
-}
-
-export interface PhysicalFrameInterface {
-  frame: Frame,
-  id: Id
-}
-
 export interface FutureBitMapInterface {
   key: BasicKey,
   size: Bounds2d,
