@@ -3,7 +3,7 @@ import { Id, Identifier, KeylessId } from "../context/classes";
 import { Bounds, Bounds2d, Pos, Pos2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
 import { LogicalOperation, LogicalType, Time } from "./enums";
-import { BitMaskExtendInterface, DelayInterface, FrameInterface, FramesInterface, MappedRomFrameInterface, MetaMultiConnectionsType, MultiConnectionsType, PhysicalFrameInterface, ROMFrameInterface, SpriteInterface } from "./interfaces";
+import { BitMaskExtendInterface, DelayInterface, FrameInterface, FramesInterface, MappedRomFrameInterface, MetaMultiConnectionsType, MultiConnectionsType, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface } from "./interfaces";
 
 export class Operation extends Equatable {
   private op: LogicalOperation;
@@ -210,6 +210,27 @@ export class BitMask extends Equatable {
       )
     }
     return new BitMask(mask);
+  }
+
+  hexDump(print=false): string {
+    let hexStr: string = "";
+    for (let i = 0; i < this.mask.length; i += 4) { // proceed one nibble at a time
+      let total = 0;
+      for (let j = 0; j < 4 && i+j < this.mask.length; j++) {
+        total += this.mask[i + j] ? 2 ** (3-j) : 0;
+      }
+      hexStr += total.toString(16);
+    }
+    if (print) {
+      let printedString: string = "";
+      for (let i = 0; i < hexStr.length; i++) {
+        printedString += hexStr[i];
+        if (i % 2 == 0 && i != 0 && i != hexStr.length-1)
+          printedString += " ";
+      }
+      console.log(printedString);
+    }
+    return hexStr;
   }
 }
 
@@ -479,6 +500,7 @@ export class FrameSprite extends Frames {
   }
 }
 
+// ROM - Read Only Memory
 export class ROMFrame extends Frame {
   constructor({
     format,
@@ -548,8 +570,50 @@ export class ROMFrame extends Frame {
       value: bitMasks
     });
   }
+
+  hexDump(print:number=0): Array<string> {
+    const hexArr: Array<string> = [];
+    for (let bitMask of this.rows) {
+      hexArr.push(bitMask.hexDump(false));
+    }
+
+    if (print != 0) {
+      let totalDistance = -1;
+      for (let i = 0; i < hexArr.length; i += print) {
+        let str = "";
+        for (let j = 0; j < print && i+j < hexArr.length; j++) {
+          str += " " + hexArr[i+j];
+        }
+        str = str.substring(1);
+
+        let base64 = "";
+        const bytes = str.split(" ");
+        for (let byte of bytes) {
+          let ascii = parseInt(byte,16);
+          base64 += (32 <= ascii && ascii <= 126) ? String.fromCharCode(ascii) : ".";
+        }
+        
+        if (totalDistance == -1)
+          totalDistance = str.length;
+
+        for (let j = str.length; j < totalDistance; j++) {
+          str += " ";
+        }
+        let rPadding = "";
+        for (let i = base64.length; i < print; i++) {
+          rPadding += " "
+        }
+
+        console.log(str + "  |" + base64 + rPadding + "|");
+        str = "";
+      }
+    }
+
+    return hexArr;
+  }
 }
 
+// works best for creating ROM that must fit a specific format
 export class MappedROMFrame extends ROMFrame {
   constructor({
     format,
@@ -579,5 +643,44 @@ export class MappedROMFrame extends ROMFrame {
     }
 
     super({ format,jsonData,depth,reverseBits,reverseOrder });
+  }
+}
+
+// works best for entering raw numbers
+export class RawROMFrame extends ROMFrame {
+  constructor({
+    data,
+    depth=8
+  }: RawROMFrameInterface) {
+    const jsonData: Array<{data: number}> = [];
+    for (let value of data) {
+      jsonData.push({ "data": value });
+    }
+
+    super({
+      format: {
+        bits: depth,
+        name: "data"
+      },
+      jsonData,
+      depth
+    })
+  }
+}
+
+// works best for encoding text (can only effectively store values 32-126)
+export class StringROMFrame extends RawROMFrame {
+  constructor({
+    data
+  }: StringROMFrameInterface) {
+    const numData: Array<number> = [];
+    for (let char of data) {
+      numData.push(char.charCodeAt(0)); // convert string to ascii
+    }
+
+    super({
+      data: numData,
+      depth: 8
+    })
   }
 }

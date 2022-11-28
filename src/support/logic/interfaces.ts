@@ -69,3 +69,12 @@ export interface ROMFormat {
 export interface MappedROMFormat extends ROMFormat {
   map?: any // { namedValue: numberValue, ... }
 }
+
+export interface RawROMFrameInterface {
+  data: Array<number>,
+  depth?: number
+}
+
+export interface StringROMFrameInterface {
+  data: string
+}

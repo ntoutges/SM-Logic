@@ -1,4 +1,4 @@
-import { MappedROMFrame } from "./logic/classes";
+import { MappedROMFrame, RawROMFrame, ROMFrame, StringROMFrame } from "./logic/classes";
 
 export const ROMs = {
   "RPG": new MappedROMFrame({
@@ -61,5 +61,34 @@ export const ROMs = {
       }
     ],
     reverseOrder: true
-  })
+  }),
+  "HW": [ // (H)ello (W)orld test ROMs
+    new ROMFrame({
+      format: {
+        bits: 8,
+        name: "c"
+      },
+      jsonData: [
+        { c: 72 },
+        { c: 101 },
+        { c: 108 },
+        { c: 108 },
+        { c: 111 },
+        { c: 44 },
+        { c: 32 },
+        { c: 87 },
+        { c: 111 },
+        { c: 114 },
+        { c: 108 },
+        { c: 100 },
+        { c: 33 }
+      ]
+    }),
+    new RawROMFrame({
+      data: [ 72, 101, 108, 108, 111, 44,32, 87, 111, 114, 108, 100, 33 ]
+    }),
+    new StringROMFrame({
+      data: "Hello, World!"
+    })
+  ]
 }
