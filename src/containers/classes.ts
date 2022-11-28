@@ -2,7 +2,7 @@ import { Equatable } from "../support/support/classes";
 import { Color } from "../support/colors/classes";
 import { Key, Keyless } from "../support/context/classes";
 import { Bounds, Offset, Pos, Rotate } from "../support/spatial/classes";
-import { ContainerInterface, GridInterface, UnitInterface } from "./interfaces";
+import { ContainerInterface, GridInterface, PackagerInterface, UnitInterface } from "./interfaces";
 
 export abstract class Unit extends Equatable {
   private _pos: Pos;
@@ -32,21 +32,18 @@ export abstract class Unit extends Equatable {
 
 export class Container extends Unit {
   private _childs: Array<Unit>;
-  private readonly _key: Key;
   compressed: boolean;
   constructor({
     pos,
     rotate,
     child,
     color,
-    children,
-    key = new Keyless(),
+    children
   }: ContainerInterface
   ) {
     super({pos,rotate,color});
     this._addProps(["_childs"]);
-    this._key = key;
-
+    
     if (child != null && children != null)
       throw new Error("Cannot have both [child] and [children] property in a container");
     else if (child != null)
@@ -61,7 +58,6 @@ export class Container extends Unit {
       }
   }
   get children(): Array<Unit> { return this._childs; }
-  get key(): Key { return this._key; }
 
   compress() {
     const zeroPos = new Pos({}); // x=0, y=0, z=0
@@ -165,5 +161,48 @@ export class Grid extends Container {
       position = position.add( new Pos({x:this._spacing.x}) );
     });
     return childBlueprints.join(",");
+  }
+}
+
+export class Packager extends Container {
+  package: string; // the prebuilt blueprint that will be merged with the container
+  constructor({
+    pos,
+    rotate,
+    child,
+    color,
+    children,
+    packageA
+  }: PackagerInterface
+  ) {
+    super({pos,rotate,color, child, children});
+    this._addProps(["packageA"]);
+    this.package = packageA;
+  }
+
+  build(offset: Offset) {
+    // offset package
+    let packageJSON = JSON.parse(this.package);
+
+    const packageOffset = offset.add(
+      new Offset({
+        pos: this.pos
+      })
+    );
+
+    for (let i in packageJSON) {
+      const object = packageJSON[i];
+      const pos = new Pos({
+        x: object.pos.x,
+        y: object.pos.y,
+        z: object.pos.z
+      });
+
+      object.pos = pos.add(packageOffset.pos).build(); // ignore rotation... for now
+    }
+    let packageStr = JSON.stringify(packageJSON);
+    packageStr = packageStr.substring(1, packageStr.length-1);
+
+    return super.build(offset) + "," + packageStr;
   }
 }

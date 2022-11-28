@@ -1,4 +1,4 @@
-import { Container, Grid } from "../../../../containers/classes";
+import { Container, Grid, Packager } from "../../../../containers/classes";
 import { Color, HexColor, RGB } from "../../../../support/colors/classes";
 import { Colors } from "../../../../support/colors/enums";
 import { CustomKey, Id, Identifier, KeylessFutureId, KeylessId, KeyMap, UniqueCustomKey } from "../../../../support/context/classes";
@@ -10,7 +10,7 @@ import { Bounds, Bounds2d, Pos, Rotate } from "../../../../support/spatial/class
 import { Direction } from "../../../../support/spatial/enums";
 import { Logic, Timer } from "../../../blocks/basics";
 import { Integer } from "../../numbers/classes";
-import { AddressableMemoryRowInterface, MemoryGridInterface, MemoryRowInterface, MemorySelectorInterface, ROMInterface } from "./interfaces";
+import { AddressableMemoryRowInterface, MemoryGridInterface, MemoryRowInterface, MemorySelectorInterface, ROMInterface, ROMPackageInterface } from "./interfaces";
 
 export class MemoryRow extends Grid {
   constructor({
@@ -703,7 +703,7 @@ export class ROM extends Container {
             "0"
           )
         ),
-        conns: new Connections(ids)
+        conns: (ids.isReady) ? new Connections(ids) : new Connections()
       });
     }
 
@@ -724,5 +724,49 @@ export class ROM extends Container {
 
     this.signal = outputLogics;
     this.selector = selector;
+  }
+}
+
+export class ROMPackage extends Packager {
+  readonly rom: ROM;
+  constructor({
+    key,
+    pos,rotate,color,
+    data
+  }: ROMPackageInterface) {
+    
+    data.resize( // force this size to fit within package
+      new Bounds2d({
+        x: 8,
+        y: 8
+      }),
+    );
+
+    const address: Array<Logic> = []
+    for (let i = 0; i < 8; i++) {
+      address.push(
+        new Logic({
+          key
+        })
+      )
+    }
+
+    super({
+      pos,rotate,color,
+      packageA: '[{"color":"7F7F7F","pos":{"x":-1,"y":1,"z":0},"shapeId":"4f1c0036-389b-432e-81de-8261cb9f9d57","xaxis":-2,"zaxis":-3},{"color":"7F7F7F","pos":{"x":0,"y":0,"z":8},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":-1,"zaxis":-2},{"color":"7F7F7F","pos":{"x":-1,"y":0,"z":0},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":-1,"zaxis":2},{"color":"7F7F7F","pos":{"x":0,"y":0,"z":5},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":-1,"zaxis":-2},{"bounds":{"x":5,"y":1,"z":8},"color":"222222","pos":{"x":-1,"y":0,"z":1},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3},{"color":"7F7F7F","pos":{"x":-1,"y":1,"z":8},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":-1,"zaxis":-2},{"color":"7F7F7F","pos":{"x":4,"y":-1,"z":1},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":2,"zaxis":1},{"color":"7F7F7F","pos":{"x":0,"y":-1,"z":1},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":-1,"zaxis":2},{"color":"7F7F7F","pos":{"x":-1,"y":1,"z":4},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":-1,"zaxis":-2},{"color":"7F7F7F","pos":{"x":5,"y":1,"z":8},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":-2,"zaxis":1},{"color":"7F7F7F","pos":{"x":5,"y":1,"z":8},"shapeId":"4f1c0036-389b-432e-81de-8261cb9f9d57","xaxis":-2,"zaxis":3},{"color":"7F7F7F","pos":{"x":5,"y":0,"z":0},"shapeId":"4f1c0036-389b-432e-81de-8261cb9f9d57","xaxis":2,"zaxis":-3},{"color":"7F7F7F","pos":{"x":5,"y":0,"z":0},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":2,"zaxis":1},{"color":"7F7F7F","pos":{"x":5,"y":0,"z":1},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":2,"zaxis":1},{"color":"7F7F7F","pos":{"x":5,"y":0,"z":4},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":2,"zaxis":1},{"bounds":{"x":2,"y":1,"z":8},"color":"4A4A4A","pos":{"x":1,"y":-1,"z":0},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3},{"bounds":{"x":1,"y":1,"z":7},"color":"222222","pos":{"x":4,"y":0,"z":1},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3},{"bounds":{"x":5,"y":1,"z":1},"color":"4A4A4A","pos":{"x":-1,"y":-1,"z":-1},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3},{"color":"1C8687","pos":{"x":4,"y":0,"z":9},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":2,"zaxis":-3},{"color":"7F7F7F","pos":{"x":-1,"y":0,"z":8},"shapeId":"4f1c0036-389b-432e-81de-8261cb9f9d57","xaxis":2,"zaxis":3},{"color":"7F7F7F","pos":{"x":5,"y":-1,"z":7},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":2,"zaxis":-1},{"color":"7F7F7F","pos":{"x":-1,"y":1,"z":5},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":-1,"zaxis":-2},{"color":"7F7F7F","pos":{"x":4,"y":-1,"z":1},"shapeId":"4f1c0036-389b-432e-81de-8261cb9f9d57","xaxis":2,"zaxis":-3},{"color":"7F7F7F","pos":{"x":4,"y":0,"z":8},"shapeId":"4f1c0036-389b-432e-81de-8261cb9f9d57","xaxis":-2,"zaxis":3},{"color":"7F7F7F","pos":{"x":5,"y":0,"z":7},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":-2,"zaxis":-1},{"bounds":{"x":5,"y":1,"z":1},"color":"4A4A4A","pos":{"x":-1,"y":-1,"z":8},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3}]',
+      children: [
+        new ROM({
+          key,
+          signal: address,
+          data
+        }),
+        new Grid({
+          children: address,
+          size: new Bounds({ z: 8 }),
+          pos: new Pos({x: 4}),
+          color: new Color(Colors.SM_Green)
+        })
+      ]
+    });
   }
 }

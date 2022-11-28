@@ -44,9 +44,16 @@ export interface MemorySelectorInterface {
 
 export interface ROMInterface {
   key: BasicKey,
-  signal: Array<Logic>,
-  size?: Bounds2d,
+  signal: Array<Logic>
   connections?: MultiConnections
+  data: Frame,
+  pos?: Pos,
+  rotate?: Rotate,
+  color?: Color
+}
+
+export interface ROMPackageInterface {
+  key: BasicKey,
   data: Frame,
   pos?: Pos,
   rotate?: Rotate,

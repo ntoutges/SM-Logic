@@ -13,7 +13,7 @@ import { Characters } from "./classes/prebuilts/displays/enums";
 import { DelayUnit } from "./classes/prebuilts/delays/classes";
 import { BitIdentifiers, ByteIdentifiers, combineIds, MemoryIdentifiers } from "./support/context/enums";
 import { CompareOperation } from "./classes/prebuilts/numbers/enums";
-import { AddressableMemoryRow, MemoryGrid, MemoryRow, MemoryRowReader, MemorySelector, ROM } from "./classes/prebuilts/memory/memoryUnits/classes";
+import { AddressableMemoryRow, MemoryGrid, MemoryRow, MemoryRowReader, MemorySelector, ROM, ROMPackage } from "./classes/prebuilts/memory/memoryUnits/classes";
 import { Color } from "./support/colors/classes";
 import { Colors } from "./support/colors/enums";
 import { MemoryGridBloc } from "./classes/prebuilts/memory/memoryBlocs/classes";
@@ -22,6 +22,7 @@ import { GenericBody } from "./containers/genericBody";
 import { FrameBuilder } from "./support/graphics/classes";
 import { Wood } from "./classes/blocks/materials";
 import { DraggableIds } from "./classes/shapeIds";
+import { ROMs } from "./support/ROMs";
 
 export class Body extends GenericBody {
   constructor() {
@@ -32,52 +33,14 @@ export class Body extends GenericBody {
     const key = this.key;
     const gen = new StringKeyGen(key);
 
-    const address = new Integer({
-      key,
-      depth: 8,
-      pos: new Pos({
-        x: -5
-      })
-    })
-
     return new Container({
       children: [
-        new ROM({
+        new ROMPackage({
           key,
-          signal: address.signal,
-          data: new MappedROMFrame({
-            format: [
-              {
-                name: "rooms",
-                bits: 2,
-                map: { "closed": 0b01, "open": 0b10 }
-              },
-              {
-                name: "walls",
-                bits: 4,
-                map: { "up": 0b1000, "down": 0b0100, "left": 0b0010, "right": 0b0001 }
-              }
-          ],
-            jsonData: [
-              {
-                "rooms": "closed",
-                "walls": "up",
-              },
-              {
-                "rooms": "open",
-                "walls": 0b0110
-              }
-            ]
-          })
-        }),
-        address,
-        new Button({
-          key,
+          data: ROMs.RPG,
           pos: new Pos({
-            x: -5,
-            y: -2
-          }),
-          connections: new Connections(address.reset)
+            z: 1
+          })
         })
       ]
     })

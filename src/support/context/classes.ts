@@ -346,6 +346,9 @@ export class KeylessFutureId extends KeylessId {
       throw new Error("Id not yet set");
     return super.ids;
   }
+  get isReady(): boolean {
+    return this.setId;
+  }
   build() {
     if (!this.setId)
       throw new Error("Id not yet set");
