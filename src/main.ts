@@ -14,7 +14,7 @@ import { DelayUnit } from "./classes/prebuilts/delays/classes";
 import { BitIdentifiers, ByteIdentifiers, combineIds, MemoryIdentifiers } from "./support/context/enums";
 import { CompareOperation } from "./classes/prebuilts/numbers/enums";
 import { AddressableMemoryRow, CardROM, CardROMPackage, DDCardROMPackage, MemoryGrid, MemoryRow, MemoryRowReader, MemorySelector, ROM, ROMPackage } from "./classes/prebuilts/memory/memoryUnits/classes";
-import { Color } from "./support/colors/classes";
+import { Color, HexColor, RGB } from "./support/colors/classes";
 import { Colors } from "./support/colors/enums";
 import { MemoryGridBloc } from "./classes/prebuilts/memory/memoryBlocs/classes";
 import { Axis, Custom2dShape } from "./classes/prebuilts/support/classes";
@@ -43,47 +43,59 @@ export class Body extends GenericBody {
     //   chunkSize: 4
     // })
 
-    return new Container({
-      children: [
-        new DDCardROMPackage({
-          data: ROMs.RPG.remap(
-            new Bounds2d({
-              x: 32,
-              y: 16
-            })
-          )
+    // return new Container({
+    //   children: [
+    //     new DDCardROMPackage({
+    //       data: ROMs.RPG.remap(
+    //         new Bounds2d({
+    //           x: 32,
+    //           y: 16
+    //         })
+    //       )
+    //     })
+    //   ]
+    // })
+
+    const builder = new FrameBuilder({
+      size: new Bounds2d({
+        x: 41,
+        y: 41
+      }),
+      builder(step, Circle, Rect) {
+        Rect({
+          pos: new Pos2d({
+            x: 20 + 10 * Math.cos(step * 5 * Math.PI/180),
+            y: 20 + 10 * Math.sin(step * 5 * Math.PI/180)
+          }),
+          bounds: new Bounds2d({
+            x: 8,
+            y: 2
+          }),
+          rotateAngle: step*5
         })
-      ]
+      },
     })
 
-    // return new Custom2dShape({
-    //   frame: new ROMFrame({
-    //     format: [
-    //       {
-    //         name: "rooms",
-    //         bits: 2
-    //       },
-    //       {
-    //         name: "walls",
-    //         bits: 3
-    //       }
-    //     ],
-    //     jsonData: [
-    //       {
-    //         "rooms": 1,
-    //         "walls": 7,
-    //       },
-    //       {
-    //         "rooms": 2,
-    //         "walls": 2
-    //       }
-    //     ],
-    //     reverseBits: false,
-    //     reverseOrder: true
-    //   }),
-    //   trueMaterial: DraggableIds.Wood,
-    //   falseMaterial: DraggableIds.Glass,
-    //   color: new Color(Colors.SM_White)
-    // })
+    const shapes: Array<Unit> = [];
+    for (var i = 0; i <= 180; i++) {
+      let r = Math.floor(Math.sqrt(1.416 * i/255)*255).toString(16)
+      if (r.length == 1) r = "0" + r;
+
+      shapes.push(
+        new Custom2dShape({
+          frame: builder.build(i),
+          pos: new Pos({
+            z: i
+          }),
+          color: new HexColor(
+            r + "0000"
+          )
+        })
+      )
+    }
+
+    return new Container({
+      children: shapes
+    })
   }
 }

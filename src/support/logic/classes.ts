@@ -476,7 +476,7 @@ export class Frame extends Equatable {
 
   vFlip(): Frame {
     const bitmasks: Array<BitMask> = [];
-    for (let i = this._value.length; i >= 0; i--) { bitmasks.push(this._value[i]); } // reverse list
+    for (let i = this._value.length-1; i >= 0; i--) { bitmasks.push(this._value[i]); } // reverse list
     return new Frame({
       size: this._size,
       value: bitmasks
@@ -701,7 +701,7 @@ export class ROMFrame extends Frame {
       mask.alignLeft = false;
 
       bitMasks.push(
-        mask.length == depth ? mask : mask.extend({ newLength: 8 })
+        mask.length == depth ? mask : mask.extend({ newLength: depth })
       );
     }
 
