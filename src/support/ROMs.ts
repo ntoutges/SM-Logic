@@ -28,11 +28,12 @@ export const ROMs = {
       },
       {
         doors: 0b1011,
-        locked: 0b01,
+        locked: "down",
         flavor: 0b01
       },
       {
         doors: 0b0010,
+        locked: "right",
         flavor: 0b01
       },
       {},{},{},{},
@@ -44,7 +45,9 @@ export const ROMs = {
         doors: 0b1011
       },
       {
-        doors: 0b0110
+        doors: 0b0010,
+        locked: "down",
+        flavor: 0b10
       },
       {}, {}, {}, {}, {},
       {
@@ -59,8 +62,7 @@ export const ROMs = {
         locked: 0b11,
         flavor: 0b11
       }
-    ],
-    reverseOrder: true
+    ]
   }),
   "HW": [ // (H)ello (W)orld test ROMs
     new ROMFrame({

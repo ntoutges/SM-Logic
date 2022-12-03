@@ -19,6 +19,13 @@ export class Glass extends Scalable {
   }
 }
 
+export class GlassTile extends Scalable {
+  constructor(opt: ScalableInterface) {
+    (opt.color) ? null : opt.color = new Color(Colors.White);
+    super(opt, DraggableIds.GlassTile);
+  }
+}
+
 // variety
 export class Cardboard extends Scalable {
   constructor(opt: ScalableInterface) {

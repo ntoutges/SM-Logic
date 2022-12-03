@@ -123,6 +123,10 @@ export class Bounds extends Pos {
       });
     }
   }
+
+  get volume(): number {
+    return this.x * this.y * this.z;
+  }
 }
 
 export class Rotate extends Equatable {
@@ -197,6 +201,8 @@ export class Bounds2d extends Bounds {
     }
     return new Bounds({ x,y,z });
   }
+
+  get area(): number { return this.volume; }
 }
 
 export class Offset extends Equatable {

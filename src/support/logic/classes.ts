@@ -3,7 +3,7 @@ import { Id, Identifier, KeylessId } from "../context/classes";
 import { Bounds, Bounds2d, Pos, Pos2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
 import { LogicalOperation, LogicalType, Time } from "./enums";
-import { BitMaskExtendInterface, DelayInterface, FrameInterface, FramesInterface, MappedRomFrameInterface, MetaMultiConnectionsType, MultiConnectionsType, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface } from "./interfaces";
+import { BitMaskExtendInterface, DelayInterface, FrameInterface, FramesInterface, dataDumpInterface, MappedRomFrameInterface, MetaMultiConnectionsType, MultiConnectionsType, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface } from "./interfaces";
 
 export class Operation extends Equatable {
   private op: LogicalOperation;
@@ -166,7 +166,7 @@ export class BitMask extends Equatable {
     }
     return new BitMask(mask);
   }
-  not(): BitMask {
+  invert(): BitMask {
     const mask: Array<boolean> = [];
     for (let val of this.mask) {
       mask.push(!val);
@@ -212,33 +212,29 @@ export class BitMask extends Equatable {
     return new BitMask(mask);
   }
 
-  hexDump(print=false): string {
+  hexDump(): string {
     let hexStr: string = "";
     for (let i = 0; i < this.mask.length; i += 4) { // proceed one nibble at a time
       let total = 0;
       for (let j = 0; j < 4 && i+j < this.mask.length; j++) {
-        total += this.mask[i + j] ? 2 ** (3-j) : 0;
+        total += this.mask[i + j] ? 2 ** (Math.min(3, this.mask.length-1)-j) : 0;
       }
       hexStr += total.toString(16);
     }
-    if (print) {
-      let printedString: string = "";
-      for (let i = 0; i < hexStr.length; i++) {
-        printedString += hexStr[i];
-        if (i % 2 == 0 && i != 0 && i != hexStr.length-1)
-          printedString += " ";
-      }
-      console.log(printedString);
-    }
+
     return hexStr;
+  }
+
+  binDump(): string {
+    return parseInt(this.hexDump(), 16).toString(2); // use built in functions to convert from (4-bits / char) to (1-bit / char)
   }
 }
 
 /// pass in a number, such as 0xfc or 0x00110101
 export class RawBitMask extends BitMask {
-  constructor(mask: number, length=0) {
+  constructor(mask: number, length=0) { // align right
     const newMask: Array<boolean> = [];
-    const itts = (length == 0) ? Math.floor(Math.log(mask) / Math.LN2) : length-1;
+    const itts = Math.floor(Math.log(mask) / Math.LN2);
     for (let i = 0; i <= itts; i++) {
       let pow = Math.pow(2,itts-i);
       if (mask >= pow) {
@@ -248,8 +244,9 @@ export class RawBitMask extends BitMask {
       else
         newMask.push(false)
     }
+
     super(newMask);
-    this.alignLeft = false; // align right
+    this.alignLeft = false;
   }
 }
 
@@ -384,6 +381,13 @@ export class Frame extends Equatable {
     }
     this._value = value;
   }
+
+  // changes the dimensions of the frame
+  // acts as if each BitMask is independent, ie:
+  //   12             120
+  //   34 -> (3x3) -> 340
+  //   56             560
+  // where '0's are brand new data
   resize(size: Bounds2d): Frame { // return new modified frame
     const value: Array<BitMask> = []
     for (let y = 0; y < size.y; y++) {
@@ -398,7 +402,7 @@ export class Frame extends Equatable {
     return new Frame({
       size,
       value: value
-    })
+    });
   }
   shift(count:Pos2d) {
     let y = count.y;
@@ -415,6 +419,143 @@ export class Frame extends Equatable {
       value: value,
       fallback: this.fallback
     });
+  }
+
+  // changes the dimensions of the frame
+  // acts as if each BitMask is connected to the previous BitMask, and changing the size of the
+  // frame moves where the bitmasks are. eg:
+  //   12             123
+  //   34 -> (3x3) -> 456
+  //   56             000
+  // where '0's are brand new data
+  remap(size: Bounds2d): Frame {
+    let allBits: Array<boolean> = []; // create an array with all the bits to make resizing easier
+    for (let bitmask of this.rows) {
+      allBits = allBits.concat(bitmask.mask);
+    }
+
+    const bitmasks: Array<BitMask> = [];
+    let i = 0;
+    for (let address = 0; address < size.y; address++) {
+      const maskData: Array<boolean> = [];
+      for (let bitDepth = 0; bitDepth < size.x; bitDepth++) {
+        maskData.push( i < allBits.length ? allBits[i] : false );
+        i++;
+      }
+      bitmasks.push(new BitMask(maskData) );
+    }
+
+    return new Frame({
+      size,
+      value: bitmasks
+    });
+  }
+
+  invert(): Frame {
+    const bitmasks: Array<BitMask> = [];
+    for (let bitmask of this._value) {
+      bitmasks.push( bitmask.invert() );
+    }
+
+    return new Frame({
+      size: this._size,
+      value: bitmasks
+    })
+  }
+
+  hFlip(): Frame {
+    const bitmasks: Array<BitMask> = [];
+    for (let bitmask of this._value) {
+      bitmasks.push(bitmask.reverse());
+    }
+    return new Frame({
+      size: this._size,
+      value: bitmasks
+    })
+  }
+
+  vFlip(): Frame {
+    const bitmasks: Array<BitMask> = [];
+    for (let i = this._value.length; i >= 0; i--) { bitmasks.push(this._value[i]); } // reverse list
+    return new Frame({
+      size: this._size,
+      value: bitmasks
+    });
+  }
+
+  hexDump({
+    lineSize=0,
+    chunkSize=4
+  }: dataDumpInterface): Array<string> {
+    const hexArr: Array<string> = [];
+    for (let bitMask of this.rows) {
+      hexArr.push(bitMask.hexDump());
+    }
+
+    if (lineSize > 0) {
+      const data = hexArr.join(""); // ignore default spacing
+      
+      const lineLength = lineSize + Math.ceil(lineSize / chunkSize) - 1;
+      const asciiLength = Math.ceil(lineLength / 2);
+      for (let i = 0; i < data.length; i += lineSize) {
+        const workingData = data.substring(i,i+lineSize);
+        let printedData = "";
+        let ascii = "|";
+        for (let j = 0; j < workingData.length; j += chunkSize) { // separate data into readable chunks
+          if (j != 0)
+            printedData += " " // separates chunks from other chunks
+          const chunk = workingData.substring(j, j+chunkSize);
+          printedData += chunk;
+        }
+        for (let j = 0; j < workingData.length; j += 2) { // try to read ascii from data
+          const chunk = workingData.substring(j, j+2);
+          const numChunk = parseInt(chunk, 16);
+          ascii += (numChunk >= 32 && numChunk <= 126) ? String.fromCharCode(numChunk) : "."
+        }
+
+        for (let j = printedData.length; j < lineLength; j++) { // right fill for ascii chart
+          printedData += ((j+1) % (chunkSize+1)) == 0 ? " " : ".";
+        }
+        for (let j = ascii.length; j < asciiLength; j++) { ascii += "."; } // right fill for ascii chart wall
+        ascii += "|"
+
+        console.log(printedData + "  " + ascii)
+      }
+    }
+    return hexArr;
+  }
+
+  // hex dump, but printing out the raw binary -- more useful on small scales 
+  binDump({
+    lineSize=0,
+    chunkSize=8
+  }: dataDumpInterface): Array<string> {
+    const binArr: Array<string> = [];
+    for (let bitMask of this.rows) {
+      binArr.push(bitMask.binDump());
+    }
+
+    if (lineSize > 0) {
+      const data = binArr.join("");
+
+      const lineLength = lineSize + Math.ceil(lineSize / chunkSize) - 1;
+      for (let i = 0; i < data.length; i += lineSize) {
+        const workingData = data.substring(i, i+lineSize);
+        let printedData = "";
+        for (let j = 0; j < workingData.length; j += chunkSize) {
+          if (j != 0)
+            printedData += " ";
+          printedData += workingData.substring(j, j+chunkSize);
+        }
+        for (let j = printedData.length; j < lineLength; j++) { // right fill for ascii chart
+          printedData += ((j+1) % (chunkSize+1)) == 0 ? " " : ".";
+        }
+
+        console.log(printedData);
+      }
+    }
+
+    return binArr;
   }
 }
 
@@ -501,12 +642,13 @@ export class FrameSprite extends Frames {
 }
 
 // ROM - Read Only Memory
+// width indicates bit depth, height indicates different addresses
 export class ROMFrame extends Frame {
   constructor({
     format,
     jsonData,
     depth = -1,
-    reverseBits = false, // if true: will reverse data bits (based on format); if false: will do nothing
+    reverseBits = false, // if true: will reverse data bits (based on format, 001 -> 100, 110, -> 001); if false: will do nothing
     reverseOrder = false // if true: will reverse order of data bits (based on format); if false: will do nothing
   }: ROMFrameInterface) {
     if (!Array.isArray(format))
@@ -514,7 +656,7 @@ export class ROMFrame extends Frame {
     if (!Array.isArray(jsonData))
       jsonData = [jsonData]; // convert [jsonData] into an array
     
-    if (reverseOrder)
+    if (!reverseOrder)
       format.reverse();
 
     let totalLength = 0;
@@ -529,7 +671,7 @@ export class ROMFrame extends Frame {
     if (depth == -1)
       depth = totalLength;
 
-    const bitMasks = [];
+    const bitMasks: Array<BitMask> = [];
     for (let data of jsonData) {
       // individual packets of data
       let bitMaskData: number = 0; // theoretically safe up to 53 bits
@@ -554,12 +696,13 @@ export class ROMFrame extends Frame {
         }
         localDepth += romFormat.bits
       }
+
+      const mask = new RawBitMask( bitMaskData );
+      mask.alignLeft = false;
+
       bitMasks.push(
-        new RawBitMask(
-          bitMaskData,
-          depth
-        )
-      )
+        mask.length == depth ? mask : mask.extend({ newLength: 8 })
+      );
     }
 
     super({
@@ -569,47 +712,6 @@ export class ROMFrame extends Frame {
       }),
       value: bitMasks
     });
-  }
-
-  hexDump(print:number=0): Array<string> {
-    const hexArr: Array<string> = [];
-    for (let bitMask of this.rows) {
-      hexArr.push(bitMask.hexDump(false));
-    }
-
-    if (print != 0) {
-      let totalDistance = -1;
-      for (let i = 0; i < hexArr.length; i += print) {
-        let str = "";
-        for (let j = 0; j < print && i+j < hexArr.length; j++) {
-          str += " " + hexArr[i+j];
-        }
-        str = str.substring(1);
-
-        let base64 = "";
-        const bytes = str.split(" ");
-        for (let byte of bytes) {
-          let ascii = parseInt(byte,16);
-          base64 += (32 <= ascii && ascii <= 126) ? String.fromCharCode(ascii) : ".";
-        }
-        
-        if (totalDistance == -1)
-          totalDistance = str.length;
-
-        for (let j = str.length; j < totalDistance; j++) {
-          str += " ";
-        }
-        let rPadding = "";
-        for (let i = base64.length; i < print; i++) {
-          rPadding += " "
-        }
-
-        console.log(str + "  |" + base64 + rPadding + "|");
-        str = "";
-      }
-    }
-
-    return hexArr;
   }
 }
 
@@ -654,7 +756,7 @@ export class RawROMFrame extends ROMFrame {
   }: RawROMFrameInterface) {
     const jsonData: Array<{data: number}> = [];
     for (let value of data) {
-      jsonData.push({ "data": value });
+      jsonData.push({ "data": +value });
     }
 
     super({

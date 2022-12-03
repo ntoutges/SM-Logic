@@ -29,6 +29,11 @@ export interface FrameInterface {
   fallback?: boolean
 }
 
+export interface dataDumpInterface {
+  lineSize?: number,
+  chunkSize?: number
+}
+
 export interface FramesInterface {
   frames: Array<Frame>,
   size?: Bounds2d
@@ -43,6 +48,10 @@ export interface SpriteInterface {
   frame: Frame,
   movement?: Bounds2d,
   step?: Bounds2d
+}
+
+export interface BasicROMFrameInterface {
+  frame: Frame
 }
 
 export interface ROMFrameInterface {
@@ -71,7 +80,7 @@ export interface MappedROMFormat extends ROMFormat {
 }
 
 export interface RawROMFrameInterface {
-  data: Array<number>,
+  data: Array<number> | string,
   depth?: number
 }
 

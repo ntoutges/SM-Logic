@@ -1,16 +1,19 @@
-import { Container, Grid, Packager } from "../../../../containers/classes";
-import { Color, HexColor, RGB } from "../../../../support/colors/classes";
+import { Container, Grid, Packager, Unit } from "../../../../containers/classes";
+import { Color  } from "../../../../support/colors/classes";
 import { Colors } from "../../../../support/colors/enums";
 import { CustomKey, Id, Identifier, KeylessFutureId, KeylessId, KeyMap, UniqueCustomKey } from "../../../../support/context/classes";
 import { combineIds, MemoryIdentifiers } from "../../../../support/context/enums";
-import { Connections, Delay, MultiConnections, Operation } from "../../../../support/logic/classes";
+import { BitMask, Connections, Delay, Frame, MultiConnections, Operation } from "../../../../support/logic/classes";
 import { LogicalOperation, Time } from "../../../../support/logic/enums";
 import { MultiConnectionsType } from "../../../../support/logic/interfaces";
 import { Bounds, Bounds2d, Pos, Rotate } from "../../../../support/spatial/classes";
 import { Direction } from "../../../../support/spatial/enums";
 import { Logic, Timer } from "../../../blocks/basics";
+import { Wood } from "../../../blocks/materials";
+import { DraggableIds } from "../../../shapeIds";
 import { Integer } from "../../numbers/classes";
-import { AddressableMemoryRowInterface, MemoryGridInterface, MemoryRowInterface, MemorySelectorInterface, ROMInterface, ROMPackageInterface } from "./interfaces";
+import { Custom2dShape } from "../../support/classes";
+import { AddressableMemoryRowInterface, CardROMInterface, CardROMPackageInterface, MemoryGridInterface, MemoryRowInterface, MemorySelectorInterface, ROMInterface, ROMPackageInterface } from "./interfaces";
 
 export class MemoryRow extends Grid {
   constructor({
@@ -731,7 +734,9 @@ export class ROMPackage extends Packager {
   readonly rom: ROM;
   constructor({
     key,
-    pos,rotate,color,
+    pos,
+    // rotate,
+    color,
     data
   }: ROMPackageInterface) {
     
@@ -752,7 +757,9 @@ export class ROMPackage extends Packager {
     }
 
     super({
-      pos,rotate,color,
+      pos,
+      // rotate,
+      color,
       packageA: '[{"color":"7F7F7F","pos":{"x":-1,"y":1,"z":0},"shapeId":"4f1c0036-389b-432e-81de-8261cb9f9d57","xaxis":-2,"zaxis":-3},{"color":"7F7F7F","pos":{"x":0,"y":0,"z":8},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":-1,"zaxis":-2},{"color":"7F7F7F","pos":{"x":-1,"y":0,"z":0},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":-1,"zaxis":2},{"color":"7F7F7F","pos":{"x":0,"y":0,"z":5},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":-1,"zaxis":-2},{"bounds":{"x":5,"y":1,"z":8},"color":"222222","pos":{"x":-1,"y":0,"z":1},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3},{"color":"7F7F7F","pos":{"x":-1,"y":1,"z":8},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":-1,"zaxis":-2},{"color":"7F7F7F","pos":{"x":4,"y":-1,"z":1},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":2,"zaxis":1},{"color":"7F7F7F","pos":{"x":0,"y":-1,"z":1},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":-1,"zaxis":2},{"color":"7F7F7F","pos":{"x":-1,"y":1,"z":4},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":-1,"zaxis":-2},{"color":"7F7F7F","pos":{"x":5,"y":1,"z":8},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":-2,"zaxis":1},{"color":"7F7F7F","pos":{"x":5,"y":1,"z":8},"shapeId":"4f1c0036-389b-432e-81de-8261cb9f9d57","xaxis":-2,"zaxis":3},{"color":"7F7F7F","pos":{"x":5,"y":0,"z":0},"shapeId":"4f1c0036-389b-432e-81de-8261cb9f9d57","xaxis":2,"zaxis":-3},{"color":"7F7F7F","pos":{"x":5,"y":0,"z":0},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":2,"zaxis":1},{"color":"7F7F7F","pos":{"x":5,"y":0,"z":1},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":2,"zaxis":1},{"color":"7F7F7F","pos":{"x":5,"y":0,"z":4},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":2,"zaxis":1},{"bounds":{"x":2,"y":1,"z":8},"color":"4A4A4A","pos":{"x":1,"y":-1,"z":0},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3},{"bounds":{"x":1,"y":1,"z":7},"color":"222222","pos":{"x":4,"y":0,"z":1},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3},{"bounds":{"x":5,"y":1,"z":1},"color":"4A4A4A","pos":{"x":-1,"y":-1,"z":-1},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3},{"color":"1C8687","pos":{"x":4,"y":0,"z":9},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":2,"zaxis":-3},{"color":"7F7F7F","pos":{"x":-1,"y":0,"z":8},"shapeId":"4f1c0036-389b-432e-81de-8261cb9f9d57","xaxis":2,"zaxis":3},{"color":"7F7F7F","pos":{"x":5,"y":-1,"z":7},"shapeId":"07232236-22eb-4912-8774-ab185f368bb9","xaxis":2,"zaxis":-1},{"color":"7F7F7F","pos":{"x":-1,"y":1,"z":5},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":-1,"zaxis":-2},{"color":"7F7F7F","pos":{"x":4,"y":-1,"z":1},"shapeId":"4f1c0036-389b-432e-81de-8261cb9f9d57","xaxis":2,"zaxis":-3},{"color":"7F7F7F","pos":{"x":4,"y":0,"z":8},"shapeId":"4f1c0036-389b-432e-81de-8261cb9f9d57","xaxis":-2,"zaxis":3},{"color":"7F7F7F","pos":{"x":5,"y":0,"z":7},"shapeId":"bbc5cc77-443d-4aa7-a175-ebdeb09c2df3","xaxis":-2,"zaxis":-1},{"bounds":{"x":5,"y":1,"z":1},"color":"4A4A4A","pos":{"x":-1,"y":-1,"z":8},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3}]',
       children: [
         new ROM({
@@ -768,5 +775,202 @@ export class ROMPackage extends Packager {
         })
       ]
     });
+  }
+}
+
+// ROM in the form of cardboard blocks
+export class CardROM extends Container {
+  constructor({
+    data,
+    support=false,
+    front=false, // change row[0] to white cardboard, instead of black glass
+    pos,
+    rotate,
+    color
+  }: CardROMInterface) {
+    const cardValue: BitMask = data.rows[0]; // makes up the front of the ROM, constructed from the first row of data
+    const glassValue: Array<BitMask> = []; // makes up the main body of the ROM, constructed from all but the first row of data
+    for (let i = 1; i < data.height; i++) {
+      glassValue.push( data.rows[i] );
+    }
+
+    const cardData = new Frame({
+      size: new Bounds2d({
+        x: data.width,
+        y: 1
+      }),
+      value: [cardValue]
+    });
+
+    const glassData = new Frame({
+      size: new Bounds2d({
+        x: data.width,
+        y: data.height-1
+      }),
+      value: glassValue.reverse()
+    });
+
+    super({
+      pos,
+      rotate,
+      color,
+      children: ([
+        new Custom2dShape({
+          frame: cardData,
+          trueMaterial: front ? DraggableIds.Cardboard : DraggableIds.GlassTile,
+          color: new Color(front ? Colors.SM_White : Colors.SM_Black),
+          pos: new Pos({
+            z: (support ? 1 : 0)
+          })
+        }),
+        new Custom2dShape({
+          frame: glassData,
+          trueMaterial: DraggableIds.GlassTile,
+          color: new Color(Colors.SM_Black),
+          pos: new Pos({
+            y: 1,
+            z: (support ? 1 : 0)
+          })
+        })
+      ] as Array<Unit>).concat(
+        support ? new Wood({
+          bounds: new Bounds({
+            x: data.width,
+            y: data.height
+          }),
+          color: new Color(Colors.SM_M_Wood)
+        }) : []
+      )
+    });
+  }
+}
+
+export class CardROMPackage extends Packager {
+  constructor({
+    data,
+    pos = new Pos({}),
+    // rotate,
+    color
+  }: CardROMPackageInterface) {
+    if (data.width != 16 || data.height != 16)
+      throw new Error(`Data bounds of [${data.width}x${data.height}] do not match required bounds of [16x16]`)
+    
+    // set data up to be put into a cartrige
+    // cartrige data is read right->left; block=0, air=1
+    data = data.hFlip().invert();
+    super({
+      pos: pos.add(
+        new Pos({
+          x: 27,
+          y: -11,
+          z: -1
+        })
+      ),
+      // rotate,
+      color,
+      packageA: '[{"bounds":{"x":16,"y":15,"z":1},"color":"222222","pos":{"x":-27,"y":12,"z":1},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3},{"bounds":{"x":18,"y":1,"z":2},"color":"222222","pos":{"x":-28,"y":27,"z":1},"shapeId":"628b2d61-5ceb-43e9-8334-a4135566df7a","xaxis":1,"zaxis":3},{"bounds":{"x":1,"y":16,"z":2},"color":"222222","pos":{"x":-11,"y":11,"z":1},"shapeId":"628b2d61-5ceb-43e9-8334-a4135566df7a","xaxis":1,"zaxis":3},{"bounds":{"x":16,"y":1,"z":1},"color":"EEEEEE","pos":{"x":-27,"y":11,"z":1},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3},{"bounds":{"x":1,"y":16,"z":2},"color":"222222","pos":{"x":-28,"y":11,"z":1},"shapeId":"628b2d61-5ceb-43e9-8334-a4135566df7a","xaxis":1,"zaxis":3}]',
+      child: new CardROM({
+        data: data,
+        front: true,
+        pos: new Pos({
+          x: -26,
+          y: 11,
+          z: 2
+        })
+      })
+    })
+  }
+}
+
+// Double Density
+export class DDCardROMPackage extends Packager {
+  constructor({
+    data,
+    pos = new Pos({}),
+    // rotate,
+    color
+  }: CardROMPackageInterface) {
+    if (data.width != 32 || data.height != 16)
+      throw new Error(`Data bounds of [${data.width}x${data.height}] do not match required bounds of [32x16]`)
+
+    // set data up to be put into a cartrige
+    // cartrige data is read right->left; block=0, air=1
+    data = data.hFlip().invert();
+
+    const topData: Array<BitMask> = [];
+    const midData: Array<BitMask> = [];
+    const lowData: Array<BitMask> = [];
+
+    let topMaskData: Array<boolean> = [];
+    let midMaskData: Array<boolean> = [];
+    let lowMaskData: Array<boolean> = [];
+    let byte = "";
+
+    for (let i in data.rows) {
+      const mask = data.rows[i].mask
+      for (let j = 0; j < mask.length; j += 2) {
+        // a/b in reference to truth tables
+        const a = mask[j+1];
+        const b = mask[j];
+        
+        topMaskData.push( a && b );
+        midMaskData.push( a );
+        lowMaskData.push( a || b );
+
+        // console.log(parseInt((a ? 1:0) + "" + (b ? 1:0), 2))
+      }
+      topData.push(new BitMask(topMaskData));
+      midData.push(new BitMask(midMaskData));
+      lowData.push(new BitMask(lowMaskData));
+      topMaskData = [];
+      midMaskData = [];
+      lowMaskData = [];
+    }
+
+    const frameSize = new Bounds2d({ x: 16,y:16 })
+
+    super({
+      pos: new Pos({
+        x: -2,
+        y: -7,
+        z: -1
+      }),
+      // rotate,
+      color,
+      packageA: '[{"bounds":{"x":1,"y":17,"z":4},"color":"222222","pos":{"x":18,"y":8,"z":1},"shapeId":"628b2d61-5ceb-43e9-8334-a4135566df7a","xaxis":1,"zaxis":3},{"bounds":{"x":14,"y":1,"z":4},"color":"EEEEEE","pos":{"x":3,"y":7,"z":1},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3},{"bounds":{"x":1,"y":17,"z":1},"color":"222222","pos":{"x":1,"y":8,"z":4},"shapeId":"628b2d61-5ceb-43e9-8334-a4135566df7a","xaxis":1,"zaxis":3},{"bounds":{"x":1,"y":1,"z":3},"color":"222222","pos":{"x":2,"y":7,"z":1},"shapeId":"628b2d61-5ceb-43e9-8334-a4135566df7a","xaxis":1,"zaxis":3},{"bounds":{"x":16,"y":1,"z":1},"color":"222222","pos":{"x":2,"y":23,"z":1},"shapeId":"628b2d61-5ceb-43e9-8334-a4135566df7a","xaxis":1,"zaxis":3},{"bounds":{"x":1,"y":18,"z":3},"color":"222222","pos":{"x":1,"y":7,"z":1},"shapeId":"628b2d61-5ceb-43e9-8334-a4135566df7a","xaxis":1,"zaxis":3},{"bounds":{"x":2,"y":1,"z":1},"color":"222222","pos":{"x":1,"y":7,"z":4},"shapeId":"628b2d61-5ceb-43e9-8334-a4135566df7a","xaxis":1,"zaxis":3},{"bounds":{"x":2,"y":1,"z":4},"color":"222222","pos":{"x":17,"y":7,"z":1},"shapeId":"628b2d61-5ceb-43e9-8334-a4135566df7a","xaxis":1,"zaxis":3},{"bounds":{"x":16,"y":1,"z":4},"color":"222222","pos":{"x":2,"y":24,"z":1},"shapeId":"628b2d61-5ceb-43e9-8334-a4135566df7a","xaxis":1,"zaxis":3},{"bounds":{"x":16,"y":15,"z":1},"color":"222222","pos":{"x":2,"y":8,"z":1},"shapeId":"df953d9c-234f-4ac2-af5e-f0490b223e71","xaxis":1,"zaxis":3}]',
+      child: new Container({
+        children: [
+          new CardROM({
+            data: new Frame({
+              value: topData,
+              size: frameSize
+            }),
+            front: false,
+            pos: new Pos({ z: 2 })
+          }),
+          new CardROM({
+            data: new Frame({
+              value: midData,
+              size: frameSize
+            }),
+            front: false,
+            pos: new Pos({ z: 1 })
+          }),
+          new CardROM({
+            data: new Frame({
+              value: lowData,
+              size: frameSize
+            }),
+            front: false,
+            pos: new Pos({ z: 0 })
+          })
+        ],
+        pos: new Pos({
+          x: 3,
+          y: 8,
+          z: 2
+        })
+      })
+    })
   }
 }

@@ -56,6 +56,22 @@ export interface ROMPackageInterface {
   key: BasicKey,
   data: Frame,
   pos?: Pos,
+  // rotate?: Rotate,
+  color?: Color
+}
+
+export interface CardROMInterface {
+  data: Frame,
+  support?: boolean,
+  front?: boolean,
+  pos?: Pos,
   rotate?: Rotate,
+  color?: Color
+}
+
+export interface CardROMPackageInterface {
+  data: Frame,
+  pos?: Pos,
+  // rotate?: Rotate,
   color?: Color
 }

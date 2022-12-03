@@ -76,10 +76,11 @@ export class Container extends Unit {
 
     this._childs.forEach((child: Unit) => {
       child.pos = child.pos.rotate(newOffset.rotate);
-      childBlueprints.push(
-        child.build(newOffset)
-      );
+      const built = child.build(newOffset);
+      if (built != "") // some Units, such as [Custom2dShape], may return an empty string, as they have no data to add
+        childBlueprints.push( built );
     });
+
     return childBlueprints.join(",");
   }
 }
@@ -155,7 +156,10 @@ export class Grid extends Container {
           rotate: totalRotation
         });
       }
-      childBlueprints.push( child.build( localOffset ) );
+
+      const built = child.build( localOffset );
+      if (built != "") // some Units, such as [Custom2dShape], may return an empty string, as they have no data to add
+        childBlueprints.push( built );
 
       posCounter = posCounter.add( new Pos({x:1}) );
       position = position.add( new Pos({x:this._spacing.x}) );
@@ -180,7 +184,7 @@ export class Packager extends Container {
     this.package = packageA;
   }
 
-  build(offset: Offset) {
+  build(offset=new Offset({})) {
     // offset package
     let packageJSON = JSON.parse(this.package);
 
@@ -203,6 +207,10 @@ export class Packager extends Container {
     let packageStr = JSON.stringify(packageJSON);
     packageStr = packageStr.substring(1, packageStr.length-1);
 
-    return super.build(offset) + "," + packageStr;
+    let built = super.build(offset);
+    if (built != "") // some Units, such as [Custom2dShape], may return an empty string, as they have no data to add
+      built += ","
+
+    return built + packageStr;
   }
 }
