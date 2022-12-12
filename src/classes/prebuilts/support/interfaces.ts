@@ -1,6 +1,6 @@
 import { UnitInterface } from "../../../containers/interfaces";
 import { Color } from "../../../support/colors/classes";
-import { Frame } from "../../../support/logic/classes";
+import { Frame } from "../../../support/frames/classes";
 import { Pos, Rotate } from "../../../support/spatial/classes";
 import { DraggableIds } from "../../shapeIds";
 

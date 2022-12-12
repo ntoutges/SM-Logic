@@ -1,4 +1,4 @@
-import { MappedROMFrame, RawROMFrame, ROMFrame, StringROMFrame } from "./logic/classes";
+import { MappedROMFrame, RawROMFrame, ROMFrame, StringROMFrame } from "./frames/classes";
 
 export const ROMs = {
   "RPG": new MappedROMFrame({

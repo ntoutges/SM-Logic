@@ -1,4 +1,5 @@
-import { Frame, VBitMask } from "../../../support/logic/classes";
+import { Frame } from "../../../support/frames/classes";
+import { VBitMask } from "../../../support/logic/classes";
 import { Bounds2d } from "../../../support/spatial/classes";
 
 export enum Characters {

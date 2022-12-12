@@ -1,6 +1,7 @@
 import { Color } from "../../../../support/colors/classes";
 import { BasicKey, KeyMap } from "../../../../support/context/classes";
-import { BitMask, Frame, Frames, MultiConnections } from "../../../../support/logic/classes";
+import { Frame } from "../../../../support/frames/classes";
+import { MultiConnections } from "../../../../support/logic/classes";
 import { Bounds2d, Pos, Rotate } from "../../../../support/spatial/classes";
 import { Logic } from "../../../blocks/basics";
 

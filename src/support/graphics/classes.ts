@@ -1,5 +1,6 @@
 import { BitMap, FutureBitMap } from "../../classes/prebuilts/displays/classes";
-import { BitMask, Frame } from "../logic/classes";
+import { Frame } from "../frames/classes";
+import { BitMask } from "../logic/classes";
 import { Bounds2d, Pos, Pos2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
 import { CircleInterface, FrameBuilderInterface, RectInterface, ShapeInterface } from "./interfaces";

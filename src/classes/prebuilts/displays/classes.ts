@@ -1,7 +1,8 @@
 import { Container, Grid, Unit } from "../../../containers/classes";
 import { BasicKey, CustomKey, Id, Identifier, Key, KeylessFutureId, KeylessId, KeyMap, UniqueCustomKey } from "../../../support/context/classes";
 import { combineIds } from "../../../support/context/enums";
-import { BitMask, Connections, Delay, Frame, Frames, MultiConnections, Operation, PhysicalFrame, ScaleableDelays, VBitMask } from "../../../support/logic/classes";
+import { Frame, Frames, PhysicalFrame } from "../../../support/frames/classes";
+import { BitMask, Connections, Delay, MultiConnections, Operation, ScaleableDelays, VBitMask } from "../../../support/logic/classes";
 import { LogicalOperation, Time } from "../../../support/logic/enums";
 import { MultiConnectionsType } from "../../../support/logic/interfaces";
 import { Bounds, Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";

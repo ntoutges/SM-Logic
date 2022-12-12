@@ -1,6 +1,7 @@
 import { Color } from "../../../support/colors/classes";
 import { BasicKey, Id, KeyMap } from "../../../support/context/classes";
-import { BitMask, Delay, Delays, Frame, Frames, MultiConnections } from "../../../support/logic/classes";
+import { Frame, Frames } from "../../../support/frames/classes";
+import { BitMask, Delay, Delays, MultiConnections } from "../../../support/logic/classes";
 import { Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";
 
 export interface FutureBitMapInterface {
