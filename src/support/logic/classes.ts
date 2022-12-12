@@ -582,14 +582,20 @@ export class Frame extends Equatable {
 export class VFrame extends Frame {
   constructor({
     data,
-    offCharacter = ""
+    offCharacter = "",
+    size = null
   }: VFrameInterface) {
     const value: Array<VBitMask> = [];
     const height = data.length; // get height
     let width = 1;
     for (let i = data.length-1; i >= 0; i--) { // reversed loop to construct [value] in the correct order
       width = Math.max(width, data[i].length); // get width
-      value.push(new VBitMask(data[i]));
+      
+      let mask = new VBitMask(data[i], offCharacter);
+      if (size != null && data[i].length != size.x)
+        mask = mask.extend({ newLength: size.x });
+
+      value.push(mask);
     }
 
     super({

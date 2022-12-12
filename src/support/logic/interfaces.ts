@@ -36,7 +36,8 @@ export interface dataDumpInterface {
 
 export interface VFrameInterface {
   data: Array<string>,
-  offCharacter?: string
+  offCharacter?: string,
+  size?: Bounds2d
 }
 
 export interface FramerInterface {
