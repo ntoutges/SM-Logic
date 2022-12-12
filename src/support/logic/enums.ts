@@ -23,7 +23,7 @@ export enum LogicalOperation {
 
 export enum Time {
   Tick = 1,
-  Millisecond = 0.025,
+  Millisecond = 0.04,
   Second = 40,
   Minute = 2400
 }

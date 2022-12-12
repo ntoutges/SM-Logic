@@ -740,10 +740,10 @@ export class ROMPackage extends Packager {
     data
   }: ROMPackageInterface) {
     
-    data.resize( // force this size to fit within package
+    data.remap( // force this size to fit within package
       new Bounds2d({
         x: 8,
-        y: 8
+        y: 64
       }),
     );
 

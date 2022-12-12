@@ -1,7 +1,7 @@
 import { Id, Identifier } from "../context/classes";
 import { Bounds2d } from "../spatial/classes";
-import { BitMask, Connections, Frame, MultiConnections } from "./classes";
-import { LogicalOperation, Time } from "./enums";
+import { BitMask, Connections, Frame, MultiConnections, Operation } from "./classes";
+import { LogicalType, Time } from "./enums";
 
 export interface DelayInterface {
   delay: number,
@@ -32,6 +32,16 @@ export interface FrameInterface {
 export interface dataDumpInterface {
   lineSize?: number,
   chunkSize?: number
+}1
+
+export interface VFrameInterface {
+  data: Array<string>,
+  offCharacter?: string
+}
+
+export interface FramerInterface {
+  frames: Array<Frame>,
+  combinatorFunction?: Operation
 }
 
 export interface FramesInterface {

@@ -3,7 +3,7 @@ import { Id, Identifier, KeylessId } from "../context/classes";
 import { Bounds, Bounds2d, Pos, Pos2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
 import { LogicalOperation, LogicalType, Time } from "./enums";
-import { BitMaskExtendInterface, DelayInterface, FrameInterface, FramesInterface, dataDumpInterface, MappedRomFrameInterface, MetaMultiConnectionsType, MultiConnectionsType, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface } from "./interfaces";
+import { BitMaskExtendInterface, DelayInterface, FrameInterface, FramesInterface, dataDumpInterface, MappedRomFrameInterface, MetaMultiConnectionsType, MultiConnectionsType, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface, FramerInterface } from "./interfaces";
 
 export class Operation extends Equatable {
   private op: LogicalOperation;
@@ -34,6 +34,26 @@ export class Operation extends Equatable {
         return LogicalType.XNor;
       default:
         return LogicalType.And;
+    }
+  }
+
+  operate(...values: Array<boolean>) {
+    let trues = 0; // amount of trues in [values] array
+    for (let bool of values) { if (bool) trues++; }
+
+    switch (this.type) {
+      case LogicalType.And:
+        return trues == values.length;
+      case LogicalType.Or:
+        return trues > 0;
+      case LogicalType.Xor:
+        return trues % 2 == 1;
+      case LogicalType.Nand:
+        return trues < values.length;
+      case LogicalType.Nor:
+        return trues == 0;
+      case LogicalType.XNor:
+        return trues % 2 == 0;
     }
   }
 }
@@ -556,6 +576,72 @@ export class Frame extends Equatable {
     }
 
     return binArr;
+  }
+}
+
+export class VFrame extends Frame {
+  constructor({
+    data,
+    offCharacter = ""
+  }: VFrameInterface) {
+    const value: Array<VBitMask> = [];
+    const height = data.length; // get height
+    let width = 1;
+    for (let i = data.length-1; i >= 0; i--) { // reversed loop to construct [value] in the correct order
+      width = Math.max(width, data[i].length); // get width
+      value.push(new VBitMask(data[i]));
+    }
+
+    super({
+      size: new Bounds2d({
+        x: width,
+        y: height
+      }),
+      value
+    });
+  }
+}
+
+// combine multiple frames into one frame
+export class Framer extends Frame {
+  constructor({
+    frames,
+    combinatorFunction = new Operation(LogicalOperation.Or)
+  }: FramerInterface) {
+    const frameData: Array<Array<boolean>> = [];
+    for (const frame of frames) {
+      for (let y in frame.rows) {
+        if (frameData.length == +y) frameData.push([]);
+        for (let x in frame.rows[y].mask) {
+          const oldData = (frameData[y].length > +x) ? (frameData[y][x] ? 1 : 0) : -1;
+          const newBit = frame.rows[y].mask[x];
+
+          let combinedBit = false;
+          if (oldData != -1) combinedBit = combinatorFunction.operate(newBit, oldData == 1);
+          else combinedBit = combinatorFunction.operate(newBit);
+
+          frameData[y][x] = combinedBit;
+        }
+      }
+    }
+
+    const height = frameData.length;
+    let width = 1;
+
+    const frameMasks: Array<BitMask> = [];
+    for (let i in frameData) {
+      const maskData = frameData[i];
+      frameMasks.push(new BitMask(maskData));
+      width  = Math.max(width, maskData.length);
+    }
+
+    super({
+      value: frameMasks,
+      size: new Bounds2d({
+        x: width,
+        y: height
+      })
+    });
   }
 }
 

@@ -15,53 +15,81 @@ export const ROMs = {
       {
         name: "flavor",
         bits: 2,
-        map: { "default": 0b00 }
+        map: { "default": 0b00, "signs": 0b01, "shop": 0b10, "key": 0b11 }
       }
   ],
     jsonData: [
-      {
-        doors: 0b0010 // this data is not actually a room, it just sets up the rest of the machine to work
-      },
-      {
-        doors: 0b0011,
-        flavor: 0b11
-      },
-      {
-        doors: 0b1011,
-        locked: "down",
-        flavor: 0b01
-      },
-      {
-        doors: 0b0010,
-        locked: "right",
-        flavor: 0b01
-      },
-      {},{},{},{},
-      {
-        doors: 0b0100,
-        locked: 0b00
-      },
-      {
-        doors: 0b1011
-      },
-      {
-        doors: 0b0010,
-        locked: "down",
-        flavor: 0b10
-      },
-      {}, {}, {}, {}, {},
-      {
-        doors: 0b1001
-      },
-      {
-        doors: 0b0110
-      },
-      {}, {}, {}, {}, {}, {},
-      {
-        doors: 0b0100,
-        locked: 0b11,
-        flavor: 0b11
-      }
+      { doors: 0b0011, locked: 0b01, flavor: 0b11 }, // doesn't actually impact map, just provides system setup; 0b00,110,111 (exit @ 110,111 -> x=3,y=7)
+      { doors: 0b0011 },
+      { doors: 0b0011 },
+      { doors: 0b1010, locked: "down" },
+      { doors: 0b0001 },
+      { doors: 0b0011, flavor: "key" },
+      { doors: 0b1010, locked: "down" },
+      { doors: 0b1000, locked: "down" },
+
+      { doors: 0b1101, locked: "left" },
+      { doors: 0b1110, locked: "right" },
+      { doors: 0b1000, locked: "down" },
+      { doors: 0b1100, locked: "right" },
+      { doors: 0b1001, locked: "down" },
+      { doors: 0b0011 },
+      { doors: 0b0111 },
+      { doors: 0b1110, locked: "right" },
+
+      { doors: 0b1100, locked: "right" },
+      { doors: 0b1101, locked: "left" },
+      { doors: 0b1110, locked: "right" },
+      { doors: 0b1100, locked: "right" },
+      { doors: 0b1101, locked: "left" },
+      { doors: 0b1011, locked: "right" },
+      { doors: 0b1010, locked: "left" },
+      { doors: 0b0100, flavor: "key" },
+
+      { doors: 0b1100, locked: "right" },
+      { doors: 0b1100, locked: "right" },
+      { doors: 0b0100 },
+      { doors: 0b0100, flavor: "key" },
+      { doors: 0b0100 },
+      { doors: 0b1100},
+      { doors: 0b0101 },
+      { doors: 0b1010, locked: "right" },
+
+      { doors: 0b1100, locked: "right"},
+      { doors: 0b0101 },
+      { doors: 0b0011 },
+      { doors: 0b0011 },
+      { doors: 0b1110, locked: "down" },
+      { doors: 0b1100, locked: "down"},
+      { doors: 0b1001, locked: "down" },
+      { doors: 0b1110, locked: "right" },
+      
+      { doors: 0b1101, locked: "left" },
+      { doors: 0b1010, locked: "right" },
+      { doors: 0b1001, locked: "left" },
+      { doors: 0b0011 },
+      { doors: 0b0110 },
+      { doors: 0b1100, locked: "right" },
+      { doors: 0b1100, locked: "right" },
+      { doors: 0b0100, flavor: "key" },
+      
+      { doors: 0b1100, locked: "right" },
+      { doors: 0b1100, locked: "right" },
+      { doors: 0b1100, locked: "right" },
+      { doors: 0b1001, locked: "down" },
+      { doors: 0b0011 },
+      { doors: 0b0110 },
+      { doors: 0b1101, locked: "left" },
+      { doors: 0b0010 },
+
+      { doors: 0b0101 },
+      { doors: 0b0111 },
+      { doors: 0b0110 },
+      { doors: 0b1100, locked: "right" },
+      { doors: 0b0001 },
+      { doors: 0b0011 },
+      { doors: 0b0111 },
+      { doors: 0b0010 }
     ]
   }),
   "HW": [ // (H)ello (W)orld test ROMs
