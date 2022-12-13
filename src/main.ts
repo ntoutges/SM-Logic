@@ -5,7 +5,7 @@ import { Container, Grid, Unit } from "./containers/classes";
 import { ConstantCompare, Integer } from "./classes/prebuilts/numbers/classes";
 import { CustomKey, BasicKey, Id, UniqueCustomKey, KeylessFutureId, Identifier, KeyGen, Keys, StringKeyGen, KeyMap, KeylessId } from "./support/context/classes";
 import { BitMask, Connections, Delay, Delays, MultiConnections, Operation, RawBitMask, VBitMask } from "./support/logic/classes";
-import { Frame, Framer, Frames, MappedROMFrame, RawROMFrame, ROMFrame, VFrame } from "./support/frames/classes"
+import { FileFrame, Frame, Framer, Frames, MappedROMFrame, RawROMFrame, readFile, ROMFrame, VFrame } from "./support/frames/classes"
 import { Bounds, Bounds2d, Pos, Pos2d, Rotate } from "./support/spatial/classes";
 import { Direction, Orientation } from "./support/spatial/enums";
 import { BitMap, CharacterDisplay, SevenSegment, SevenSegmentNumber, SimpleBitMap, VideoDisplay } from "./classes/prebuilts/displays/classes";
@@ -25,14 +25,27 @@ import { Wood } from "./classes/blocks/materials";
 import { DraggableIds } from "./classes/shapeIds";
 import { ROMs } from "./support/ROMs";
 
+const Jimp = require("jimp");
+
 export class Body extends GenericBody {
   constructor() {
     super({ debug:true });
   }
-  build() {
+  async build() {
     const key = this.key;
     const gen = new StringKeyGen(key);
 
-    return new Container({});
+    const shapes = [];
+    const file = await readFile("tester.png");
+
+    return new Custom2dShape({
+      frame: new FileFrame({
+        imageData: file,
+        activeRange: [0,50]
+      }),
+      falseMaterial: DraggableIds.GlassTile,
+      trueMaterial: DraggableIds.Metal,
+      color: new Color(Colors.SM_White)
+    })
   }
 }

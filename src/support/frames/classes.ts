@@ -1,9 +1,11 @@
+const Jimp = require("jimp");
+
 import { Id } from "../context/classes";
 import { BitMask, Operation, RawBitMask, VBitMask } from "../logic/classes";
 import { LogicalOperation } from "../logic/enums";
 import { Bounds2d, Pos2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
-import { DataDumpInterface, FrameInterface, FramerInterface, FramesInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
+import { DataDumpInterface, FileFrameInterface, FrameInterface, FramerInterface, FramesInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
 
 export class Frame extends Equatable {
   private _size: Bounds2d;
@@ -536,3 +538,41 @@ export class StringROMFrame extends RawROMFrame {
   }
 }
 
+export class FileFrame extends Frame {
+  constructor({
+    imageData,
+    activeRange = [0,127], // active on blacks by default,
+    preview = false
+  }: FileFrameInterface) {
+    const size = new Bounds2d({
+      x: imageData.bitmap.width,
+      y: imageData.bitmap.height
+    });
+
+    let dashes = "";
+    if (preview) {
+      for (let i = 0; i < size.x; i++) { dashes += "--"; }
+      console.log("+-" + dashes + "-+");
+    }
+
+    const bitmasks: Array<BitMask> = [];
+    for (let y = size.y - 1; y >= 0 ; y--) {
+      const bitmaskData: Array<boolean> = [];
+      for (let x = size.x-1; x >= 0; x--) {
+        const raw = Jimp.intToRGBA(imageData.getPixelColor(x,y));
+
+        const avg = ((raw.r + raw.g + raw.b) / 3) * (raw.a / 255)
+        bitmaskData.push( avg >= activeRange[0] && avg <= activeRange[1] );
+      }
+      bitmasks.push(new BitMask(bitmaskData));
+      if (preview) console.log("[ " + bitmaskData.join("").replace(/false/g, "  ").replace(/true/g, "||") + " ]")
+    }
+    if (preview) console.log("+-" + dashes + "-+");
+
+    super({size: size, value: bitmasks});
+  }
+}
+
+export function readFile(filename) {
+  return Jimp.read(`_assets/${filename}`);
+}

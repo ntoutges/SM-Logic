@@ -78,3 +78,9 @@ export interface RawROMFrameInterface {
 export interface StringROMFrameInterface {
   data: string
 }
+
+export interface FileFrameInterface {
+  imageData: any,
+  activeRange?: [min: number, max: number],
+  preview?: boolean
+}
