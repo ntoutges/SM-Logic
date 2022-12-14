@@ -6,15 +6,13 @@ import { LogicalOperation, LogicalType, Time } from "./enums";
 import { BitMaskExtendInterface, DelayInterface, MultiConnectionsType } from "./interfaces";
 
 export class Operation extends Equatable {
-  private op: LogicalOperation;
+  operation: LogicalOperation;
   constructor( operation: LogicalOperation = LogicalOperation.And ) {
     super(["op"]);
-    this.op = operation;
+    this.operation = operation;
   }
-  get operation(): LogicalOperation { return this.op; }
-  set operation(op: LogicalOperation) { this.op = op; }
   get type(): LogicalType {
-    switch (this.op) {
+    switch (this.operation) {
       case LogicalOperation.And:
       case LogicalOperation.Output:
         return LogicalType.And;
@@ -104,7 +102,6 @@ export class MultiConnections extends Equatable {
     else
       this.addConnection(connections.conns, connections.id);
   }
-  get multiConnections(): Map<string,Connections> { return this._conns; }
   addConnection(conn: Connections | MultiConnections, ids: Identifier): void {
     if (conn instanceof Connections)
       this.addRawConnection(conn, ids);
@@ -312,22 +309,21 @@ export class NoDelay extends Delay {
 }
 
 export class Delays extends Equatable {
-  private _delays: Array<Delay>;
+  delays: Array<Delay>;
   constructor(delays: Array<Delay>) {
     super(["_delays"])
-    this._delays = delays;
+    this.delays = delays;
   }
-  add(delay: Delay) { this._delays.push(delay) }
+  add(delay: Delay) { this.delays.push(delay) }
   concat(delays: Array<Delay>) {
     for (let delay of delays) {
       this.add(delay);
     }
   }
-  get length() { return this._delays.length; }
-  get delays() { return this._delays; }
+  get length() { return this.delays.length; }
   get validDelays(): Array<Delay> {
     let valids = [];
-    for (let delay of this._delays) {
+    for (let delay of this.delays) {
       if (delay.getDelay() != -1)
         valids.push(delay);
     }
@@ -345,5 +341,9 @@ export class ScaleableDelays extends Delays {
       delays.push(delay);
     }
     super(delays);
+  }
+  extend(amount=1) {
+    const base = (this.length > 0) ? this.delays[0] : new Delay({ delay: 0, unit: Time.Tick });
+    for (let i = 0; i < amount; i++) { this.delays.push(base); }
   }
 }

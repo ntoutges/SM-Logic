@@ -17,8 +17,3 @@ export interface MultiConnectionsType {
   conns: Connections | MultiConnections,
   id: Identifier
 }
-
-export interface MetaMultiConnectionsType {
-  conns: MultiConnections,
-  id: Identifier
-}

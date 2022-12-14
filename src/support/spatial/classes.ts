@@ -36,7 +36,7 @@ export class Pos extends Equatable {
     });
   }
   // rotates about the origin (0,0)
-  rotate(other: Rotate) { // only pays attention to direction (forwards/backwards/left/right)
+  rotate(other: Rotate): Pos { // only pays attention to direction (forwards/backwards/left/right)
     let x = this.x;
     let y = this.y;
     let z = this.z;
@@ -141,12 +141,8 @@ export class Rotate extends Equatable {
     this.dir = direction;
     this.or = orientation;
   }
-  get direction(): Direction {
-    return this.dir;
-  }
-  get orientation(): Orientation {
-    return this.or;
-  }
+  get direction(): Direction { return this.dir; }
+  get orientation(): Orientation { return this.or; }
   get xAxis(): number { return rotateTable[this.dir][this.or].xAxis; }
   get zAxis(): number { return rotateTable[this.dir][this.or].zAxis; }
   get offset(): Pos {
@@ -206,20 +202,18 @@ export class Bounds2d extends Bounds {
 }
 
 export class Offset extends Equatable {
-  private _pos: Pos;
-  private _rotate: Rotate;
+  readonly pos: Pos;
+  readonly rotate: Rotate;
   constructor({
     pos = new Pos({}),
     rotate = new Rotate({})
   }: OffsetInterface
   ) {
     super(["_pos", "_rotate"])
-    this._pos = pos
-    this._rotate = rotate
+    this.pos = pos
+    this.rotate = rotate
   }
-  get pos(): Pos { return this._pos; }
-  get rotate(): Rotate { return this._rotate; }
-  add(offset: Offset) {
+  add(offset: Offset): Offset {
     return new Offset({
       pos: this.pos.rotate(this.rotate).add(offset.pos),
       rotate: this.rotate.add(offset.rotate)
