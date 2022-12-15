@@ -66,7 +66,6 @@ export class ConstantCompare extends Container {
       for (let id of elseC.connections) { childContainer.notOutput.conns.addConnection(id); }
 
     super({
-      key,
       pos,
       child: childContainer
     });

@@ -4,23 +4,22 @@ import { Container, Unit } from "./classes";
 import { BodyInterface } from "./interfaces";
 
 export abstract class GenericBody {
-  private readonly _key: BasicKey;
+  readonly key: BasicKey;
   private readonly _title: string;
   private readonly _desc: string;
   private readonly _debug: boolean;
   constructor({
     key = new BasicKey({}),
-    name = "SM Logic Creation",
-    description = "V2 of generating scrap mechanic logic-based creations",
+    title = "SM Logic Creation",
+    description = "V2 of programmatically generating Scrap Mechanic logic-based creations",
     debug = false
   }: BodyInterface
   ) {
-    this._key = key;
-    this._title = name;
+    this.key = key;
+    this._title = title;
     this._desc = description;
     this._debug = debug;
   }
-  get key(): BasicKey { return this._key; }
   get description(): string {
     return `{
       \"description\": \"${this._desc}\",

@@ -30,7 +30,6 @@ export class MemoryGridBloc extends Container {
     super({
       pos, rotate, color,
       child: new Bloc({
-        key,
         child: gridUnit,
         size: new Bounds({
           x: 23 + size.x*6,

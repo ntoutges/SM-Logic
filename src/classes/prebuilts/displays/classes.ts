@@ -34,7 +34,6 @@ export class FutureBitMap extends Grid {
       }
     }
     super({
-      key,
       size: size.to3d({ yMap:"z" }),
       pos,
       rotate,
@@ -112,7 +111,6 @@ export class BitMap extends Grid {
       }
     }
     super({
-      key,
       size: new Bounds({
         x: frames.width,
         z: frames.height

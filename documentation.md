@@ -2,13 +2,16 @@
 
 A living guide containing the syntax and purpose of each component
 
+[Support Classes](#support-classes)\
+[Container Classes](#container-classes)
+
 > # Support Classes
-  > ## Support Sections
-  > * [Colors](#colors)
-  > * [Logic](#logic)
-  > * [Spatial](#spatial)
-  > * [Graphics](#graphics)
-  > * [Frames](#frames)
+> ## Support Sections
+> * [Colors](#colors)
+> * [Logic](#logic)
+> * [Spatial](#spatial)
+> * [Graphics](#graphics)
+> * [Frames](#frames)
 
 ## Colors 
 
@@ -1169,3 +1172,276 @@ A living guide containing the syntax and purpose of each component
       * The `Frame` that is being stored
     * `id: Id`
       * Stores the individual Ids to all the Logic blocks that `frame` is attached to
+
+> # Container Classes
+> * [Basics](#basics)
+> * [Bodies](#bodies)
+
+## Basics
+### [Unit](#unit-1)
+### [Container](#container-1)
+### [Grid](#grid-1)
+### [Packager](#packager-1)
+
+* #### **Unit**
+  * Syntax
+    ```typescript
+    abstract class Unit({
+      pos?: Pos,
+      rotate?: Rotate,
+      color?: Color
+    })
+    ```
+    * `pos`
+      * Optional parameter
+      * Specifies the position of the `Unit`
+      * Default value: `new Pos({})`
+    * `rotate`
+      * Optional parameter
+      * Specifies the rotation and orientatoin of the `Unit`
+      * Default value: `new Rotate({})`
+    * `color`
+      * Optional parameter
+      * Specifies what color the `Unit` should be
+      * Default value: `new Color()`
+  * Description
+    * The basic class for anything that will be directly turned into a blueprint
+  * Methods
+    * `get color(): Color`
+      * Store what color the `Unit` should be
+    * `set color(color: Color)`
+      * Set what color the `Unit` should be
+    * `abstract build(Offset: offset): string`
+      * Returns a Scrap Mechanic compatible JSON string that represents the `Unit`
+  * Properties
+    * `pos: Pos`
+      * Stores the position of the `Unit`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Unit`
+
+* #### **Container**
+  * Syntax
+    ```typescript
+    class Container({
+      pos?: Pos,
+      rotate?: Rotate,
+      color?: Color,
+      child?: Unit,
+      children?: Unit[]
+    }) extends Unit
+    ```
+    * `pos`
+      * Optional parameter
+      * Specifies the position of the `Container`
+      * Default value: `new Pos({})`
+    * `rotate`
+      * Optional parameter
+      * Specifies the rotation and orientatoin of the `Container`
+      * Default value: `new Rotate({})`
+    * `color`
+      * Optional parameter
+      * Specifies what color all `Unit`s within the container should be. This overrides their original color
+      * Default value: `new Color()`
+    * `child`
+      * A single `Unit` for the `Container` to envelop
+    * `children`
+      * Multiple `Unit`s for the `Container` to envelop
+  * Description
+    * Holds multiple `Unit`s, to allow a blueprint to be made of more than one `Unit`
+  * Methods
+    * `compress(): void`
+      * Moves all children within this `Container` to the origin of the `Container`
+    * `get color(): Color`
+      * Store what color all `Unit`s in the the `Container` should be
+    * `set color(color: Color)`
+      * Set what color all `Unit`s in the the `Container` should be
+    * `build(Offset: offset): string`
+      * Returns a Scrap Mechanic compatible JSON string that represents the `Container`
+  * Properties
+    * `children: Unit[]`
+      * A list of all `Unit`s that this `Container` is holding on to
+    * `compressed: boolean`
+      * Whether or not the `compress` command has been run on this `Container`
+    * `pos: Pos`
+      * Stores the position of the `Unit`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Unit`
+
+* #### **Grid**
+  * Syntax
+    ```typescript
+    class Grid({
+      pos?: Pos,
+      rotate?: Rotate,
+      color?: Color,
+      children?: Unit[],
+      size: Bounds,
+      spacing?: Bounds
+    })
+    ```
+    * `pos`
+      * Optional parameter
+      * Specifies the position of the `Grid`
+      * Default value: `new Pos({})`
+    * `rotate`
+      * Optional parameter
+      * Specifies the rotation and orientatoin of the `Grid`
+      * Default value: `new Rotate({})`
+    * `color`
+      * Optional parameter
+      * Specifies what color all `Unit`s within the container should be. This overrides their original color
+      * Default value: `new Color()`
+    * `children`
+      * Multiple `Unit`s for the `Grid` to envelop
+    * `size`
+      * The bounds of the `Grid`, so `Unit`s put into the grid can wrap-around properly
+    * `spacing`
+      * The amount of space between `Unit`s in the `Grid`.
+      * This does not care about the actual size of each `Unit`, just the amount of space between their origins
+      * A spacing of `{x:1,y:1,z:1}` will lead to 1x1x1 blocks touching, and anything larger overlapping
+  * Description
+    * Takes in a set of `Units`, and attempts to lay them into a 3d grid pattern
+    * This must be given the exact amount of `Unit`s specified by `size`
+      * If `size` is `{x:2,y:8,z:4}`, the length of `children` must be exactly 64 (*2\*8\*4*)
+    * The grid is filled up in this order
+      1. Fill from `x=0` to `x=size.x`
+      2. Fill from `y=0` to `y=size.y`  
+         * Repeat step 1 with new `y` position
+      3. Fill from `z=0` to `z=size.z`
+         * Repeat step 1 with new `z` position
+  * Methods
+    * `getGridChild(pos: Pos): Unit`
+      * Get the `Unit` that at the specified position
+    * `getWidth(): number`
+      * Returns amount of `Unit`s that make up the width of the `Grid`
+    * `getHeight(): number`
+      * Returns amount of `Unit`s that make up the height of the `Grid`
+    * `getDepth(): number`
+      * Returns amount of `Unit`s that make up the depth of the `Grid`
+    * `compress(): void`
+      * Moves all children within this `Grid` to the origin of the `Grid`
+    * `get color(): Color`
+      * Store what color all `Unit`s in the the `Grid` should be
+    * `set color(color: Color)`
+      * Set what color all `Unit`s in the the `Grid` should be
+    * `build(Offset: offset): string`
+      * Returns a Scrap Mechanic compatible JSON string that represents the `Grid`
+  * Properties
+    * `children: Unit[]`
+      * A list of all `Unit`s that this `Grid` is holding on to
+    * `compressed: boolean`
+      * Whether or not the `compress` command has been run on this `Grid`
+    * `pos: Pos`
+      * Stores the position of the `Unit`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Unit`
+
+* #### **Packager**
+  * Syntax
+    ```typescript
+    class Packager({
+      pos?: Pos,
+      rotate?: Rotate,
+      color?: Color,
+      child?: Unit,
+      children?: Unit[],
+      packageA: string
+    }) extends Container
+    ```
+    * `pos`
+      * Optional parameter
+      * Specifies the position of the `Packager`
+      * Default value: `new Pos({})`
+    * `rotate`
+      * Optional parameter
+      * Specifies the rotation and orientatoin of the `Packager`
+      * Default value: `new Rotate({})`
+    * `color`
+      * Optional parameter
+      * Specifies what color all `Unit`s within the container should be. This overrides their original color
+      * Default value: `new Color()`
+    * `child`
+      * A single `Unit` for the `Packager` to envelop
+    * `children`
+      * Multiple `Unit`s for the `Packager` to envelop
+    * `packageA`
+      * The Scrap Mechanic compatible blueprint file snippet containing the object to be added to
+  * Description
+    * Holds multiple `Unit`s, to allow a blueprint to be made of more than one `Unit`
+  * Methods
+    * `compress(): void`
+      * Moves all children within this `Packager` to the origin of the `Packager`
+    * `get color(): Color`
+      * Store what color all `Unit`s in the the `Packager` should be
+    * `set color(color: Color)`
+      * Set what color all `Unit`s in the the `Packager` should be
+    * `build(Offset: offset): string`
+      * Returns a Scrap Mechanic compatible JSON string that represents the `Packager`
+  * Properties
+    * `package: string`
+      * Stores the Scrap Mechanic compatible blueprint snippet containing the object to be added to
+    * `children: Unit[]`
+      * A list of all `Unit`s that this `Packager` is holding on to
+    * `compressed: boolean`
+      * Whether or not the `compress` command has been run on this `Packager`
+    * `pos: Pos`
+      * Stores the position of the `Unit`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Unit`
+
+## Bodies
+
+* **GenericBody**
+  * Syntax
+    ```typescript
+    abstract class GenericBody({
+      key?: BasicKey,
+      title?: string,
+      description?: string,
+      debug: boolean
+    })
+    ```
+    * `key`
+      * Optional parameter
+      * The key that will be used for generating all other objects
+      * Default value: `new BasicKey({})`
+    * `title`
+      * Optional parameter
+      * The title of the blueprint that will be generated
+      * Default value: `SM Logic Creation`
+    * `description`
+      * Optional parameter
+      * The description of the blueprint that will be generated
+      * Default value: `V2 of programmatically generating Scrap Mechanic logic-based creations`
+    * `debug`
+      * Optional parameter
+      * If true: Adds in an [Axis](#axis-1) at the origin of the Body
+      * Default value: `false`
+  * Description
+    * The class that initiates the process for converting all the `Unit`s into a Scrap Mechanic compatible blueprint file
+    * To use this class:
+      1. Create the class `Body` in `main.ts`
+      2. Extend `body` by `GenericBody`
+      3. Create an `async build` method that will create all `Unit` objects to be used in creating the final blueprint data
+  * Methods
+    * `async preBuild(): Promise<Unit>`
+      * Code run before calling the `build` method of this class
+      * Adds in the `Axis` if in debug mode
+    * `abstract build(): Promise<Unit>`
+      * Code run in this function will build all the `Unit`s to be used in the final blueprint
+  * Properties
+    * `readonly key: Key`
+      * Stores  the key that will be used for generating all other objects
+
+
+
+* **Template**
+  * Syntax
+    ```typescript
+
+    ```
+    * 
+  * Description
+  * Methods
+  * Properties
+

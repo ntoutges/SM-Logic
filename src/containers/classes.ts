@@ -5,8 +5,8 @@ import { Bounds, Offset, Pos, Rotate } from "../support/spatial/classes";
 import { ContainerInterface, GridInterface, PackagerInterface, UnitInterface } from "./interfaces";
 
 export abstract class Unit extends Equatable {
-  private _pos: Pos;
-  private _rot: Rotate;
+  pos: Pos;
+  rotation: Rotate;
   private _color: Color;
   constructor({
     pos = new Pos({}),
@@ -15,23 +15,19 @@ export abstract class Unit extends Equatable {
   }: UnitInterface
   ) {
     super(["_pos", "_rot", "_color"]);
-    this._pos = pos;
-    this._rot = rotate;
+    this.pos = pos;
+    this.rotation = rotate;
     this._color = color;
   }
-
-  get pos(): Pos { return this._pos; }
-  get rotation(): Rotate { return this._rot; }
-  get color(): Color { return this._color; }
-  set pos(pos: Pos) { this._pos = pos; }
-  set rotation(rotation: Rotate) { this._rot = rotation; }
-  set color(color: Color) { this._color = color; }
   
+  get color(): Color { return this._color; }
+  set color(color: Color) { this._color = color; }
+
   abstract build(offset: Offset): string;
 }
 
 export class Container extends Unit {
-  private _childs: Array<Unit>;
+  children: Array<Unit>;
   compressed: boolean;
   constructor({
     pos,
@@ -42,26 +38,25 @@ export class Container extends Unit {
   }: ContainerInterface
   ) {
     super({pos,rotate,color});
-    this._addProps(["_childs"]);
+    this._addProps(["children"]);
     
     if (child != null && children != null)
       throw new Error("Cannot have both [child] and [children] property in a container");
     else if (child != null)
-      this._childs = [child];
+      this.children = [child];
     else if (children != null)
-      this._childs = children;
+      this.children = children;
 
       if (color != undefined) {
-        for (let child of this._childs) {
+        for (let child of this.children) {
           child.color = color;
         }
       }
   }
-  get children(): Array<Unit> { return this._childs; }
 
   compress() {
     const zeroPos = new Pos({}); // x=0, y=0, z=0
-    for (let child of this._childs) {
+    for (let child of this.children) {
       child.pos = zeroPos;
     }
     this.compressed = true;
@@ -74,7 +69,7 @@ export class Container extends Unit {
       rotate: this.rotation
     }).add(offset);
 
-    this._childs.forEach((child: Unit) => {
+    this.children.forEach((child: Unit) => {
       child.pos = child.pos.rotate(newOffset.rotate);
       const built = child.build(newOffset);
       if (built != "") // some Units, such as [Custom2dShape], may return an empty string, as they have no data to add
@@ -105,14 +100,12 @@ export class Grid extends Container {
   constructor({
     pos,
     rotate,
-    child,
     children,
     color,
-    key = new Keyless(),
     size,
     spacing = new Bounds({})
   }: GridInterface) {
-    super({pos,rotate,child,children,color,key});
+    super({pos,rotate,children,color});
     this._size = size;
     this._spacing = spacing;
   }
@@ -122,9 +115,9 @@ export class Grid extends Container {
     const index = (pos.z*this._size.x*this._size.y) + (pos.y*this._size.y) + (pos.x);
     return this.children[index];
   }
-  get width() { return this._size.x; }
-  get depth() { return this._size.y; }
-  get height() { return this._size.z; }
+  get width(): number { return this._size.x; }
+  get depth(): number { return this._size.y; }
+  get height(): number { return this._size.z; }
   build(offset=new Offset({})) {
     if (this.children.length != this._size.x * this._size.y * this._size.z)
       throw new Error("Amount of children does not match bounds");

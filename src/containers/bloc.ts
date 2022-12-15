@@ -7,7 +7,6 @@ export class Bloc extends Container {
   readonly size: Bounds;
   readonly inner: Unit;
   constructor({
-    key,
     size,
     child,
     color,
@@ -92,7 +91,7 @@ export class Bloc extends Container {
       pos: pos.add(
         new Pos({ x:1, y:1, z:1 })
       ),
-      color,key,rotate});
+      color,rotate});
     this._addProps(["size"]);
     this.size = size;
     this.inner = child;

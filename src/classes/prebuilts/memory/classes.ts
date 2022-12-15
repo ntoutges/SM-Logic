@@ -26,7 +26,6 @@ export class Bit extends Container {
     const resetBitKey = (bitKeys.ids.has(BitIdentifiers.Reset)) ? bitKeys.ids.get(BitIdentifiers.Reset) : new UniqueCustomKey({ key: key, identifier: "bit1" });
     const bufferBitKey = (bitKeys.ids.has(BitIdentifiers.Buffer)) ? bitKeys.ids.get(BitIdentifiers.Buffer) : new UniqueCustomKey({ key: key, identifier: "bit2" });
     super({
-      key,
       pos,
       rotate,
       children: [
@@ -127,10 +126,7 @@ export class Bits extends Container {
         })
       );
     }
-    super({
-      key: key,
-      children: bits
-    });
+    super({ children: bits });
     this._bits = bits;
   }
   get bits(): Array<Bit> { return this._bits; }

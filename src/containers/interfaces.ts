@@ -12,8 +12,7 @@ export interface UnitInterface {
 
 export interface ContainerInterface extends UnitInterface {
   child?: Unit,
-  children?: Array<Unit>,
-  key?: Key
+  children?: Array<Unit>
 }
 
 export interface GridInterface extends ContainerInterface {
@@ -26,14 +25,13 @@ export interface PackagerInterface extends ContainerInterface {
 }
 
 export interface BlocInterface extends UnitInterface {
-  key: Key,
   child: Unit,
   size: Bounds
 }
 
 export interface BodyInterface {
   key?: BasicKey,
-  name?: string,
+  title?: string,
   description?: string,
   debug?: boolean
 }
