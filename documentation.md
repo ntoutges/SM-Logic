@@ -430,7 +430,7 @@ A living guide containing the syntax and purpose of each component
 * #### **RelativePos**
   * Syntax:
     ```typescript
-    class Pos2d({
+    class RelativePos({
       x?: number,
       y?: number,
       z?: number,
@@ -449,8 +449,10 @@ A living guide containing the syntax and purpose of each component
       * Optional parameter
       * Indicates the *z* position of a block
       * Default value: `0`
+    * `pos`
+      * The `Pos` instance that this class sets its position relative to
   * Description:
-    Stores the position of an object in **3d** space, relative to another `Pos`
+    * Stores the position of an object in **3d** space, relative to another `Pos`
   * Methods:
     * `get x(): number`
       * Returns the `x` component of this position, plus the `x` component of the stored relative `Pos`
