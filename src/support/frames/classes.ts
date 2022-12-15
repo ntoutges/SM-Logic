@@ -83,7 +83,7 @@ export class Frame extends Equatable {
       value: value
     });
   }
-  shift(count: Pos2d) {
+  shift(count: Pos2d): Frame {
     let y = count.y;
     if (y < 0)
       y = (count.y % this._value.length) + this._value.length;
@@ -241,7 +241,7 @@ export class Frame extends Equatable {
 export class VFrame extends Frame {
   constructor({
     data,
-    offCharacter = "",
+    offCharacter = " ",
     size = null
   }: VFrameInterface) {
     const value: Array<VBitMask> = [];
@@ -311,30 +311,28 @@ export class Framer extends Frame {
 }
 
 export class PhysicalFrame extends Equatable {
-  private readonly _frame: Frame;
-  private readonly _id: Id;
+  readonly frame: Frame;
+  readonly id: Id;
   constructor({
     frame,
     id
   }: PhysicalFrameInterface) {
     super(["_frame", "_id"]);
-    this._frame = frame;
-    this._id = id;
+    this.frame = frame;
+    this.id = id;
   }
-  get frame(): Frame { return this._frame; }
-  get id(): Id { return this._id; }
 }
 
 export class Frames extends Equatable {
-  private readonly _frames: Array<Frame>;
-  private readonly _width: number;
-  private readonly _height: number;
+  readonly frames: Array<Frame>;
+  readonly width: number;
+  readonly height: number;
   constructor({
     frames,
     size = null
   }: FramesInterface) {
     super(["_frames", "_width","_height"]);
-    this._frames = frames;
+    this.frames = frames;
 
     let maxHeight = 0;
     let maxWidth = 0;
@@ -342,20 +340,17 @@ export class Frames extends Equatable {
       maxHeight = Math.max(maxHeight, frames[i].height);
       maxWidth = Math.max(maxWidth, frames[i].width);
     }
-    this._height = (size) ? size.y : maxHeight;
-    this._width = (size) ? size.x: maxWidth;
+    this.height = (size) ? size.y : maxHeight;
+    this.width = (size) ? size.x: maxWidth;
     if (size == null)
       size = new Bounds2d({
-        x: this._width,
-        y: this._height
+        x: this.width,
+        y: this.height
       });
     for (let i in frames) {
       frames[i] = frames[i].resize(size);
     }
   }
-  get height(): number { return this._height; }
-  get width(): number { return this._width; }
-  get frames(): Array<Frame> { return this._frames; }
 }
 
 export class FrameSprite extends Frames {

@@ -1,10 +1,22 @@
 # SM Logic Builder Documentation
+
 A living guide containing the syntax and purpose of each component
 
 > # Support Classes
+  > ## Support Sections
+  > * [Colors](#colors)
+  > * [Logic](#logic)
+  > * [Spatial](#spatial)
+  > * [Graphics](#graphics)
+  > * [Frames](#frames)
 
-## Colors
-* **Color**
+## Colors 
+
+> ### [Color](#color-1)
+> ### [HexColor](#hexcolor-1)
+> ### [RGBColor](#rgbcolor-1)
+
+* #### **Color**
   * ```typescript
     class Color(color: Colors)
     ```
@@ -23,7 +35,7 @@ A living guide containing the syntax and purpose of each component
     * The current color stored in the Color class
     * Stored in hexidecimal
 
-* **HexColor**
+* #### **HexColor**
   * ```typescript
     class HexColor(rgb: String) extends Color
     ```
@@ -41,7 +53,7 @@ A living guide containing the syntax and purpose of each component
     * The current color stored in the Color class
     * Stored in hexidecimal
 
-* **RGBColor**
+* #### **RGBColor**
   * ```typescript
       class RGBColor({
         rgb: RGB,
@@ -71,7 +83,19 @@ A living guide containing the syntax and purpose of each component
     * Stored in hexidecimal
 
 ## Logic
-* **Operation**
+
+> ### [Operation](#operation-1)
+> ### [Connections](#connections-1)
+> ### [MultiConnections](#multiconnections-1)
+> ### [BitMask](#bitmask-1)
+> ### [RawBitMask](#rawbitmask-1)
+> ### [VBitMask](#vbitmask-1)
+> ### [Delay](#delay-1)
+> ### [NoDelay](#nodelay-1)
+> ### [Delays](#delays-1)
+> ### [ScaleableDelays](#scaleabledelays-1)
+
+* #### **Operation**
   * ```typescript
     class Operation(operation: LogicalOperation)
     ```
@@ -88,7 +112,7 @@ A living guide containing the syntax and purpose of each component
     * `operation: LogicalOperation`
       * The operation (and implied function) of a Logic block
 
-* **Connections**
+* #### **Connections**
   * ```typescript
     class Connections(connections?: Id | Id[])
     ```
@@ -104,19 +128,15 @@ A living guide containing the syntax and purpose of each component
       * Adds another Id that this logic block will be connected to
     * `build(): {"id": number}[]`
       * Creates a Scrap Mechanic parseable list of logic block Ids
-* **MultiConnections**
+
+* #### **MultiConnections**
   * ```typescript
     class MultiConnections(
       connections: MultiConnectionsType | MultiConnectionsType[]
     )
     ```
-    * `MultiConnectionsType`:
-      ```json
-        {
-          "conn": Connections | MultiConnections,
-          "id": Identifier
-        }
-      ```
+    * `connections`
+      * `{ conn: Connections | MultiConnections, id: Identifier }`
   * Description:
     * Stores connections for individual logic blocks within larger constructs
     * the Identifier references to which part of the construct a connection is assigned to, and the Connections contains the actual data as to what that construct is connected to
@@ -130,7 +150,7 @@ A living guide containing the syntax and purpose of each component
     * `get conns(): Map<string,Connections>`
       * Returns all the connections and associations stored within this class
 
-* **BitMask**
+* #### **BitMask**
   * ```typescript
     class BitMask(mask: boolean[])
     ```
@@ -158,7 +178,7 @@ A living guide containing the syntax and purpose of each component
     * `binDump(): string
       * Returns the binary representation of this BitMask
 
-* **RawBitMask**
+* #### **RawBitMask**
   * ```typescript
     class RawBitMask(mask: number, length?: number) extends BitMask
     ```
@@ -190,7 +210,7 @@ A living guide containing the syntax and purpose of each component
     * `binDump(): string
       * Returns the binary representation of this BitMask
 
-* **VBitMask**
+* #### **VBitMask**
   * ```typescript
     class VBitMask(mask: string, offCharacter: string) extends BitMask
     ```
@@ -200,6 +220,7 @@ A living guide containing the syntax and purpose of each component
       * Default value: `" "` (space)
   * Description:
     * Stores a sequence of bits
+    * Stands for (V)isual BitMask
   * Methods:
     * `get length(): number`
       * Returns the number of bits stored in this BitMask
@@ -222,7 +243,7 @@ A living guide containing the syntax and purpose of each component
     * `binDump(): string
       * Returns the binary representation of this BitMask
 
-* **Delay**
+* #### **Delay**
   * Syntax:
     ```typescript
     class Delay({
@@ -247,7 +268,7 @@ A living guide containing the syntax and purpose of each component
       * This value is put into a `Timer` block
       * Seconds has a maximum value of 59, ticks has a maximum value of 40 (1 second)
 
-* **NoDelay**
+* #### **NoDelay**
   * Syntax:
     ```typescript
       class NoDelay() extends Delay
@@ -266,7 +287,7 @@ A living guide containing the syntax and purpose of each component
       * This value is put into a `Timer` block
       * Seconds will always be `0`, while ticks will always be `-1`
 
-* **Delays**
+* #### **Delays**
   * Syntax:
     ```typescript
     class Delays(delays: Delay[])
@@ -286,7 +307,7 @@ A living guide containing the syntax and purpose of each component
     * `delays: Delay[]`
       * The array of all delays stored in this class
 
-* **ScaleableDelays**
+* #### **ScaleableDelays**
   * Syntax:
     ```typescript
     class ScaleableDelays({
@@ -322,7 +343,15 @@ A living guide containing the syntax and purpose of each component
 
 ## Spatial
 
-* **Pos**
+> ### [Pos](#pos-1)
+> ### [Pos2d](#pos2d-1)
+> ### [RelativePos](#relativepos-1)
+> ### [Bounds](#bounds)
+> ### [Bounds2d](#bounds2d-1)
+> ### [Rotate](#rotate-1)
+> ### [Offset](#offset-1)
+
+* #### **Pos**
   * Syntax:
     ```typescript
     class Pos({
@@ -362,7 +391,7 @@ A living guide containing the syntax and purpose of each component
     * `build(): {"x": number, "y": number, "z": number}`
       * Return a value in a format that Scrap Mechanic can understand
 
-* **Pos2d**
+* #### **Pos2d**
   * Syntax:
     ```typescript
     class Pos2d({
@@ -398,7 +427,7 @@ A living guide containing the syntax and purpose of each component
     * `build(): {"x": number, "y": number, "z": number}`
       * Return a value in a format that Scrap Mechanic can understand
 
-* **RelativePos**
+* #### **RelativePos**
   * Syntax:
     ```typescript
     class Pos2d({
@@ -439,7 +468,7 @@ A living guide containing the syntax and purpose of each component
     * `build(): {"x": number, "y": number, "z": number}`
       * Return a value in a format that Scrap Mechanic can understand
 
-* **Bounds**
+* #### **Bounds**
   * Syntax:
     ```typescript
       class Bounds({
@@ -472,7 +501,7 @@ A living guide containing the syntax and purpose of each component
     * `build(): {"x": number, "y": number, "z": number}`
       * Return a value in a format that Scrap Mechanic can understand
 
-* **Bounds2d**
+* #### **Bounds2d**
   * Syntax:
     ```typescript
     class Bounds2d({
@@ -504,7 +533,7 @@ A living guide containing the syntax and purpose of each component
   * Properties:
     * 
 
-* **Rotate**
+* #### **Rotate**
   * Syntax:
     ```typescript
     class Rotate({
@@ -542,7 +571,7 @@ A living guide containing the syntax and purpose of each component
     * `or`: Orientation
       * The current alignment of the direction
 
-* **Offset**
+* #### **Offset**
   * Syntax:
     ```typescript
     class Offset({
@@ -569,3 +598,572 @@ A living guide containing the syntax and purpose of each component
     * `readonly rotate: Rotate`
       * Stores the rotation value to offst an object's rotation by
 
+## Graphics
+
+> ### [FrameBuilder](#framebuilder-1)
+
+* ### **FrameBuilder**
+  * Syntax:
+    ```typescript
+    class FrameBuilder({
+      size: Bounds2d,
+      defaultFill?: boolean,
+      builder: function
+    })
+    ```
+    * `size`
+      * The height and width of the frame to be built
+    * defaultFill
+      * Optional parameter
+      * Determines the default background color, in contrast to the default object color
+      * Default value: `false` (background is `false`, objects are `true`)
+    * builder
+      * A function that will create the shapes that will be used for making frames
+      * This does not return anything
+      * The created function takes a set of parameters:
+        * `frameNumber: number`
+          * The frame to create
+          * This number can be used to generate progressively different frames for each call of the function
+        * `Circle: function`
+          * The way to generate a `Circle` in a builder
+          * Each `Circle` takes a set of parameters
+            * `pos: Pos2d`
+              * The location of the circle in the new frame
+            * `fill?: boolean`
+              * The representation of the circle in `BitMap` space
+            * `radius: number`
+              * The radius of the resultant circle
+        * `Rect: function`
+          * The way to generate a `Rect` in a builder
+          * Each `Rect` takes a set of parameters
+            * `pos: Pos2d`
+              * The location of the circle in the new frame
+            * `fill?: boolean`
+              * The representation of the circle in `BitMap` space
+            * `bounds: bounds2d`
+              * The width and height of the resultant `Rect`
+    * Description
+      * Creates frames based on simple graphics commands, to help with simplifying the frame creation process
+    * Methods
+      * `Circle({ pos: Pos2d, fill: boolean, radius: number })`
+        *  `pos: Pos2d`
+           * The location of the circle in the new frame
+        * `fill?: boolean`
+          * The representation of the circle in `BitMap` space
+        * `radius: number`
+          * The radius of the resultant circle
+        * Creates a `Circle` to be stored in the `FrameBuilder`
+      * `Rect({ pos: Pos2d, fill: boolean, bounds: Bounds2d })`
+        * `pos: Pos2d`
+          * The location of the circle in the new frame
+        * `fill?: boolean`
+          * The representation of the circle in `BitMap` space
+        * `bounds: bounds2d`
+          * The width and height of the resultant `Rect`
+        * Creates a `Rect` to be stored in the `FrameBuilder`
+    * Properties
+      * `size: Bounds2d`
+        * The size of the frame that is to be built
+
+# Frames
+
+> ### [frame](#frame-1)
+> ### [VFrame](#vframe-1)
+> ### [FileFrame](#fileframe-1)
+> ### [Framer](#framer-1)
+> ### [Frames](#frames-1)
+> ### [FrameSprite](#framesprite-1)
+> ### [ROMFrame](#romframe-1)
+> ### [MappedROMFrame](#mappedromframe-1)
+> ### [RawROMFrame](#rawromframe-1)
+> ### [StringROMFrame](#stringromframe-1)
+> ### [PhysicalFrame](#physicalframe-1)
+
+* #### **Frame**
+  * Syntax:
+    ```typescript
+    class Frame({
+      size: Bounds2d,
+      value: BitMask[],
+      fallback: boolean
+    })
+    ```
+    * `size`
+      * The height and width of the Frame
+    * `value`
+      * The specific pixel values of the frame
+    * `fallback`
+      * The value for unset bitmask values to be set to
+  * Description
+    * Stores a set of data in the form of multiple `BitMask`, with each being a set length
+  * Methods
+    * `add(other: Frame): Frame`
+      * Returns the result of a logical *or* operation on all BitMasks of this Frame with all BitMasks of the other Frame
+    * `resize(size: Bounds2d): Frame`
+      * Returns a new frame whose height and width have been set to those of the Bounds2d
+    * `remap(size: Bounds2d): Frame`
+      * Returns a new Frame whose width and height coincide with those specified in `size`
+      * Acts as if each BitMask is connected to the Previous BitMask, and changing the size of one frame moves where the BitMasks are
+        * eg: `[[1,2],[3,4],[5,6]]` -> (3x3) -> `[[1,2,3],[4,5,6],[?,?,?]]`
+        * (All *?s* are set to the `fallback` value)
+    * `invert(): Frame`
+      * Returns a new Frame whose BitMasks have all been inverted
+    * `hFlip(): Frame`
+      * Returns a new Frame hose BitMasks have been reversed
+    * `vFlip(): Frame`
+      * Returns a new Frame whose BitMask order has been reversed
+      * (First BitMask becomes the last, Second BitMask becomes the second to last, etc.)
+    * `hexDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the hexidecimal representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out hexidecimal data, and attempts to convert all bytes to ASCII
+    * `binDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the binary representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out binary data
+    * `shift(count: Pos2d): Frame`
+      * Shift all BitMasks by `count.x` bits, and rearrange list of BitMasks, shifting by `count.y` bits
+  * Properties
+    * `fallback: boolean`
+      * The value that any value of a BitMask will be set to if it needs to be extended
+
+* #### **VFrame**
+  * Syntax:
+    ```typescript
+    class VFrame({
+      data: string[],
+      offCharacter?: string,
+      size?: Bounds2d
+    }) extends Frame
+    ```
+    * `data`
+      * The data to be stored
+      * Each entry in the array of strings acts as a new BitMask
+    * `offCharacter`
+      * Optional parameter
+      * The character in `data` to be treated as a `false`
+      * Default value: `" "` (space)
+    * `size`
+      * Optional parameter
+      * The height and width of the final `Frame`
+      * Default value: `null`
+        * The `VFrame` will set its width to the maximum width of a generated BitMask, and its height to the amount of entries in the `data` array
+  * Description
+    * Another way of entering data into a Frame
+    * Works particularly well when trying to design graphics
+    * Stands for (V)isual Frame
+  * Methods
+    * `add(other: Frame): Frame`
+      * Returns the result of a logical *or* operation on all BitMasks of this Frame with all BitMasks of the other Frame
+    * `resize(size: Bounds2d): Frame`
+      * Returns a new frame whose height and width have been set to those of the Bounds2d
+    * `remap(size: Bounds2d): Frame`
+      * Returns a new Frame whose width and height coincide with those specified in `size`
+      * Acts as if each BitMask is connected to the Previous BitMask, and changing the size of one frame moves where the BitMasks are
+        * eg: `[[1,2],[3,4],[5,6]]` -> (3x3) -> `[[1,2,3],[4,5,6],[?,?,?]]`
+        * (All *?s* are set to the `fallback` value)
+    * `invert(): Frame`
+      * Returns a new Frame whose BitMasks have all been inverted
+    * `hFlip(): Frame`
+      * Returns a new Frame hose BitMasks have been reversed
+    * `vFlip(): Frame`
+      * Returns a new Frame whose BitMask order has been reversed
+      * (First BitMask becomes the last, Second BitMask becomes the second to last, etc.)
+    * `hexDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the hexidecimal representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out hexidecimal data, and attempts to convert all bytes to ASCII
+    * `binDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the binary representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out binary data
+    * `shift(count: Pos2d): Frame`
+      * Shift all BitMasks by `count.x` bits, and rearrange list of BitMasks, shifting by `count.y` bits
+  * Properties
+    * `fallback: boolean`
+      * The value that any value of a BitMask will be set to if it needs to be extended
+
+* #### **FileFrame**
+  * Syntax:
+    ```typescript
+    class FileFrame({
+      imageData: any,
+      activeRange?: [min,max],
+      preview?: boolean
+    }) extends Frame
+    ```
+    * `imageData`
+      * The raw image data returned by a Jimp.read() command
+    * `activeRange`
+      * Optional parameter
+      * Stores the range of image pixel brightness values that will register as a `true`
+      * Pixel brightness is calculated as `(pixel.a / 255) * (pixel.r + pixel.g + pixel.b) / 3 `
+      * Default value: `[0,127]`
+    * `preview`
+      * Optional parameter
+      * Indicates whether or not the image is printed to the console
+      * Default value: `false`
+  * Description
+    * The basic way of importing an image file as a Frame
+  * Methods
+    * `add(other: Frame): Frame`
+      * Returns the result of a logical *or* operation on all BitMasks of this Frame with all BitMasks of the other Frame
+    * `resize(size: Bounds2d): Frame`
+      * Returns a new frame whose height and width have been set to those of the Bounds2d
+    * `remap(size: Bounds2d): Frame`
+      * Returns a new Frame whose width and height coincide with those specified in `size`
+      * Acts as if each BitMask is connected to the Previous BitMask, and changing the size of one frame moves where the BitMasks are
+        * eg: `[[1,2],[3,4],[5,6]]` -> (3x3) -> `[[1,2,3],[4,5,6],[?,?,?]]`
+        * (All *?s* are set to the `fallback` value)
+    * `invert(): Frame`
+      * Returns a new Frame whose BitMasks have all been inverted
+    * `hFlip(): Frame`
+      * Returns a new Frame hose BitMasks have been reversed
+    * `vFlip(): Frame`
+      * Returns a new Frame whose BitMask order has been reversed
+      * (First BitMask becomes the last, Second BitMask becomes the second to last, etc.)
+    * `hexDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the hexidecimal representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out hexidecimal data, and attempts to convert all bytes to ASCII
+    * `binDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the binary representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out binary data
+    * `shift(count: Pos2d): Frame`
+      * Shift all BitMasks by `count.x` bits, and rearrange list of BitMasks, shifting by `count.y` bits
+  * Properties
+    * `fallback: boolean`
+      * The value that any value of a BitMask will be set to if it needs to be extended
+
+* #### **Framer**
+  * Syntax:
+    ```typescript
+    class Framer({
+      frames: Frame[],
+      combinatorFunction?: Operation
+    }) extends Frame
+    ```
+    * combinatorFunction
+      * Optional parameter
+      * Decides how all frames in `frames` will be combined
+      * Default value: `new Operation(LogicalOperation.Or)`
+        * By default, this will *or* all values of each Frame together
+  * Description
+    * Construct one composite frame from the input of multiple other frames
+  * Methods
+    * `add(other: Frame): Frame`
+      * Returns the result of a logical *or* operation on all BitMasks of this Frame with all BitMasks of the other Frame
+    * `resize(size: Bounds2d): Frame`
+      * Returns a new frame whose height and width have been set to those of the Bounds2d
+    * `remap(size: Bounds2d): Frame`
+      * Returns a new Frame whose width and height coincide with those specified in `size`
+      * Acts as if each BitMask is connected to the Previous BitMask, and changing the size of one frame moves where the BitMasks are
+        * eg: `[[1,2],[3,4],[5,6]]` -> (3x3) -> `[[1,2,3],[4,5,6],[?,?,?]]`
+        * (All *?s* are set to the `fallback` value)
+    * `invert(): Frame`
+      * Returns a new Frame whose BitMasks have all been inverted
+    * `hFlip(): Frame`
+      * Returns a new Frame hose BitMasks have been reversed
+    * `vFlip(): Frame`
+      * Returns a new Frame whose BitMask order has been reversed
+      * (First BitMask becomes the last, Second BitMask becomes the second to last, etc.)
+    * `hexDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the hexidecimal representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out hexidecimal data, and attempts to convert all bytes to ASCII
+    * `binDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the binary representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out binary data
+    * `shift(count: Pos2d): Frame`
+      * Shift all BitMasks by `count.x` bits, and rearrange list of BitMasks, shifting by `count.y` bits
+  * Properties
+    * `fallback: boolean`
+      * The value that any value of a BitMask will be set to if it needs to be extended
+
+* #### **Frames**
+  * Syntax:
+    ```typescript
+    class Frames({
+      frames: Frame[],
+      size?: Bounds
+    })
+    ```
+    * `size`
+      * The height and width of all the frames
+  * Description
+    * Stores multiple frames which are garunteed to have the same bounds
+  * Properties
+    * `frames: Frame[]`
+      * All the frames that `Frames` stores
+    * `width: number`
+      * The width of all the frames
+    * `height: number`
+      * The height of all the frames
+
+* #### **FrameSprite**
+  * Syntax:
+    ```typescript
+    class FrameSprite({
+      frame: Frame,
+      movement?: Bounds2d,
+      step?: Bounds2d
+    })
+    ```
+    * `movement`
+      * The range of movement that `frame` is expected to handle
+    * `step`
+      * The amount of pixels that each unit of movement in `movement` represents
+      * A step of `{x:2,y:2}` with a movement of `{x:1,y:1}` would result in 2 pixels of x/y movement with one increase in x/y sprite position
+  * Description
+    * Stores a many copies of the original `frame`, but offset by a certain amount to allow a simple image to move about a screen
+  * Methods
+    * `getPos(position: Pos2d): Frame`
+      * Returns a frame offset from the original position by `position`
+  * Properties
+    * `frames: Frame[]`
+      * All the frames that `Frames` stores
+    * `width: number`
+      * The width of all the frames
+    * `height: number`
+      * The height of all the frames
+
+* #### **ROMFrame**
+  * Syntax:
+    ```typescript
+    class ROMFrame({
+      format: ROMFormat | RomFormat[],
+      jsonData: any | any[],
+      depth?: number,
+      reverseBits?: boolean,
+      reverseOrder?: boolean
+    }) extends Frame
+    ```
+    * `format`
+      * Used a small amount of abstraction above the raw bits
+      * Input in the format `{name: string, bits: number}`
+        * `name`: The name of the section this is heading
+        * `bits`: The amount of bits this section will take up
+      * Multiple `format` units make up a word
+    * `jsonData`
+      * Used a small amount of abstraction above the raw bits
+      * Input in the format `{[name]: value, [name]: value, ...}`
+        * `name`: The name of the section that this is heading
+        * `value`: The value to set this section to
+          * Must be able to fit within `bits` bits. 
+          * eg: (128 is too large for 7 bits, but 127 *will* fit)
+      * One `jsonData` unit makes up a word
+    * `depth`
+      * Optional parameter
+      * The size of the BitMask that stores the final result of the `format`/`jsonData` data
+      * Can be thought of as the size of a word in this ROM
+      * Default value: `-1`
+        * Signal that the depth will be set to the sum of all `format` unit section `bits` values
+    * `reverseBits`
+      * Optional parameter
+      * If `true`: stores section of value `12` as `0b0011`
+      * if `false`: stores a section of value `12` as `0b1100`
+      * Default value: `false`
+    * `reverseOrder`
+      * Optional parameter
+      * If `true`: reverses the order of format
+      * Default value: `false`
+  * Description
+    * The easiest way to store data
+  * Methods
+    * `add(other: Frame): Frame`
+      * Returns the result of a logical *or* operation on all BitMasks of this Frame with all BitMasks of the other Frame
+    * `resize(size: Bounds2d): Frame`
+      * Returns a new frame whose height and width have been set to those of the Bounds2d
+    * `remap(size: Bounds2d): Frame`
+      * Returns a new Frame whose width and height coincide with those specified in `size`
+      * Acts as if each BitMask is connected to the Previous BitMask, and changing the size of one frame moves where the BitMasks are
+        * eg: `[[1,2],[3,4],[5,6]]` -> (3x3) -> `[[1,2,3],[4,5,6],[?,?,?]]`
+        * (All *?s* are set to the `fallback` value)
+    * `invert(): Frame`
+      * Returns a new Frame whose BitMasks have all been inverted
+    * `hFlip(): Frame`
+      * Returns a new Frame hose BitMasks have been reversed
+    * `vFlip(): Frame`
+      * Returns a new Frame whose BitMask order has been reversed
+      * (First BitMask becomes the last, Second BitMask becomes the second to last, etc.)
+    * `hexDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the hexidecimal representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out hexidecimal data, and attempts to convert all bytes to ASCII
+    * `binDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the binary representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out binary data
+    * `shift(count: Pos2d): Frame`
+      * Shift all BitMasks by `count.x` bits, and rearrange list of BitMasks, shifting by `count.y` bits
+  * Properties
+    * `fallback: boolean`
+      * The value that any value of a BitMask will be set to if it needs to be extended
+
+* #### **MappedROMFrame**
+  * Syntax:
+    ```typescript
+    class MappedROMFrame({
+      format: MappedROMFormat | MappedROMFormat[],
+      jsonData: any | any[],
+      depth?: number,
+      reverseBits?: boolean,
+      reverseOrder?: boolean
+    }) extends ROMFrame
+    ```
+    * `format`
+      * Used a small amount of abstraction above the raw bits
+      * Input in the format `{name: string, bits: number, map?: any[]}`
+        * `name`: The name of the section this is heading
+        * `bits`: The amount of bits this section will take up
+        * `map`: Stores string values that are associated with certain numerical values
+          * Input in the format `{[namedValue]: numberValue, [namedValue]: numberValue, ...}`
+            * `namedValue`: The string to be replaced
+            * `numberValue` The value to replace `namedValue` with
+      * Multiple `format` units make up a word
+    * `jsonData`
+      * Used a small amount of abstraction above the raw bits
+      * Input in the format `{[name]: value, [name]: value, ...}`
+        * `name`: The name of the section that this is heading
+        * `value`: The value to set this section to
+          * Must be able to fit within `bits` bits. 
+          * eg: (128 is too large for 7 bits, but 127 *will* fit)
+      * One `jsonData` unit makes up a word
+    * `depth`
+      * Optional parameter
+      * The size of the BitMask that stores the final result of the `format`/`jsonData` data
+      * Can be thought of as the size of a word in this ROM
+      * Default value: `-1`
+        * Signal that the depth will be set to the sum of all `format` unit section `bits` values
+    * `reverseBits`
+      * Optional parameter
+      * If `true`: stores section of value `12` as `0b0011`
+      * if `false`: stores a section of value `12` as `0b1100`
+      * Default value: `false`
+    * `reverseOrder`
+      * Optional parameter
+      * If `true`: reverses the order of format
+      * Default value: `false`
+  * Description
+    * A way to enter in ROM data, but with a layer of abstraction to make complicated values easier to remember
+  * Methods
+    * `add(other: Frame): Frame`
+      * Returns the result of a logical *or* operation on all BitMasks of this Frame with all BitMasks of the other Frame
+    * `resize(size: Bounds2d): Frame`
+      * Returns a new frame whose height and width have been set to those of the Bounds2d
+    * `remap(size: Bounds2d): Frame`
+      * Returns a new Frame whose width and height coincide with those specified in `size`
+      * Acts as if each BitMask is connected to the Previous BitMask, and changing the size of one frame moves where the BitMasks are
+        * eg: `[[1,2],[3,4],[5,6]]` -> (3x3) -> `[[1,2,3],[4,5,6],[?,?,?]]`
+        * (All *?s* are set to the `fallback` value)
+    * `invert(): Frame`
+      * Returns a new Frame whose BitMasks have all been inverted
+    * `hFlip(): Frame`
+      * Returns a new Frame hose BitMasks have been reversed
+    * `vFlip(): Frame`
+      * Returns a new Frame whose BitMask order has been reversed
+      * (First BitMask becomes the last, Second BitMask becomes the second to last, etc.)
+    * `hexDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the hexidecimal representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out hexidecimal data, and attempts to convert all bytes to ASCII
+    * `binDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the binary representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out binary data
+    * `shift(count: Pos2d): Frame`
+      * Shift all BitMasks by `count.x` bits, and rearrange list of BitMasks, shifting by `count.y` bits
+  * Properties
+    * `fallback: boolean`
+      * The value that any value of a BitMask will be set to if it needs to be extended
+
+* #### **RawROMFrame**
+  * Syntax:
+    ```typescript
+    class RawROMFrame({
+      data: number[],
+      depth?: number
+    }) extends ROMFrame
+    ```
+    * `depth`
+      * Optional parameter
+      * The size of the BitMask that stores the data
+      * Default value: `8`
+  * Description
+    * A way of entering in raw ROM data
+  * Methods
+    * `add(other: Frame): Frame`
+      * Returns the result of a logical *or* operation on all BitMasks of this Frame with all BitMasks of the other Frame
+    * `resize(size: Bounds2d): Frame`
+      * Returns a new frame whose height and width have been set to those of the Bounds2d
+    * `remap(size: Bounds2d): Frame`
+      * Returns a new Frame whose width and height coincide with those specified in `size`
+      * Acts as if each BitMask is connected to the Previous BitMask, and changing the size of one frame moves where the BitMasks are
+        * eg: `[[1,2],[3,4],[5,6]]` -> (3x3) -> `[[1,2,3],[4,5,6],[?,?,?]]`
+        * (All *?s* are set to the `fallback` value)
+    * `invert(): Frame`
+      * Returns a new Frame whose BitMasks have all been inverted
+    * `hFlip(): Frame`
+      * Returns a new Frame hose BitMasks have been reversed
+    * `vFlip(): Frame`
+      * Returns a new Frame whose BitMask order has been reversed
+      * (First BitMask becomes the last, Second BitMask becomes the second to last, etc.)
+    * `hexDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the hexidecimal representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out hexidecimal data, and attempts to convert all bytes to ASCII
+    * `binDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the binary representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out binary data
+    * `shift(count: Pos2d): Frame`
+      * Shift all BitMasks by `count.x` bits, and rearrange list of BitMasks, shifting by `count.y` bits
+  * Properties
+    * `fallback: boolean`
+      * The value that any value of a BitMask will be set to if it needs to be extended
+
+* #### **StringROMFrame**
+  * Syntax:
+    ```typescript
+    class StringRomFrame({
+      data: string
+    }) extends ROMFrame
+    ```
+  * Description
+    * A way of storing ROM data at a relatively high level of abstraction
+    * Best for encoding text (can effectively encode values 32-126)
+    * Stores each character in `data` as its own BitMask of depth 8 (standard ASCII encoding)
+  * Methods
+    * `add(other: Frame): Frame`
+      * Returns the result of a logical *or* operation on all BitMasks of this Frame with all BitMasks of the other Frame
+    * `resize(size: Bounds2d): Frame`
+      * Returns a new frame whose height and width have been set to those of the Bounds2d
+    * `remap(size: Bounds2d): Frame`
+      * Returns a new Frame whose width and height coincide with those specified in `size`
+      * Acts as if each BitMask is connected to the Previous BitMask, and changing the size of one frame moves where the BitMasks are
+        * eg: `[[1,2],[3,4],[5,6]]` -> (3x3) -> `[[1,2,3],[4,5,6],[?,?,?]]`
+        * (All *?s* are set to the `fallback` value)
+    * `invert(): Frame`
+      * Returns a new Frame whose BitMasks have all been inverted
+    * `hFlip(): Frame`
+      * Returns a new Frame hose BitMasks have been reversed
+    * `vFlip(): Frame`
+      * Returns a new Frame whose BitMask order has been reversed
+      * (First BitMask becomes the last, Second BitMask becomes the second to last, etc.)
+    * `hexDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the hexidecimal representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out hexidecimal data, and attempts to convert all bytes to ASCII
+    * `binDump({ lineSize: number, chunkSize: number })`
+      * Returns a list of the binary representations of each BitMask
+      * If lineSize set to a greater-than-zero integer: prints out binary data
+    * `shift(count: Pos2d): Frame`
+      * Shift all BitMasks by `count.x` bits, and rearrange list of BitMasks, shifting by `count.y` bits
+  * Properties
+    * `fallback: boolean`
+      * The value that any value of a BitMask will be set to if it needs to be extended
+
+* #### **PhysicalFrame**
+  * Syntax:
+    ```typescript
+    class PhysicalFrame({
+      frame: Frame,
+      id: Id
+    })
+    ```
+    * `id`
+      * Contains the individual Ids to all the Logic blocks that `frame` is attached to
+  * Description
+    * Stores a `Frame`, along with the Logic blocks that it is connected to
+  * Properties
+    * `frame: Frame`
+      * The `Frame` that is being stored
+    * `id: Id`
+      * Stores the individual Ids to all the Logic blocks that `frame` is attached to
