@@ -10,8 +10,7 @@ export interface DelayUnitInterface {
   rotate?: Rotate,
   color?: Color,
   bitKeys?: KeyMap,
-  connections?: MultiConnections,
-  compressed: boolean
+  connections?: MultiConnections
 }
 
 export interface ScaleableDelaysInterface {

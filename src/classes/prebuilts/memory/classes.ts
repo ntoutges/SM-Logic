@@ -8,11 +8,11 @@ import { BitMask, Connections, MultiConnections, Operation } from "../../../supp
 import { LogicalOperation } from "../../../support/logic/enums";
 import { Offset, Pos, Rotate } from "../../../support/spatial/classes";
 import { Logic } from "../../blocks/basics";
-import { BitInterface, BitsInterface, ByteInterface } from "./interfaces";
+import { BitInterface, BitsInterface, ByteInterface, SmallBitInterface } from "./interfaces";
 
 export class Bit extends Container {
   private _io: Map<string,Key>;
-  private readonly _placeValue: number;
+  readonly placeValue: number;
   constructor({
     key,
     pos = new Pos({}),
@@ -72,14 +72,13 @@ export class Bit extends Container {
     this._io = new Map<string,Key>();
     this._io.set("set", setBitKey);
     this._io.set("reset", resetBitKey);
-    this._placeValue = placeValue;
+    this.placeValue = placeValue;
   }
   get setId(): Id { return new Id(this._io.get("set")); }
   get resetId(): Id { return new Id(this._io.get("reset")); }
   get readId(): Id { return new Id(this._io.get("reset")); }
   get notRead(): Logic { return this.children[0] as Logic; }
   get read(): Logic { return this.children[1] as Logic; }
-  get placeValue(): number { return this._placeValue; }
 
   build(offset=new Offset({})) {
     return (
@@ -204,4 +203,21 @@ export class Byte extends Bits {
   get bit5(): Bit { return super.getBit(5); }
   get bit6(): Bit { return super.getBit(6); }
   get bit7(): Bit { return super.getBit(7); }
+}
+
+// requires a 1-tick pulse to toggle
+export class SmallBit extends Logic {
+  constructor({
+    key,
+    pos,
+    rotate,
+    color,
+    connections = new Connections()
+  }: SmallBitInterface) {
+    super({
+      key,pos,rotate,color,connections,
+      operation: new Operation(LogicalOperation.Xor)
+    });
+    this.connectTo(this); // connect this logic to itself
+  }
 }

@@ -1,11 +1,11 @@
-import { Container } from "../../../containers/classes";
+import { Container, Grid } from "../../../containers/classes";
 import { BasicKey, Id, KeylessFutureId, KeyMap } from "../../../support/context/classes";
 import { Connections, Delay, MultiConnections } from "../../../support/logic/classes";
 import { Bounds, Pos } from "../../../support/spatial/classes";
-import { Timer } from "../../blocks/basics";
+import { Logic, Timer } from "../../blocks/basics";
 import { DelayUnitInterface } from "./interfaces";
 
-export class DelayUnit extends Container {
+export class DelayUnit extends Grid {
   constructor({
     key,
     delays,
@@ -13,8 +13,7 @@ export class DelayUnit extends Container {
     rotate,
     color,
     bitKeys = new KeyMap(),
-    connections = new MultiConnections([]),
-    compressed = false
+    connections = new MultiConnections([])
   }: DelayUnitInterface) {
     let timers: Array<Timer> = [];
     let timerKeys: Array<BasicKey> = [];
@@ -32,19 +31,15 @@ export class DelayUnit extends Container {
         new Timer({
           key: timerKeys[i],
           delay,
-          connections: new Connections(conns),
-          pos: new Pos({
-            // x: (i == delays.delays.length-1) ? 0 : ( compressed ? 1 : i )
-            x: compressed ? ((i == delays.delays.length-1) ? 1 : 0) : i
-          })
+          connections: new Connections(conns)
         })
       );
     }
 
     super({
       pos,rotate,color,
-      // size: new Bounds({ x: delays.length }),
-      // spacing: new Bounds({ x: 1 }),
+      size: new Bounds({ x: delays.length }),
+      spacing: new Bounds({ x: 1 }),
       children: timers
     });
   }
@@ -60,6 +55,58 @@ export class DelayUnit extends Container {
   }
 }
 
-// export class SmartDelayUnit extends Grid {
-  
-// }
+// will replace 0-tick delays with a Logic block, instead of a Delay block
+export class SmartDelayUnit extends Grid {
+  constructor({
+    key,
+    delays,
+    pos,
+    rotate,
+    color,
+    bitKeys = new KeyMap(),
+    connections = new MultiConnections([])
+  }: DelayUnitInterface) {
+    let timers: Array<Timer | Logic> = [];
+    let timerKeys: Array<BasicKey> = [];
+    for (let i in delays.delays) {
+      timerKeys.push(
+        bitKeys.ids.has(i) ? bitKeys.ids.get(i) : key 
+      )
+    }
+    for (let [i, delay] of delays.delays.entries()) {
+      const conns = ((i == 0) ? [] : [ new Id(timerKeys[i-1]) ]).concat(
+        connections.getConnection(i.toString()).connections
+      );
+
+      timers.push(
+        delay.getDelay() == 0 ? 
+          new Timer({
+            key: timerKeys[i],
+            delay,
+            connections: new Connections(conns)
+          }) : 
+          new Logic({
+            key: timerKeys[i],
+            connections: new Connections(conns)
+          })
+      );
+    }
+
+    super({
+      pos,rotate,color,
+      size: new Bounds({ x: delays.length }),
+      spacing: new Bounds({ x: 1 }),
+      children: timers
+    });
+  }
+  getTimer(i: number): Timer | Logic { return this.children[i] as Timer | Logic; }
+  getTimerIds(delay: Delay): Id {
+    const id = new KeylessFutureId();
+    for (let timer of this.children) {
+      if (timer instanceof Timer && timer.delay._equals(delay)) {
+        id.addId((timer as Timer).id);
+      }
+    }
+    return id;
+  }
+}
