@@ -41,6 +41,76 @@ export class Bit extends Container {
               ])
             ).connections
           )),
+          operation: new Operation( LogicalOperation.Or ),
+          pos: new Pos({"x": -1}),
+          color
+        }),
+        new Logic({
+          key: resetBitKey,
+          connections: new Connections([
+            new Id(bufferBitKey)
+          ].concat(
+            connections.getConnection(
+              new Identifier([
+                BitIdentifiers.Reset,
+                BitIdentifiers.Output
+              ])
+            ).connections
+          )),
+          operation: new Operation( LogicalOperation.And ),
+          pos: new Pos({"y": -1}),
+          color
+        }),
+        new Logic({
+          key: bufferBitKey,
+          connections: new Connections([ new Id(setBitKey) ].concat(connections.getConnection(BitIdentifiers.Buffer).connections)),
+          pos: new Pos({"x": 1}),
+          color
+        })
+      ]
+    });
+    this._io = new Map<string,Key>();
+    this._io.set("set", setBitKey);
+    this._io.set("reset", resetBitKey);
+    this.placeValue = placeValue;
+  }
+  get setId(): Id { return new Id(this._io.get("set")); }
+  get resetId(): Id { return new Id(this._io.get("reset")); }
+  get readId(): Id { return new Id(this._io.get("reset")); }
+  get read(): Logic { return this.children[1] as Logic; }
+}
+
+export class OldBit extends Container {
+  private _io: Map<string,Key>;
+  readonly placeValue: number;
+  constructor({
+    key,
+    pos = new Pos({}),
+    rotate = new Rotate({}),
+    color = new Color(),
+    placeValue = 1,
+    connections = new MultiConnections([]),
+    bitKeys = new KeyMap()
+  }: BitInterface) {
+    const setBitKey = (bitKeys.ids.has(BitIdentifiers.Set)) ? bitKeys.ids.get(BitIdentifiers.Set) : new UniqueCustomKey({ key: key, identifier: "bit0" });
+    const resetBitKey = (bitKeys.ids.has(BitIdentifiers.Reset)) ? bitKeys.ids.get(BitIdentifiers.Reset) : new UniqueCustomKey({ key: key, identifier: "bit1" });
+    const bufferBitKey = (bitKeys.ids.has(BitIdentifiers.Buffer)) ? bitKeys.ids.get(BitIdentifiers.Buffer) : new UniqueCustomKey({ key: key, identifier: "bit2" });
+    super({
+      pos,
+      rotate,
+      children: [
+        new Logic({
+          key: setBitKey,
+          connections: new Connections([
+            new Id(resetBitKey)
+          ].concat(
+            connections.getConnection(
+              new Identifier([
+                BitIdentifiers.Set,
+                BitIdentifiers.Not
+              ])
+            ).connections
+          )),
           operation: new Operation( LogicalOperation.Nor ),
           pos: new Pos({"x": -1}),
           color
@@ -79,19 +149,6 @@ export class Bit extends Container {
   get readId(): Id { return new Id(this._io.get("reset")); }
   get notRead(): Logic { return this.children[0] as Logic; }
   get read(): Logic { return this.children[1] as Logic; }
-
-  build(offset=new Offset({})) {
-    return (
-      new Container({ children: this.children })
-    ).build(
-      offset.add(
-        new Offset({
-          pos: this.pos,
-          rotate: this.rotation
-        })
-      )
-    );
-  }
 }
 
 export class Bits extends Container {

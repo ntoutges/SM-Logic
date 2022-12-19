@@ -423,9 +423,9 @@ export class VideoDisplay extends Container {
         y: 1
       }),
       bitKeys: new KeyMap( keys ),
-      connections: new MultiConnections(connections),
-      compressed: true
-    })
+      connections: new MultiConnections(connections)
+    });
+    delayUnit.compress();
     
     super({
       pos,rotate,color,

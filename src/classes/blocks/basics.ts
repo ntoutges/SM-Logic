@@ -86,7 +86,9 @@ export abstract class BasicLogic extends Block {
   get conns(): Connections { return this._conns; }
   get id() { return this._id; }
   abstract get controller();
-  connectTo(other: BasicLogic) { this.conns.addConnection(other.id); }
+  connectTo(other: BasicLogic | Id) {
+    this.conns.addConnection((other instanceof BasicLogic) ? other.id : other);
+  }
   build(offset=new Offset({})) {
     const rotation = this.rotation.add(offset.rotate);
     const pos = this.pos.rotate(rotation).add(offset.pos).add( rotation.offset );

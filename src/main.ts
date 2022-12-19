@@ -24,6 +24,7 @@ import { FrameBuilder } from "./support/graphics/classes";
 import { Wood } from "./classes/blocks/materials";
 import { DraggableIds } from "./classes/shapeIds";
 import { ROMs } from "./support/ROMs";
+import { SSPReceiver } from "./classes/prebuilts/SSP/classes";
 
 const Jimp = require("jimp");
 
@@ -38,14 +39,8 @@ export class Body extends GenericBody {
     const shapes = [];
     const file = await readFile("tester.png");
 
-    return new Custom2dShape({
-      frame: new FileFrame({
-        imageData: file,
-        activeRange: [0,50]
-      }),
-      falseMaterial: DraggableIds.GlassTile,
-      trueMaterial: DraggableIds.Metal,
-      color: new Color(Colors.SM_White)
+    return new SSPReceiver({
+      key
     })
   }
 }

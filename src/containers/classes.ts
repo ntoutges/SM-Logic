@@ -69,8 +69,10 @@ export class Container extends Unit {
       rotate: this.rotation
     }).add(offset);
 
+    this.pos.rotate(this.rotation);
     this.children.forEach((child: Unit) => {
-      child.pos = child.pos.rotate(newOffset.rotate);
+      // child.pos = child.pos.rotate(newOffset.rotate); // redundant
+
       const built = child.build(newOffset);
       if (built != "") // some Units, such as [Custom2dShape], may return an empty string, as they have no data to add
         childBlueprints.push( built );

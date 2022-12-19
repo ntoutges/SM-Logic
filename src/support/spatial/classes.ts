@@ -40,6 +40,7 @@ export class Pos extends Equatable {
     let x = this.x;
     let y = this.y;
     let z = this.z;
+    // console.log(other.orientation)
     switch (other.direction) {
       // default:
       // case Direction.Forwards:
