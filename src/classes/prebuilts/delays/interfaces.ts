@@ -9,7 +9,6 @@ export interface DelayUnitInterface {
   pos?: Pos,
   rotate?: Rotate,
   color?: Color,
-  bitKeys?: KeyMap,
   connections?: MultiConnections
 }
 

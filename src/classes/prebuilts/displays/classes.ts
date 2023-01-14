@@ -1,14 +1,15 @@
 import { Container, Grid, Unit } from "../../../containers/classes";
 import { BasicKey, CustomKey, Id, Identifier, Key, KeylessFutureId, KeylessId, KeyMap, UniqueCustomKey } from "../../../support/context/classes";
 import { combineIds } from "../../../support/context/enums";
-import { Frame, Frames, PhysicalFrame } from "../../../support/frames/classes";
+import { CharFrame, Frame, Frames, PhysicalFrame } from "../../../support/frames/classes";
 import { BitMask, Connections, Delay, MultiConnections, Operation, ScaleableDelays, VBitMask } from "../../../support/logic/classes";
 import { LogicalOperation, Time } from "../../../support/logic/enums";
 import { MultiConnectionsType } from "../../../support/logic/interfaces";
 import { Bounds, Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";
 import { BasicLogic, Block, Logic, Timer } from "../../blocks/basics";
 import { DelayUnit } from "../delays/classes";
-import { CharacterFrames, Characters, NumToString } from "./enums";
+import { CharacterFrames, numberFrames, NumToString } from "./enums";
+import { CHARACTERS, Charsets, SPACING } from "./graphics";
 import { BitMapInterface, CharacterDisplayInterface, FutureBitMapInterface, SevenSegmentInterface, SimpleBitMapInterface, VideoDisplayInterface } from "./interfaces";
 
 export class FutureBitMap extends Grid {
@@ -18,7 +19,6 @@ export class FutureBitMap extends Grid {
     pos,
     rotate,
     color,
-    bitKeys = new KeyMap()
   }: FutureBitMapInterface) {
     let screen: Array<Logic> = [];
     for (let z = 0; z < size.y; z++) {
@@ -26,7 +26,7 @@ export class FutureBitMap extends Grid {
         const identifierString = combineIds(x.toString(),z.toString());
         screen.push(
           new Logic({
-            key: bitKeys.ids.has(identifierString) ? bitKeys.ids.get(identifierString) : key,
+            key,
             color: color,
             operation: new Operation( LogicalOperation.Screen )
           })
@@ -43,22 +43,25 @@ export class FutureBitMap extends Grid {
     this._addProps(["_height","_width"]);
   }
   getFrameId(frame: Frame): Id {
-    const newFrame = frame.resize(
-      new Bounds2d({
-        x: this.width,
-        y: this.height
-      })
-    );
+    if (frame.width != this.width || frame.height != this.height) {
+      frame = frame.resize(
+        new Bounds2d({
+          x: this.width,
+          y: this.height
+        })
+      );
+    }
+
     const newId = new KeylessFutureId();
-    for (let z = 0; z < newFrame.rows.length; z++) {
-      for (let x = 0; x < newFrame.rows[z].mask.length; x++) {
-        if (newFrame.rows[z].mask[x]) {
+    for (let z = 0; z < frame.rows.length; z++) {
+      for (let x = 0; x < frame.rows[z].mask.length; x++) {
+        if (frame.rows[z].mask[x]) {
           newId.addId(
             (
               this.getGridChild(
                 new Pos({
                   x: x,
-                  z: newFrame.rows.length-z-1
+                  z: frame.rows.length-z-1
                 })
               ) as BasicLogic
             ).id
@@ -66,7 +69,8 @@ export class FutureBitMap extends Grid {
         }
       }
     }
-    return newId;
+    if (newId.isReady) return newId;
+    return undefined; // a space character
   }
 }
 
@@ -77,8 +81,7 @@ export class BitMap extends Grid {
     frames,
     pos,
     rotate,
-    color,
-    bitKeys = new KeyMap()
+    color
   }: BitMapInterface) {
     if (frames.frames.length == 0)
       throw new Error("frames must contain at least one Frame");
@@ -93,12 +96,9 @@ export class BitMap extends Grid {
     for (let z = 0; z < frames.height; z++) {
       for (let x = 0; x < frames.width; x++) {
         const blockKey = new UniqueCustomKey({ key: key, identifier: `screen${x}:${z}` });
-        const identifierString = combineIds(x.toString(),z.toString());
-        if (bitKeys.ids.has(identifierString))
-          bitKeys.ids.set(identifierString, blockKey);
 
         for (let i in frames.frames) {
-          if (frames.frames[i].rows[z].mask[x])
+          if (frames.frames[i].rows[frames.height-z-1].mask[x]) // reverses y
             enableIds[i].addId(blockKey.newId);
         }
         screen.push(
@@ -138,6 +138,7 @@ export class BitMap extends Grid {
   }
   getEnableId(i: number): Id {
     i = (i < 0) ? i + this._physicalFrames.length: i; // emulate python wrap-around id system
+    if (i < 0 || i >= this._physicalFrames.length) throw new Error("Invalid id number");
     return this._physicalFrames[i].id;
   }
 }
@@ -148,8 +149,7 @@ export class SimpleBitMap extends BitMap {
     frame,
     color,
     pos,
-    rotate,
-    bitKeys
+    rotate
   }: SimpleBitMapInterface) {
     super({
       key,
@@ -160,8 +160,7 @@ export class SimpleBitMap extends BitMap {
       }),
       color,
       pos,
-      rotate,
-      bitKeys
+      rotate
     });
   }
   get physicalFrame(): PhysicalFrame { return this.physicalFrames[0]; }
@@ -174,8 +173,7 @@ export class SevenSegment extends BitMap {
     key,
     color,
     pos,
-    rotate,
-    bitKeys
+    rotate
   }: SevenSegmentInterface) {
     const frameSize = new Bounds2d({
       x: 3,
@@ -250,8 +248,7 @@ export class SevenSegment extends BitMap {
       }),
       color,
       pos,
-      rotate,
-      bitKeys
+      rotate
     });
   }
   get topId(): Id { return this.getEnableId(0); }
@@ -261,119 +258,45 @@ export class SevenSegment extends BitMap {
   get leftBId(): Id { return this.getEnableId(4); }
   get rightAId(): Id { return this.getEnableId(5); }
   get rightBId(): Id { return this.getEnableId(6); }
-}
 
-export class SevenSegmentNumber extends SevenSegment {
-  // constructor({
-  //   key,
-  //   color,
-  //   pos,
-  //   rotate,
-  //   bitKeys
-  // }: SevenSegmentInterface) {
-  //   super({ key,color,pos,rotate,bitKeys });
-  // }
-  get num0Id(): Id {
-    return this.topId.add([
-      this.bottomId,
-      this.leftAId,
-      this.leftBId,
-      this.rightAId,
-      this.rightBId
-    ]);
-  }
-  get num1Id(): Id { return this.rightAId.add([ this.rightBId ]); }
-  get num2Id(): Id {
-    return this.topId.add([
-      this.middleId,
-      this.bottomId,
-      this.leftBId,
-      this.rightAId
-    ]);
-  }
-  get num3Id(): Id {
-    return this.num1Id.add([
-      this.topId,
-      this.middleId,
-      this.bottomId
-    ]);
-  }
-  get num4Id(): Id {
-    return this.num1Id.add([
-      this.leftAId,
-      this.middleId
-    ]);
-  }
-  get num5Id(): Id {
-    return this.topId.add([
-      this.middleId,
-      this.bottomId,
-      this.leftAId,
-      this.rightBId
-    ]);
-  }
-  get num6Id(): Id { return this.num5Id.add([ this.leftBId ]); }
-  get num7Id(): Id { return this.num1Id.add([ this.topId ]); }
-  get num8Id(): Id { return this.num0Id.add([ this.middleId ]); }
-  get num9Id(): Id { return this.num5Id.add([ this.rightAId ]); }
-
-  getNumber(num: number) {
-    num = Math.floor(num) % 10;
-    switch (num) {
-      case 0:
-        return this.num0Id;
-      case 1:
-        return this.num1Id;
-      case 2:
-        return this.num2Id;
-      case 3:
-        return this.num3Id;
-      case 4:
-        return this.num4Id;
-      case 5:
-        return this.num5Id;
-      case 6:
-        return this.num6Id;
-      case 7:
-        return this.num7Id;
-      case 8:
-        return this.num8Id;
-      case 9:
-        return this.num9Id;
-      default:
-        throw new Error(`Unrecognized value [${num}] in \'getNumber\'`)
+  getNumberId(num: number): KeylessFutureId {
+    if (num >= numberFrames.length) throw new Error("Invalid number, must be in range [0,9]");
+    let numControls = numberFrames[Math.floor(num)];
+    const ids = new KeylessFutureId();
+    for (var i = 7; i >= 0; i--) {
+      if (numControls >= 2**i) {
+        numControls -= 2**i;
+        ids.addId(this.getEnableId(i));
+      }
     }
+    return ids;
   }
 }
 
 export class CharacterDisplay extends FutureBitMap {
+  readonly charset: Charsets;
   constructor({
     key,
     color,
     pos,
     rotate,
-    bitKeys
+    charset = Charsets.HP48
   }: CharacterDisplayInterface) {
     super({
-      key,color,pos,rotate,bitKeys,
+      key,color,pos,rotate,
       size: new Bounds2d({
-        x: 5,
-        y: 7
+        x: SPACING[charset].x,
+        y: SPACING[charset].y
       })
-    })
+    });
+    this.charset = charset;
   }
-  getCharacter(char: Characters | string): Id {
-    if (typeof char == "string") {
-      return this.getCharacter(
-        (isNaN(parseInt(char)))
-          ? (Characters[char] == undefined)
-            ? Characters.Undefined
-            : Characters[char]
-          : Characters[NumToString[char]]
-      )
-    }
+  getCharacter(char: string): Id {
     return this.getFrameId(
-      CharacterFrames[char]
+      new CharFrame({
+        char: char,
+        charset: this.charset
+      })
     );
   }
 }
@@ -422,7 +345,6 @@ export class VideoDisplay extends Container {
       pos: new Pos({
         y: 1
       }),
-      bitKeys: new KeyMap( keys ),
       connections: new MultiConnections(connections)
     });
     delayUnit.compress();

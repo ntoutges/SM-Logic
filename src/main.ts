@@ -5,12 +5,11 @@ import { Container, Grid, Unit } from "./containers/classes";
 import { ConstantCompare, Integer } from "./classes/prebuilts/numbers/classes";
 import { CustomKey, BasicKey, Id, UniqueCustomKey, KeylessFutureId, Identifier, KeyGen, Keys, StringKeyGen, KeyMap, KeylessId } from "./support/context/classes";
 import { BitMask, Connections, Delay, Delays, MultiConnections, Operation, RawBitMask, VBitMask } from "./support/logic/classes";
-import { FileFrame, Frame, Framer, Frames, MappedROMFrame, RawROMFrame, readFile, ROMFrame, VFrame } from "./support/frames/classes"
+import { CharFrame, FileFrame, Frame, Frames, MappedROMFrame, RawROMFrame, readFile, ROMFrame, VFrame } from "./support/frames/classes"
 import { Bounds, Bounds2d, Pos, Pos2d, Rotate } from "./support/spatial/classes";
 import { Direction, Orientation } from "./support/spatial/enums";
-import { BitMap, CharacterDisplay, SevenSegment, SevenSegmentNumber, SimpleBitMap, VideoDisplay } from "./classes/prebuilts/displays/classes";
+import { BitMap, CharacterDisplay, SevenSegment, SimpleBitMap, VideoDisplay } from "./classes/prebuilts/displays/classes";
 import { LogicalOperation, Time } from "./support/logic/enums";
-import { Characters } from "./classes/prebuilts/displays/enums";
 import { DelayUnit } from "./classes/prebuilts/delays/classes";
 import { BitIdentifiers, ByteIdentifiers, combineIds, MemoryIdentifiers } from "./support/context/enums";
 import { CompareOperation } from "./classes/prebuilts/numbers/enums";
@@ -25,6 +24,7 @@ import { Wood } from "./classes/blocks/materials";
 import { DraggableIds } from "./classes/shapeIds";
 import { ROMs } from "./support/ROMs";
 import { SSPReceiver } from "./classes/prebuilts/SSP/classes";
+import { Charsets } from "./classes/prebuilts/displays/graphics";
 
 const Jimp = require("jimp");
 
@@ -36,11 +36,24 @@ export class Body extends GenericBody {
     const key = this.key;
     const gen = new StringKeyGen(key);
 
-    const shapes = [];
-    const file = await readFile("tester.png");
+    const display = new CharacterDisplay({
+      key,
+      charset: Charsets.PETSCII,
+    });
+    const en = new Switch({
+      key, pos: new Pos({ z:-1 }),
+      connections: new Connections(display.getCharacter("/"))
+    });
 
-    return new SSPReceiver({
-      key
+    new CharFrame({
+      char: "A"
+    })
+
+    return new Container({
+      children: [
+        display,
+        en
+      ]
     })
   }
 }

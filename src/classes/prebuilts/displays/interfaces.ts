@@ -3,14 +3,14 @@ import { BasicKey, Id, KeyMap } from "../../../support/context/classes";
 import { Frame, Frames } from "../../../support/frames/classes";
 import { BitMask, Delay, Delays, MultiConnections } from "../../../support/logic/classes";
 import { Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";
+import { Charsets } from "./graphics";
 
 export interface FutureBitMapInterface {
   key: BasicKey,
   size: Bounds2d,
   pos?: Pos,
   rotate?: Rotate,
-  color?: Color,
-  bitKeys?: KeyMap
+  color?: Color
 }
 
 export interface BitMapInterface {
@@ -18,8 +18,7 @@ export interface BitMapInterface {
   frames: Frames,
   pos?: Pos,
   rotate?: Rotate,
-  color?: Color,
-  bitKeys?: KeyMap
+  color?: Color
 }
 
 export interface SimpleBitMapInterface {
@@ -27,16 +26,14 @@ export interface SimpleBitMapInterface {
   frame: Frame,
   pos?: Pos,
   rotate?: Rotate,
-  color?: Color,
-  bitKeys?: KeyMap
+  color?: Color
 }
 
 export interface SevenSegmentInterface {
   key: BasicKey,
   pos?: Pos,
   rotate?: Rotate,
-  color?: Color,
-  bitKeys?: KeyMap
+  color?: Color
 }
 
 export interface CharacterDisplayInterface {
@@ -44,7 +41,7 @@ export interface CharacterDisplayInterface {
   pos?: Pos,
   rotate?: Rotate,
   color?: Color,
-  bitKeys?: KeyMap
+  charset?: Charsets
 }
 
 export interface VideoDisplayInterface {
@@ -53,6 +50,5 @@ export interface VideoDisplayInterface {
   frameTime?: Delay,
   pos?: Pos,
   rotate?: Rotate,
-  color?: Color,
-  bitKeys?: KeyMap
+  color?: Color
 }

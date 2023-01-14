@@ -9,8 +9,7 @@ export interface BitInterface {
   rotate?: Rotate,
   color?: Color,
   placeValue?: number,
-  connections?: MultiConnections,
-  bitKeys?: KeyMap
+  connections?: MultiConnections
 }
 
 export interface BitsInterface {
@@ -20,8 +19,7 @@ export interface BitsInterface {
   rotate?: Rotate,
   color?: Color,
   placeValue?: number,
-  connections?: MultiConnections,
-  bitKeys?: KeyMap
+  connections?: MultiConnections
 }
 
 export interface ByteInterface {
@@ -30,8 +28,7 @@ export interface ByteInterface {
   rotate?: Rotate,
   color?: Color,
   placeValue?: number,
-  connections?: MultiConnections,
-  bitKeys?: KeyMap
+  connections?: MultiConnections
 }
 
 export interface SmallBitInterface {

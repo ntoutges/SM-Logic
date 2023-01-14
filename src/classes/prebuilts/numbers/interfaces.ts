@@ -15,8 +15,7 @@ export interface ConstantCompareInterface {
   pos?: Pos,
   color?: Color,
   rotate?: Rotate,
-  slowMode?: boolean,
-  bitKeys?: KeyMap
+  slowMode?: boolean
 }
 
 export interface EqualsConstantInterface {
@@ -26,6 +25,5 @@ export interface EqualsConstantInterface {
   pos?: Pos,
   color?: Color,
   rotate?: Rotate
-  slowMode?: boolean,
-  bitKeys?: KeyMap
+  slowMode?: boolean
 }

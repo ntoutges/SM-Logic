@@ -1,11 +1,12 @@
 const Jimp = require("jimp");
 
+import { CHARACTERS, Charsets, SPACING } from "../../classes/prebuilts/displays/graphics";
 import { Id } from "../context/classes";
 import { BitMask, Operation, RawBitMask, VBitMask } from "../logic/classes";
 import { LogicalOperation } from "../logic/enums";
 import { Bounds2d, Pos2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
-import { DataDumpInterface, FileFrameInterface, FrameInterface, FramerInterface, FramesInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
+import { CharFrameInterface, DataDumpInterface, FileFrameInterface, FrameInterface, FramerInterface, FramesInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
 
 export class Frame extends Equatable {
   private _size: Bounds2d;
@@ -26,25 +27,46 @@ export class Frame extends Equatable {
   get rows(): Array<BitMask> { return this._value; }
   get height(): number { return this._size.y; }
   get width(): number { return this._size.x; }
-  add(other: Frame): Frame {
-    let newWidth: number = Math.max(this.width, other.width);
-    let newHeight: number = Math.max(this.height, other.height);
-    const value = [];
-    for (let y = 0; y < newHeight; y++) {
-      let thisMask = (this.rows.length > y) ? this.rows[y] : new BitMask([]);
-      let otherMask = (other.rows.length > y) ? other.rows[y] : new BitMask([]);
-      value.push(
-        thisMask.extend({
-          newLength: newWidth,
-          fallback: this.fallback
-        }).add(
-          otherMask
-          )
-        );
+  add(
+    others: Frame | Frame[],
+    combinatorFunction: Operation = new Operation(LogicalOperation.Or)
+  ): Frame {
+    let frames: Array<Frame>;;
+    if (Array.isArray(others)) frames = others;
+    else frames = [others];
+
+    const frameData: Array<Array<boolean>> = [];
+    for (const frame of frames) {
+      for (let y in frame.rows) {
+        if (frameData.length == +y) frameData.push([]);
+        for (let x in frame.rows[y].mask) {
+          const oldData = (frameData[y].length > +x) ? (frameData[y][x] ? 1 : 0) : -1;
+          const newBit = frame.rows[y].mask[x];
+
+          let combinedBit = false;
+          if (oldData != -1) combinedBit = combinatorFunction.operate(newBit, oldData == 1);
+          else combinedBit = combinatorFunction.operate(newBit);
+
+          frameData[y][x] = combinedBit;
+        }
+      }
     }
+    const height = frameData.length;
+    let width = 1;
+
+    const frameMasks: Array<BitMask> = [];
+    for (let i in frameData) {
+      const maskData = frameData[i];
+      frameMasks.push(new BitMask(maskData));
+      width  = Math.max(width, maskData.length);
+    }
+
     return new Frame({
-      size: this._size,
-      value: value
+      value: frameMasks,
+      size: new Bounds2d({
+        x: width,
+        y: height
+      })
     });
   }
   private selfResize(size: Bounds2d): void { // modify this frame
@@ -238,6 +260,27 @@ export class Frame extends Equatable {
   }
 }
 
+export class CharFrame extends Frame {
+  constructor({
+    char,
+    charset=Charsets.HP48
+  }: CharFrameInterface) {
+    if (!(char in CHARACTERS[charset])) char = "unknown";
+    const graphic: string[] = CHARACTERS[charset][char];
+    const value: BitMask[] = [];
+    
+    for (let row of graphic) { value.push(new VBitMask(row)); }
+    super({
+      size: new Bounds2d({
+        "x": SPACING[charset].x,
+        "y": SPACING[charset].y
+      }),
+      value,
+      fallback: false
+    })
+  }
+}
+
 export class VFrame extends Frame {
   constructor({
     data,
@@ -263,49 +306,6 @@ export class VFrame extends Frame {
         y: height
       }),
       value
-    });
-  }
-}
-
-// combine multiple frames into one frame
-export class Framer extends Frame {
-  constructor({
-    frames,
-    combinatorFunction = new Operation(LogicalOperation.Or)
-  }: FramerInterface) {
-    const frameData: Array<Array<boolean>> = [];
-    for (const frame of frames) {
-      for (let y in frame.rows) {
-        if (frameData.length == +y) frameData.push([]);
-        for (let x in frame.rows[y].mask) {
-          const oldData = (frameData[y].length > +x) ? (frameData[y][x] ? 1 : 0) : -1;
-          const newBit = frame.rows[y].mask[x];
-
-          let combinedBit = false;
-          if (oldData != -1) combinedBit = combinatorFunction.operate(newBit, oldData == 1);
-          else combinedBit = combinatorFunction.operate(newBit);
-
-          frameData[y][x] = combinedBit;
-        }
-      }
-    }
-
-    const height = frameData.length;
-    let width = 1;
-
-    const frameMasks: Array<BitMask> = [];
-    for (let i in frameData) {
-      const maskData = frameData[i];
-      frameMasks.push(new BitMask(maskData));
-      width  = Math.max(width, maskData.length);
-    }
-
-    super({
-      value: frameMasks,
-      size: new Bounds2d({
-        x: width,
-        y: height
-      })
     });
   }
 }

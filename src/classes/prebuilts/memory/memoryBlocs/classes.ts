@@ -9,7 +9,6 @@ export class MemoryGridBloc extends Container {
   constructor({
     key,
     signal,
-    bitKeys,
     connections,
     color,
     pos,
@@ -19,7 +18,6 @@ export class MemoryGridBloc extends Container {
     const gridUnit = new MemoryGrid({
       key,
       signal,
-      bitKeys,
       connections,
       size,
       pos: new Pos({

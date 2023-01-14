@@ -7,7 +7,6 @@ import { Logic } from "../../../blocks/basics";
 
 export interface MemoryRowInterface {
   key: BasicKey,
-  bitKeys?: KeyMap,
   connections?: MultiConnections
   pos?: Pos,
   rotate?: Rotate,
@@ -22,8 +21,7 @@ export interface AddressableMemoryRowInterface extends MemoryRowInterface {
 
 export interface MemoryGridInterface {
   key: BasicKey,
-  signal: Array<Logic>
-  bitKeys?: KeyMap,
+  signal: Array<Logic>,
   connections?: MultiConnections
   pos?: Pos,
   rotate?: Rotate,
@@ -33,8 +31,7 @@ export interface MemoryGridInterface {
 
 export interface MemorySelectorInterface {
   key: BasicKey,
-  signal: Array<Logic>
-  bitKeys?: KeyMap,
+  signal: Array<Logic>,
   size?: Bounds2d,
   connections?: MultiConnections
   pos?: Pos,

@@ -38,8 +38,7 @@ export class ConstantCompare extends Container {
   pos,
   color,
   rotate,
-  slowMode = true,
-  bitKeys
+  slowMode = true
   }: ConstantCompareInterface) {
     if (elseC != null && elseC.connections.length != 0 && !slowMode)
       throw new Error("Cannot have elseC term when not in \'slowMode\'");
@@ -57,7 +56,6 @@ export class ConstantCompare extends Container {
       signal,
       constant,
       slowMode,
-      bitKeys,
       color,
       rotate
     });
@@ -83,7 +81,6 @@ export class EqualsConstant extends Comparators {
     signal,
     constant,
     slowMode = true,
-    bitKeys = new KeyMap(),
     pos,
     rotate,
     color
@@ -92,22 +89,22 @@ export class EqualsConstant extends Comparators {
       throw new Error(`Constant value ${constant} greater than maximum Integer value (${Math.pow(2,signal.length)})`);
     
     const nor = new Logic({
-      key: (bitKeys.ids.has( CompareIdentifiers.NotIn )) ? bitKeys.ids.get( CompareIdentifiers.NotIn ) : key,
+      key,
       operation: new Operation(LogicalOperation.Nor),
     });
     const bufferIdentifier = slowMode ? CompareIdentifiers.BufferIn : CompareIdentifiers.Output;
     const buffer = new Logic({
-      key: (bitKeys.ids.has( bufferIdentifier )) ? bitKeys.ids.get( bufferIdentifier ) : key,
+      key,
       operation: new Operation(LogicalOperation.And),
       pos: new Pos({ z:1 })
     });
     const and = new Logic({
-      key: (bitKeys.ids.has( CompareIdentifiers.Output )) ? bitKeys.ids.get( CompareIdentifiers.BufferIn ) : key,
+      key,
       operation: new Operation(LogicalOperation.And),
       pos: new Pos({ z:2 })
     });
     const nand = new Logic({
-      key: (bitKeys.ids.has( CompareIdentifiers.NotOutput )) ? bitKeys.ids.get( CompareIdentifiers.NotOutput ) : key,
+      key,
       operation: new Operation(LogicalOperation.Nand),
       pos: new Pos({ z:3 })
     })

@@ -12,15 +12,12 @@ export class DelayUnit extends Grid {
     pos,
     rotate,
     color,
-    bitKeys = new KeyMap(),
     connections = new MultiConnections([])
   }: DelayUnitInterface) {
     let timers: Array<Timer> = [];
     let timerKeys: Array<BasicKey> = [];
     for (let i in delays.delays) {
-      timerKeys.push(
-        bitKeys.ids.has(i) ? bitKeys.ids.get(i) : key 
-      )
+      timerKeys.push(key)
     }
     for (let [i, delay] of delays.delays.entries()) {
       const conns = ((i == 0) ? [] : [ new Id(timerKeys[i-1]) ]).concat(
@@ -63,15 +60,12 @@ export class SmartDelayUnit extends Grid {
     pos,
     rotate,
     color,
-    bitKeys = new KeyMap(),
     connections = new MultiConnections([])
   }: DelayUnitInterface) {
     let timers: Array<Timer | Logic> = [];
     let timerKeys: Array<BasicKey> = [];
     for (let i in delays.delays) {
-      timerKeys.push(
-        bitKeys.ids.has(i) ? bitKeys.ids.get(i) : key 
-      )
+      timerKeys.push(key)
     }
     for (let [i, delay] of delays.delays.entries()) {
       const conns = ((i == 0) ? [] : [ new Id(timerKeys[i-1]) ]).concat(

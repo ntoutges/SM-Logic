@@ -19,7 +19,6 @@ import { AddressableMemoryRowInterface, CardROMInterface, CardROMPackageInterfac
 export class MemoryRow extends Grid {
   constructor({
     key,
-    bitKeys = new KeyMap(),
     connections = new MultiConnections([]),
     color,
     pos,
@@ -32,8 +31,7 @@ export class MemoryRow extends Grid {
         new Integer({
           key,
           depth: 8,
-          connections: connections.getMetaConnection(i.toString()),
-          bitKeys: bitKeys.narrow(i.toString()),
+          connections: connections.getMetaConnection(i.toString())
         })
       );
     }
@@ -61,7 +59,6 @@ export class AddressableMemoryRow extends Container {
   constructor({
     key,
     signal,
-    bitKeys = new KeyMap(),
     connections = new MultiConnections([]),
     color,
     pos,
@@ -74,7 +71,6 @@ export class AddressableMemoryRow extends Container {
       pos: new Pos({
         x: 2*length + 2 + padding
       }),
-      bitKeys: bitKeys.narrow(MemoryIdentifiers.Row),
       length: length
     });
 
@@ -95,21 +91,6 @@ export class AddressableMemoryRow extends Container {
     }
 
     let setId: CustomKey = null;
-    if (bitKeys.narrow(MemoryIdentifiers.Selector).ids.has(MemoryIdentifiers.Set)) {
-      setId = bitKeys.ids.get(combineIds(MemoryIdentifiers.Selector, MemoryIdentifiers.Set));
-      bitKeys.ids.delete(combineIds(MemoryIdentifiers.Selector, MemoryIdentifiers.Set));
-    }
-    const resetId: CustomKey = bitKeys.ids.get(combineIds(MemoryIdentifiers.Selector, MemoryIdentifiers.Reset)) ?? null;
-
-    // if (!bitKeys.narrow(MemoryIdentifiers.Selector).ids.has(MemoryIdentifiers.Set)) {
-    //   bitKeys.ids.set(
-    //     combineIds(MemoryIdentifiers.Selector, MemoryIdentifiers.Set),
-    //     new UniqueCustomKey({
-    //       key,
-    //       identifier: "set"
-    //     })
-    //   );
-    // }
 
     const selector = new MemorySelector({
       key,signal,
@@ -121,7 +102,6 @@ export class AddressableMemoryRow extends Container {
         x: padding + length
       }),
       connections: new MultiConnections(conns),
-      bitKeys: bitKeys.narrow(MemoryIdentifiers.Selector)
     });
 
     const timerConns: Array<Id> = [];
@@ -155,7 +135,6 @@ export class AddressableMemoryRow extends Container {
     const reader = new MemoryRowReader({
       key,
       signal: outSignal,
-      bitKeys: bitKeys.narrow(MemoryIdentifiers.Getter),
       size: new Bounds2d({
         x: length,
         y: 8
@@ -206,7 +185,7 @@ export class AddressableMemoryRow extends Container {
       )
     }
     const resetAll = new Logic({
-      key: (resetId == null) ? key : resetId,
+      key,
       connections: new Connections( allResetConns ),
       rotate: new Rotate({
         direction: Direction.Backwards
@@ -261,7 +240,6 @@ export class MemoryGrid extends Container {
   constructor ({
     key,
     signal,
-    bitKeys = new KeyMap(),
     connections = new MultiConnections([]),
     color,
     pos,
@@ -292,7 +270,6 @@ export class MemoryGrid extends Container {
         key,
         signal: xSignal,
         connections: connections.getMetaConnection(y.toString()),
-        bitKeys: bitKeys.narrow(y.toString()),
         length: size.x,
         padding: 16
       });
@@ -335,7 +312,6 @@ export class MemoryGrid extends Container {
       key,
       signal: ySignal,
       connections: new MultiConnections(selectorConnections),
-      bitKeys: new KeyMap( bitKeyEnable ),
       size: new Bounds2d({
         x: size.y,
         y: 2
@@ -422,7 +398,6 @@ export class MemorySelector extends Container {
   constructor({
     key,
     signal,
-    bitKeys = new KeyMap(),
     size = new Bounds2d({ x:8, y:8 }),
     connections = new MultiConnections([]),
     pos,
@@ -502,29 +477,29 @@ export class MemorySelector extends Container {
       );
     }
 
-    let setLogic = null;
-    if (bitKeys.ids.has(MemoryIdentifiers.Set)) {
-      const conns: Array<Id> = [];
-      matrix.forEach((logic) => {
-        conns.push(logic.id)
-      });
-      setLogic = new Logic({
-        key: bitKeys.ids.get(MemoryIdentifiers.Set),
-        connections: new Connections(conns),
-        rotate: new Rotate({ direction: Direction.Backwards })
-      })
-    }
-    else if (bitKeys.ids.has(MemoryIdentifiers.Set1)) {
-      const conns: Array<Id> = [];
-      for (let i = 0; i < size.x; i++) {
-        conns.push(matrix[i].id);
-      }
-      setLogic = new Logic({
-        key: bitKeys.ids.get(MemoryIdentifiers.Set1),
-        connections: new Connections(conns),
-        rotate: new Rotate({ direction: Direction.Backwards })
-      })
-    }
+    let setLogic: Logic = null;
+    // if (bitKeys.ids.has(MemoryIdentifiers.Set)) {
+    //   const conns: Array<Id> = [];
+    //   matrix.forEach((logic) => {
+    //     conns.push(logic.id)
+    //   });
+    //   setLogic = new Logic({
+    //     key: bitKeys.ids.get(MemoryIdentifiers.Set),
+    //     connections: new Connections(conns),
+    //     rotate: new Rotate({ direction: Direction.Backwards })
+    //   })
+    // }
+    // else if (bitKeys.ids.has(MemoryIdentifiers.Set1)) {
+    //   const conns: Array<Id> = [];
+    //   for (let i = 0; i < size.x; i++) {
+    //     conns.push(matrix[i].id);
+    //   }
+    //   setLogic = new Logic({
+    //     key: bitKeys.ids.get(MemoryIdentifiers.Set1),
+    //     connections: new Connections(conns),
+    //     rotate: new Rotate({ direction: Direction.Backwards })
+    //   })
+    // }
 
 
     const header = new Container({
@@ -566,7 +541,6 @@ export class MemoryRowReader extends Container {
   constructor({
     key,
     signal,
-    bitKeys = new KeyMap(),
     size = new Bounds2d({ x:8, y:8 }),
     connections = new MultiConnections([]),
     pos,
@@ -577,11 +551,7 @@ export class MemoryRowReader extends Container {
     for (let i = 0; i < size.y; i++) {
       for (let byte = 0; byte < size.x; byte++) {
         const logic = new Logic({
-          key: (bitKeys.get1(
-            new Identifier(
-              byte + "." + i
-            )
-          )) || key,
+          key,
           operation: new Operation( LogicalOperation.And ),
           color: new Color(Colors.SM_Black),
           connections: connections.getConnection(byte + "." + i)
