@@ -1,4 +1,4 @@
-import { Charsets } from "../../classes/prebuilts/displays/graphics"
+import { Charsets } from "./graphics"
 import { Id } from "../context/classes"
 import { BitMask, Operation } from "../logic/classes"
 import { Bounds2d } from "../spatial/classes"
@@ -15,9 +15,15 @@ export interface DataDumpInterface {
   chunkSize?: number
 }
 
-export interface CharFrameInterface {
+export interface CharacterFrameInterface {
   char: string,
   charset?: Charsets
+}
+
+export interface CharactersFrameInterface {
+  chars: string | string[],
+  charset?: Charsets
+  size?: Bounds2d
 }
 
 export interface VFrameInterface {

@@ -3,7 +3,7 @@ import { BasicKey, Id, KeyMap } from "../../../support/context/classes";
 import { Frame, Frames } from "../../../support/frames/classes";
 import { BitMask, Delay, Delays, MultiConnections } from "../../../support/logic/classes";
 import { Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";
-import { Charsets } from "./graphics";
+import { Charsets } from "../../../support/frames/graphics";
 
 export interface FutureBitMapInterface {
   key: BasicKey,

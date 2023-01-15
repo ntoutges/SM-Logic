@@ -1,15 +1,15 @@
 import { Container, Grid, Unit } from "../../../containers/classes";
 import { BasicKey, CustomKey, Id, Identifier, Key, KeylessFutureId, KeylessId, KeyMap, UniqueCustomKey } from "../../../support/context/classes";
 import { combineIds } from "../../../support/context/enums";
-import { CharFrame, Frame, Frames, PhysicalFrame } from "../../../support/frames/classes";
+import { CharacterFrame, Frame, Frames, PhysicalFrame } from "../../../support/frames/classes";
 import { BitMask, Connections, Delay, MultiConnections, Operation, ScaleableDelays, VBitMask } from "../../../support/logic/classes";
 import { LogicalOperation, Time } from "../../../support/logic/enums";
 import { MultiConnectionsType } from "../../../support/logic/interfaces";
 import { Bounds, Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";
 import { BasicLogic, Block, Logic, Timer } from "../../blocks/basics";
 import { DelayUnit } from "../delays/classes";
-import { CharacterFrames, numberFrames, NumToString } from "./enums";
-import { CHARACTERS, Charsets, SPACING } from "./graphics";
+import { numberSegments, NumToString } from "./enums";
+import { CHARACTERS, Charsets, SPACING } from "../../../support/frames/graphics";
 import { BitMapInterface, CharacterDisplayInterface, FutureBitMapInterface, SevenSegmentInterface, SimpleBitMapInterface, VideoDisplayInterface } from "./interfaces";
 
 export class FutureBitMap extends Grid {
@@ -260,8 +260,8 @@ export class SevenSegment extends BitMap {
   get rightBId(): Id { return this.getEnableId(6); }
 
   getNumberId(num: number): KeylessFutureId {
-    if (num >= numberFrames.length) throw new Error("Invalid number, must be in range [0,9]");
-    let numControls = numberFrames[Math.floor(num)];
+    if (num >= numberSegments.length) throw new Error("Invalid number, must be in range [0,9]");
+    let numControls = numberSegments[Math.floor(num)];
     const ids = new KeylessFutureId();
     for (var i = 7; i >= 0; i--) {
       if (numControls >= 2**i) {
@@ -293,7 +293,7 @@ export class CharacterDisplay extends FutureBitMap {
   }
   getCharacter(char: string): Id {
     return this.getFrameId(
-      new CharFrame({
+      new CharacterFrame({
         char: char,
         charset: this.charset
       })

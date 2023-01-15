@@ -217,6 +217,7 @@ export class BitMask extends Equatable {
   }
   // shift right by 'count' bits
   shift(count: number) {
+    count *= -1; // just easier to deal with this way (+ => right, - => left)
     if (count < 0)
       count = (count % this.mask.length) + this.mask.length;
 

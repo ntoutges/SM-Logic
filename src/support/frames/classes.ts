@@ -1,12 +1,12 @@
 const Jimp = require("jimp");
 
-import { CHARACTERS, Charsets, SPACING } from "../../classes/prebuilts/displays/graphics";
+import { CHARACTERS, Charsets, SPACING } from "./graphics";
 import { Id } from "../context/classes";
 import { BitMask, Operation, RawBitMask, VBitMask } from "../logic/classes";
 import { LogicalOperation } from "../logic/enums";
 import { Bounds2d, Pos2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
-import { CharFrameInterface, DataDumpInterface, FileFrameInterface, FrameInterface, FramerInterface, FramesInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
+import { CharacterFrameInterface, CharactersFrameInterface, DataDumpInterface, FileFrameInterface, FrameInterface, FramerInterface, FramesInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
 
 export class Frame extends Equatable {
   private _size: Bounds2d;
@@ -112,7 +112,7 @@ export class Frame extends Equatable {
 
     const value = [];
     for (let i in this._value) {
-      this._value[i] = this._value[(+i + count.y) % this._value.length].shift(count.x);
+      value[i] = this._value[(+i + count.y) % this._value.length].shift(count.x);
     }
 
     return new Frame({
@@ -260,11 +260,11 @@ export class Frame extends Equatable {
   }
 }
 
-export class CharFrame extends Frame {
+export class CharacterFrame extends Frame {
   constructor({
     char,
-    charset=Charsets.HP48
-  }: CharFrameInterface) {
+    charset=Charsets.OLDPC
+  }: CharacterFrameInterface) {
     if (!(char in CHARACTERS[charset])) char = "unknown";
     const graphic: string[] = CHARACTERS[charset][char];
     const value: BitMask[] = [];
@@ -277,6 +277,61 @@ export class CharFrame extends Frame {
       }),
       value,
       fallback: false
+    })
+  }
+}
+
+export class CharactersFrame extends Frame {
+  constructor({
+    chars,
+    charset=Charsets.OLDPC,
+    size=null
+  }: CharactersFrameInterface) {
+    let minX = 1;
+    let minY = 1;
+    let line = [];
+    const charArr: Array<Array<string>> = [];
+    for (let char of chars) {
+      if (char == "\n") {
+        if (line.length > minX) minX = line.length;
+        charArr.push(line);
+        line = [];
+        minY++;
+      }
+      else if (char in CHARACTERS[charset]) line.push(char);
+      else line.push("unknown")
+    }
+    if (line.length > 0) {
+      charArr.push(line);
+      if (line.length > minX) minX = line.length;
+    }
+
+    if (size == null) size = new Bounds2d({ "x": minX, "y": minY });
+    else if (size.x < minX) throw new Error(`String too long to fit inside ${size.x} columns`);
+    else if (size.y < minY) throw new Error(`String too tall to fit inside ${size.y} rows`);
+
+    const charData: BitMask[] = [];
+    for (let y in charArr) {
+      const charHeight = (+y == charArr.length-1) ? SPACING[charset].y : SPACING[charset].yS;
+      for (let charY = 0; charY < charHeight; charY++) {
+        let row = "";
+        for (let x = 0; x < charArr[y].length; x++) {
+          const charWidth = (+x == charArr[y].length-1) ? SPACING[charset].x : SPACING[charset].xS;
+          const char: Array<string> = CHARACTERS[charset][charArr[y][x]];
+          for (let charX = 0; charX < charWidth; charX++) {
+            row += (charY < char.length && charX < char[charY].length) ? char[charY][charX] : " ";
+          }
+        }
+        charData.push( new VBitMask(row) );
+      }
+    }
+
+    super({
+      size: new Bounds2d({
+        "x": (size.x-1) * SPACING[charset].xS + SPACING[charset].x,
+        "y": (size.y-1) * SPACING[charset].yS + SPACING[charset].y
+      }),
+      value: charData
     })
   }
 }
