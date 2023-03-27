@@ -17,7 +17,7 @@ export abstract class Block extends Unit {
     pos = new Pos({}),
     rotate = new Rotate({}),
     color = new Color(),
-    shapeId = ShapeIds.Logic, // temp
+    shapeId
   }: BlockInterface) {
     super({pos,rotate,color});
     this._addProps(["shapeId", "_id"]);
@@ -46,9 +46,6 @@ export class Scalable extends Block {
     this.bounds = bounds;
     this._addProps(["bounds"]);
   }
-  /*
-    doc test
-  */
   build(offset: Offset = new Offset({})) {
     const rotation = this.rotation.add(offset.rotate);
     const pos = this.pos.rotate(rotation).add(offset.pos).add( rotation.offset );
@@ -151,7 +148,7 @@ export class Logic extends BasicLogic {
     super.color = color;
     this.colorSet = true;
   };
-  get color(): Color { return super.color; }
+  // get color(): Color { return super.color; }
   set operation(operation: Operation) {
     this.op = operation;
     if (!this.colorSet)

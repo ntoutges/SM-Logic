@@ -2,6 +2,7 @@
 
 A living guide containing the syntax and purpose of each component
 
+[Block Classes](#block-classes)\
 [Support Classes](#support-classes)\
 [Container Classes](#container-classes)
 
@@ -1174,8 +1175,15 @@ A living guide containing the syntax and purpose of each component
       * Stores the individual Ids to all the Logic blocks that `frame` is attached to
 
 > # Container Classes
+> ## Container Sections
 > * [Basics](#basics)
 > * [Bodies](#bodies)
+
+## Colors 
+
+> ### [Color](#color-1)
+> ### [HexColor](#hexcolor-1)
+> ### [RGBColor](#rgbcolor-1)
 
 ## Basics
 ### [Unit](#unit-1)
@@ -1198,7 +1206,7 @@ A living guide containing the syntax and purpose of each component
       * Default value: `new Pos({})`
     * `rotate`
       * Optional parameter
-      * Specifies the rotation and orientatoin of the `Unit`
+      * Specifies the rotation and orientation of the `Unit`
       * Default value: `new Rotate({})`
     * `color`
       * Optional parameter
@@ -1236,7 +1244,7 @@ A living guide containing the syntax and purpose of each component
       * Default value: `new Pos({})`
     * `rotate`
       * Optional parameter
-      * Specifies the rotation and orientatoin of the `Container`
+      * Specifies the rotation and orientation of the `Container`
       * Default value: `new Rotate({})`
     * `color`
       * Optional parameter
@@ -1285,7 +1293,7 @@ A living guide containing the syntax and purpose of each component
       * Default value: `new Pos({})`
     * `rotate`
       * Optional parameter
-      * Specifies the rotation and orientatoin of the `Grid`
+      * Specifies the rotation and orientation of the `Grid`
       * Default value: `new Rotate({})`
     * `color`
       * Optional parameter
@@ -1354,7 +1362,7 @@ A living guide containing the syntax and purpose of each component
       * Default value: `new Pos({})`
     * `rotate`
       * Optional parameter
-      * Specifies the rotation and orientatoin of the `Packager`
+      * Specifies the rotation and orientation of the `Packager`
       * Default value: `new Rotate({})`
     * `color`
       * Optional parameter
@@ -1391,7 +1399,7 @@ A living guide containing the syntax and purpose of each component
 
 ## Bodies
 
-* **GenericBody**
+* #### **GenericBody**
   * Syntax
     ```typescript
     abstract class GenericBody({
@@ -1433,9 +1441,461 @@ A living guide containing the syntax and purpose of each component
     * `readonly key: Key`
       * Stores  the key that will be used for generating all other objects
 
+> # Block Classes
+> ## Block Sections
+> * [Basic Blocks](#basic-blocks)
+> * [Logic Blocks](#logic-blocks)
+> * [Materials](#materials)
 
 
-* **Template**
+## Basic Blocks 
+
+> ### [Block](#block-1)
+> ### [Scalable](#scalable-1)
+> ### [Basic Logic](#basic-logic-1)
+
+* #### **Block**
+  * Syntax
+    ```typescript
+      abstract class Block({
+        pos?: Pos,
+        rotate?: Rotate,
+        color?: Color,
+        shapeId: ShapeIds
+      }) extends Unit
+    ```
+    * `pos`
+      * Optional parameter
+      * Specifies the position of the `Block`
+      * Default value: `new Pos({})`
+    * `rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Block`
+      * Default value: `new Rotate({})`
+    * `color`
+      * Optional parameter
+      * Specifies what color the `Block` should be
+      * Default value: `new Color()`
+    * `shapeId`
+      * Specifies the type of block to be built
+  * Description
+    * The basic class for building any blocks
+  * Methods
+    * `abstract build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+  * Properties
+    * `pos: Pos`
+      * Stores the position of the `Block`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Block`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+
+* #### **Scalable**
+  * Syntax
+    ```typescript
+      class Scalable({
+        bounds: Bounds
+        color?: Color,
+        pos?: Pos,
+        rotate?: Rotate
+      },
+        shapeId: ShapeIds
+      ) extends Block
+    ```
+    * `bounds`
+      * Specifies the bounding box of this block
+    * `pos`
+      * Optional parameter
+      * Specifies the origin of the `Scalable`
+      * Default value: `new Pos({})`
+    * `rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Scalable`
+      * Default value: `new Rotate({})`
+    * `color`
+      * Optional parameter
+      * Specifies what color the `Scalable` should be
+      * Default value: `new Color()`
+    * `shapeId`
+      * Specifies the type of block to be built
+  * Description
+    * Represents blocks whose bounds can be resized, (eg: making a 32x32 platform one `Scalable` instead of 1024 `Block`s)
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Scalable`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `bounds: Bounds`
+      * Stores the bounding box of the `Scalable`
+
+* #### **Basic Logic**
+  * Syntax
+    ```typescript
+      class BasicLogic({
+        key: Key,
+        pos?: Pos,
+        rotate?: Rotate,
+        color?: Color,
+        connections?: Connections
+        shapeId: ShapeIds,
+      }) extends Block
+    ```
+    * `key`
+      * Used to generate an `Id` for this Logic `Block`
+    * `pos`
+      * Optional parameter
+      * Specifies the position of the `Unit`
+      * Default value: `new Pos({})`
+    * `rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Block`
+      * Default value: `new Rotate({})`
+    * `color`
+      * Optional parameter
+      * Specifies what color the `Unit` should be
+      * Default value: `new Color()`
+    * `connections`
+      * Optional parameter
+      * Specifies what other Logic `Block`s this Logic `Block` is connected to
+        * Default value: `new Connections({})`
+    * `shapeId`
+      * Specifies the type of block to be built
+  * Description
+    * The basic class for building blocks that can interact with Scrap Mechanic logic signals
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+    * `get connections(): Array<Id>`
+      * Returns the individual `Id`s of the other blocks this Logic `Block` is connected to
+    * `get conns(): Connections`
+      * Returns the `Connections` object representing the other blocks this Logic `Block` is connected to
+    * `get id(): Id`
+      * Returns the `Id` of this Logic `Block`
+    * `abstract get controller()` 
+      * Returns an `Object` that slots into the `controller` section when the `build` method is called
+      * This section handles any and all logical connections and interactions
+    * `connectTo(other: BasicLogic | Id)`
+      * Connect the output of this Logic `Block` to the input of another Logic `Block`
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Block`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `_conns: Connections`
+      * Stores the other Logic `Block`s this Logic `Block` is connected to
+    * `_id: Id`
+      * Identifies this Logic `Block` as unique
+
+## Logic Blocks
+> ### [Logic](#logic-1)
+> ### [Timer](#timer-1)
+> ### [Button](#button-1)
+> ### [Switch](#switch-1)
+
+* #### **Logic**
+  * Syntax
+    ```typescript
+      class Logic({
+        key: Key,
+        pos?: Pos,
+        rotate?: Rotate,
+        color?: Color,
+        operation?: Operation
+        connections?: Connections
+      }) extends BasicLogic
+    ```
+    * `key`
+      * Used to generate an `Id` for this Logic `Block`
+    * `pos`
+      * Optional parameter
+      * Specifies the position of the `Unit`
+      * Default value: `new Pos({})`
+    * `rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Block`
+      * Default value: `new Rotate({})`
+    * `color`
+      * Optional parameter
+      * Specifies what color the `Unit` should be
+      * Default value: `new Color()`
+    * `operation`
+      * Optional parameter
+      * Specifies what function this `Logic` will perform
+      * Default value: `new Operation()`
+    * `connections`
+      * Optional parameter
+      * Specifies what other Logic `Block`s this Logic `Block` is connected to
+        * Default value: `new Connections({})`
+  * Description
+    * A Logic Block in *Scrap Mechanic* that can perform 1 of 6 logical operations on boolean inputs:
+      * `And`
+      * `Or`
+      * `Xor` (Exclusive Or)
+      * `Nand` (Not And)
+      * `Nor` (Not Or)
+      * `Xnor` (Exclusive Not Or)
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+    * `get connections(): Array<Id>`
+      * Returns the individual `Id`s of the other blocks this Logic `Block` is connected to
+    * `get conns(): Connections`
+      * Returns the `Connections` object representing the other blocks this Logic `Block` is connected to
+    * `get id(): Id`
+      * Returns the `Id` of this Logic `Block`
+    * `abstract get controller()` 
+      * Returns an `Object` that slots into the `controller` section when the `build` method is called
+      * This section handles any and all logical connections and interactions
+    * `connectTo(other: BasicLogic | Id)`
+      * Connect the output of this Logic `Block` to the input of another Logic `Block`
+    * `updateTypeColor(): boolean`
+      * Checks if the logic block should have a color other than the default based on its `Operation`
+      * Returns if the color was updated
+    * `get operation(): Operation`
+      * Returns the operation this `Logic` performs
+    * `set operation(operation: Operation)`
+      * Sets the type of function this `Logic` will perform
+    * `set color(color: Color)`
+      * sets the color, and the `colorSet` flat
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Block`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `_conns: Connections`
+      * Stores the other Logic `Block`s this Logic `Block` is connected to
+    * `_id: Id`
+      * Identifies this Logic `Block` as unique
+    * `op: Operation`
+      * Stores the function the `Logic` performs
+    * `colorSet: boolean`
+      * Stores if the color was set explicitly (by the user) or implicitly (by the `operation` type)
+
+* #### **Timer**
+  * Syntax
+    ```typescript
+      class Logic({
+        key: Key,
+        pos?: Pos,
+        rotate?: Rotate,
+        color?: Color,
+        operation?: Operation
+        connections?: Connections
+      }) extends BasicLogic
+    ```
+    * `key`
+      * Used to generate an `Id` for this Logic `Block`
+    * `pos`
+      * Optional parameter
+      * Specifies the position of the `Unit`
+      * Default value: `new Pos({})`
+    * `rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Block`
+      * Default value: `new Rotate({})`
+    * `color`
+      * Optional parameter
+      * Specifies what color the `Unit` should be
+      * Default value: `new Color()`
+    * `operation`
+      * Optional parameter
+      * Specifies what function this `Logic` will perform
+      * Default value: `new Operation()`
+    * `connections`
+      * Optional parameter
+      * Specifies what other Logic `Block`s this Logic `Block` is connected to
+        * Default value: `new Connections({})`
+  * Description
+    * A Logic Block in *Scrap Mechanic* that can perform 1 of 6 logical operations on boolean inputs:
+      * `And`
+      * `Or`
+      * `Xor` (Exclusive Or)
+      * `Nand` (Not And)
+      * `Nor` (Not Or)
+      * `Xnor` (Exclusive Not Or)
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+    * `get connections(): Array<Id>`
+      * Returns the individual `Id`s of the other blocks this Logic `Block` is connected to
+    * `get conns(): Connections`
+      * Returns the `Connections` object representing the other blocks this Logic `Block` is connected to
+    * `get id(): Id`
+      * Returns the `Id` of this Logic `Block`
+    * `abstract get controller()` 
+      * Returns an `Object` that slots into the `controller` section when the `build` method is called
+      * This section handles any and all logical connections and interactions
+    * `connectTo(other: BasicLogic | Id)`
+      * Connect the output of this Logic `Block` to the input of another Logic `Block`
+    * `updateTypeColor(): boolean`
+      * Checks if the logic block should have a color other than the default based on its `Operation`
+      * Returns if the color was updated
+    * `get operation(): Operation`
+      * Returns the operation this `Logic` performs
+    * `set operation(operation: Operation)`
+      * Sets the type of function this `Logic` will perform
+    * `set color(color: Color)`
+      * sets the color, and the `colorSet` flat
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Block`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `_conns: Connections`
+      * Stores the other Logic `Block`s this Logic `Block` is connected to
+    * `_id: Id`
+      * Identifies this Logic `Block` as unique
+    * `op: Operation`
+      * Stores the function the `Logic` performs
+    * `colorSet: boolean`
+      * Stores if the color was set explicitly (by the user) or implicitly (by the `operation` type)
+
+* #### **Button**
+  * Syntax
+    ```typescript
+      class BasicLogic({
+        key: Key,
+        pos?: Pos,
+        rotate?: Rotate,
+        color?: Color,
+        connections?: Connectinos
+        shapeId: ShapeIds,
+      }) extends Block
+    ```
+    * `key`
+      * Used to generate an `Id` for this Logic `Block`
+    * `pos`
+      * Optional parameter
+      * Specifies the position of the `Unit`
+      * Default value: `new Pos({})`
+    * `rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Block`
+      * Default value: `new Rotate({})`
+    * `color`
+      * Optional parameter
+      * Specifies what color the `Unit` should be
+      * Default value: `new Color()`
+    * `connections`
+      * Optional parameter
+      * Specifies what other Logic `Block`s this Logic `Block` is connected to
+        * Default value: `new Connections({})`
+    * `shapeId`
+      * Specifies the type of block to be built
+  * Description
+    * The basic class for building blocks that can interact with Scrap Mechanic logic signals
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+    * `get connections(): Array<Id>`
+      * Returns the individual `Id`s of the other blocks this Logic `Block` is connected to
+    * `get conns(): Connections`
+      * Returns the `Connections` object representing the other blocks this Logic `Block` is connected to
+    * `get id(): Id`
+      * Returns the `Id` of this Logic `Block`
+    * `abstract get controller()` 
+      * Returns an `Object` that slots into the `controller` section when the `build` method is called
+      * This section handles any and all logical connections and interactions
+    * `connectTo(other: BasicLogic | Id)`
+      * Connect the output of this Logic `Block` to the input of another Logic `Block`
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Block`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `_conns: Connections`
+      * Stores the other Logic `Block`s this Logic `Block` is connected to
+    * `_id: Id`
+      * Identifies this Logic `Block` as unique
+
+* #### **Switch**
+  * Syntax
+    ```typescript
+      class BasicLogic({
+        key: Key,
+        pos?: Pos,
+        rotate?: Rotate,
+        color?: Color,
+        connections?: Connectinos
+        shapeId: ShapeIds,
+      }) extends Block
+    ```
+    * `key`
+      * Used to generate an `Id` for this Logic `Block`
+    * `pos`
+      * Optional parameter
+      * Specifies the position of the `Unit`
+      * Default value: `new Pos({})`
+    * `rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Block`
+      * Default value: `new Rotate({})`
+    * `color`
+      * Optional parameter
+      * Specifies what color the `Unit` should be
+      * Default value: `new Color()`
+    * `connections`
+      * Optional parameter
+      * Specifies what other Logic `Block`s this Logic `Block` is connected to
+        * Default value: `new Connections({})`
+    * `shapeId`
+      * Specifies the type of block to be built
+  * Description
+    * The basic class for building blocks that can interact with Scrap Mechanic logic signals
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+    * `get connections(): Array<Id>`
+      * Returns the individual `Id`s of the other blocks this Logic `Block` is connected to
+    * `get conns(): Connections`
+      * Returns the `Connections` object representing the other blocks this Logic `Block` is connected to
+    * `get id(): Id`
+      * Returns the `Id` of this Logic `Block`
+    * `abstract get controller()` 
+      * Returns an `Object` that slots into the `controller` section when the `build` method is called
+      * This section handles any and all logical connections and interactions
+    * `connectTo(other: BasicLogic | Id)`
+      * Connect the output of this Logic `Block` to the input of another Logic `Block`
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Block`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `_conns: Connections`
+      * Stores the other Logic `Block`s this Logic `Block` is connected to
+    * `_id: Id`
+      * Identifies this Logic `Block` as unique
+
+## Materials
+
+> ### [Wood](#wood-1)
+> ### [Glass](#glass-1)
+> ### [GlassTile](#glassTile-1)
+> ### [Cardboard](#cardboard-1)
+> ### [Concrete](#concrete-1)
+> ### [Metal](#metal-1)
+> ### [Barrier/Caution](#barrier)
+> ### [Bricks](#bricks-1)
+
+
+
+* #### **Template**
   * Syntax
     ```typescript
 

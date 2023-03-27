@@ -2,7 +2,7 @@ import { Charsets } from "./graphics"
 import { Id } from "../context/classes"
 import { BitMask, Operation } from "../logic/classes"
 import { Bounds2d } from "../spatial/classes"
-import { Frame } from "./classes"
+import { Frame, Frames } from "./classes"
 
 export interface FrameInterface {
   size: Bounds2d,
@@ -49,7 +49,13 @@ export interface PhysicalFrameInterface {
 
 export interface SpriteInterface {
   frame: Frame,
-  movement?: Bounds2d,
+  movement: Bounds2d,
+  step?: Bounds2d
+}
+
+export interface AnimatedSpriteInterface {
+  frames: Frames,
+  movement: Bounds2d,
   step?: Bounds2d
 }
 

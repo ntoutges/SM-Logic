@@ -6,7 +6,7 @@ import { BitMask, Operation, RawBitMask, VBitMask } from "../logic/classes";
 import { LogicalOperation } from "../logic/enums";
 import { Bounds2d, Pos2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
-import { CharacterFrameInterface, CharactersFrameInterface, DataDumpInterface, FileFrameInterface, FrameInterface, FramerInterface, FramesInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
+import { AnimatedSpriteInterface, CharacterFrameInterface, CharactersFrameInterface, DataDumpInterface, FileFrameInterface, FrameInterface, FramerInterface, FramesInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
 
 export class Frame extends Equatable {
   private _size: Bounds2d;
@@ -409,21 +409,24 @@ export class Frames extends Equatable {
 }
 
 export class FrameSprite extends Frames {
+  readonly spriteWidth: number;
+  readonly spriteHeight: number;
   constructor({
     frame,
-    movement = new Bounds2d({x: 5, y:5}),
+    movement,
     step = new Bounds2d({})
   }: SpriteInterface) {
-    const frames = []
+    const frames: Array<Frame> = []
     const size = new Bounds2d({
       x: frame.width + movement.x*step.x,
       y: frame.height + movement.y*step.y
     });
 
+    const sizedFrame = frame.resize(size);
     for (let x = 0; x < movement.x; x++) {
       for (let y = 0; y < movement.y; y++) {
         frames.push(
-          frame.resize(size).shift(
+          sizedFrame.shift(
             new Pos2d({
               x: x * step.x,
               y: y * step.y
@@ -432,12 +435,64 @@ export class FrameSprite extends Frames {
         );
       }
     }
-    super({ frames });
+    super({ frames, size });
+
+    this.spriteWidth = frame.width;
+    this.spriteHeight = frame.height;
   }
   getPos(position: Pos2d): Frame {
-    const index: number = position.y + (position.x * this.height);
-    if (index > this.frames.length)
-      throw new Error(`Invalid sprite position (${position.x},${position.y})`);
+    const movementY = this.height - this.spriteHeight;
+    const movementX = this.width - this.spriteWidth;
+    if (position.y > movementY) throw new Error(`Invalid y position (${position.y} > ${movementY})`);
+    if (position.x > movementX) throw new Error(`Invalid x position (${position.x} > ${movementX})`);
+    const index: number = position.y + (position.x * movementY);
+    return this.frames[index];
+  }
+}
+
+export class AnimatedFrameSprite extends Frames {
+  readonly spriteWidth: number;
+  readonly spriteHeight: number;
+  constructor({
+    frames,
+    movement,
+    step = new Bounds2d({})
+  }: AnimatedSpriteInterface) {
+    const allFrames: Array<Frame> = [];
+    const size = new Bounds2d({
+      x: frames.width + movement.x*step.x,
+      y: frames.height + movement.y*step.y
+    });
+
+    for (let i in frames.frames) {
+      const frame = frames.frames[i].resize(size);
+      for (let x = 0; x < movement.x; x++) {
+        for (let y = 0; y < movement.y; y++) {
+          allFrames.push(
+            frame.shift(
+              new Pos2d({
+                x: x * step.x,
+                y: y * step.y
+              })
+            )
+          );
+        }
+      }
+    }
+    super({ size, frames: allFrames });
+    this.spriteHeight = frames.width;
+    this.spriteWidth = frames.height;
+  }
+  getPos(
+    position: Pos2d,
+    animation: number
+  ): Frame {
+    const movementY = this.height - this.spriteHeight;
+    const movementX = this.width - this.spriteWidth;
+    if (position.y > movementY) throw new Error(`Invalid y position (${position.y} > ${movementY})`);
+    if (position.x > movementX) throw new Error(`Invalid x position (${position.x} > ${movementX})`);
+    if (animation >= this.frames.length) throw new Error(`Invalid animation index (${animation} >= ${this.frames.length})`)
+    const index: number = position.y + ((position.x + (animation * movementX)) * movementY);
     return this.frames[index];
   }
 }
