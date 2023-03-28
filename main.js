@@ -4,8 +4,8 @@ const fs = require("fs");
 
 const BLUEPRINT_VERSION = 4;
 // const outputPath = __dirname + "/_output";
-const outputPath = "C:/Users/Nicholas/AppData/Roaming/Axolot Games/Scrap Mechanic/User/User_76561198278723162/Blueprints/\c27c92ef-0265-417b-81c0-572210c529b3";
-// windows path = C:\Users\Nicholas\AppData\Roaming\Axolot Games\Scrap Mechanic\User\User_76561198278723162\Blueprints\\c27c92ef-0265-417b-81c0-572210c529b3
+const outputPath = "C:/Users/Nicholas/AppData/Roaming/Axolot Games/Scrap Mechanic/User/User_76561198278723162/Blueprints/c27c92ef-0265-417b-81c0-572210c529b3";
+// windows path = C:\Users\Nicholas\AppData\Roaming\Axolot Games\Scrap Mechanic\User\User_76561198278723162\Blueprints\c27c92ef-0265-417b-81c0-572210c529b3
 
 if (!("Body" in mains))
   throw new Error("main.js must export class [Body]");

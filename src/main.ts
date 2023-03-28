@@ -17,7 +17,8 @@ import { AddressableMemoryRow, CardROM, CardROMPackage, DDCardROMPackage, Memory
 import { Color, HexColor, RGB, RGBColor } from "./support/colors/classes";
 import { Colors } from "./support/colors/enums";
 import { MemoryGridBloc } from "./classes/prebuilts/memory/memoryBlocs/classes";
-import { Axis, Custom2dShape } from "./classes/prebuilts/support/classes";
+import { Axis } from "./classes/prebuilts/support/classes";
+import { Custom2dShape } from "./classes/prebuilts/transcribers/classes";
 import { GenericBody } from "./containers/genericBody";
 import { FrameBuilder } from "./support/graphics/classes";
 import { Wood } from "./classes/blocks/materials";

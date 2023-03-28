@@ -2194,6 +2194,7 @@ A living guide containing the syntax and purpose of each component
 > * [Numbers](#numbers)
 > * [SSP (**S**crap **S**erial **P**rotocol)](#ssp)
 > * [Support](#support)
+> * [Transcribers](#transcribers)
 
 ## Delays
 
@@ -2306,8 +2307,9 @@ A living guide containing the syntax and purpose of each component
 
 ## Support
 > ### [Axis]
+
+## Transcribers
 > ### [Custom2dShape]
-> ### 
 
 
 * #### **Template**
