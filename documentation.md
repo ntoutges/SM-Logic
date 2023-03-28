@@ -2,9 +2,10 @@
 
 A living guide containing the syntax and purpose of each component
 
-[Block Classes](#block-classes)\
 [Support Classes](#support-classes)\
 [Container Classes](#container-classes)
+[Block Classes](#block-classes)\
+[Prebuilts](#prebuilts)\
 
 > # Support Classes
 > ## Support Sections
@@ -120,7 +121,7 @@ A living guide containing the syntax and purpose of each component
   * ```typescript
     class Connections(connections?: Id | Id[])
     ```
-    * `connections`
+    * `connections: Id[]`
       * Optional Parameter
       * All the other Logic block Ids that this logic block should connect to
       * Default value: `[]` (connecting to nothing)
@@ -139,7 +140,7 @@ A living guide containing the syntax and purpose of each component
       connections: MultiConnectionsType | MultiConnectionsType[]
     )
     ```
-    * `connections`
+    * `connections: ...`
       * `{ conn: Connections | MultiConnections, id: Identifier }`
   * Description:
     * Stores connections for individual logic blocks within larger constructs
@@ -186,7 +187,7 @@ A living guide containing the syntax and purpose of each component
   * ```typescript
     class RawBitMask(mask: number, length?: number) extends BitMask
     ```
-    * `length`
+    * `length: number`
     * Optional parameter
     * The length of the BitMask
     * If `mask` does not use all these bits, extra `false` bits will be added to the left until the length is correct
@@ -218,7 +219,7 @@ A living guide containing the syntax and purpose of each component
   * ```typescript
     class VBitMask(mask: string, offCharacter: string) extends BitMask
     ```
-    * `offCharacter`
+    * `offCharacter: string`
       * Optional Parameter
       * The characters in `mask` to be treated as `false` values
       * Default value: `" "` (space)
@@ -255,7 +256,7 @@ A living guide containing the syntax and purpose of each component
       unit?: Time
     })
     ```
-    * `unit`
+    * `unit: Time`
       * Optional parameter
       * The type of time that `delay` is measured in
       * Default value: `Time.Tick`
@@ -319,11 +320,11 @@ A living guide containing the syntax and purpose of each component
       amount?: number
     }) extends Delays
     ```
-    * `delay`
+    * `delay: Delay`
       * Optional Parameter
       * The base abount of delay this class will store
       * Default value: `new Delay({ delay: 0, unit: Time.Tick })`
-    * `amount`
+    * `amount: number`
       * Optional parameter
       * The amount of the base delay to create by default
       * Default value: `1`
@@ -364,15 +365,15 @@ A living guide containing the syntax and purpose of each component
       z?: number
     })
     ```
-    * `x`
+    * `x: number`
       * Optional parameter
       * Indicates the *x* position of a block
       * Default value: `0`
-    * `y`
+    * `y: number`
       * Optional parameter
       * Indicates the *y* position of a block
       * Default value: `0`
-    * `z`
+    * `z: number`
       * Optional parameter
       * Indicates the *z* position of a block
       * Default value: `0`
@@ -403,11 +404,11 @@ A living guide containing the syntax and purpose of each component
       y?: number
     }) extends Pos
     ```
-    * `x`
+    * `x: number`
       * Optional parameter
       * Indicates the *x* position of a block
       * Default value: `0`
-    * `y`
+    * `y: number`
       * Optional parameter
       * Indicates the *y* position of a block
       * Default value: `0`
@@ -441,19 +442,19 @@ A living guide containing the syntax and purpose of each component
       pos: Pos
     }) extends Pos
     ```
-    * `x`
+    * `x: number`
       * Optional parameter
       * Indicates the *x* position of a block
       * Default value: `0`
-    * `y`
+    * `y: number`
       * Optional parameter
       * Indicates the *y* position of a block
       * Default value: `0`
-    * `z`
+    * `z: number`
       * Optional parameter
       * Indicates the *z* position of a block
       * Default value: `0`
-    * `pos`
+    * `pos: Pos`
       * The `Pos` instance that this class sets its position relative to
   * Description:
     * Stores the position of an object in **3d** space, relative to another `Pos`
@@ -483,15 +484,15 @@ A living guide containing the syntax and purpose of each component
         z?: number
       }) extends Pos
     ```
-    * `x`
+    * `x: number`
       * Optional parameter
       * Indicates the *x* (width) bound of a block
       * Default value: `1`
-    * `y`
+    * `y: number`
       * Optional parameter
       * Indicates the *y* (depth) bound of a block
       * Default value: `1`
-    * `z`
+    * `z: number`
       * Optional parameter
       * Indicates the *z* (height) bound of a block
       * Default value: `1`
@@ -515,11 +516,11 @@ A living guide containing the syntax and purpose of each component
       y?: number
     }) extends Bounds
     ```
-    * `x`
+    * `x: number`
       * Optional parameter
       * Indicates the *x* (width) bound of a block
       * Default value: `1`
-    * `y`
+    * `y: number`
       * Optional parameter
       * Indicates the *y* (height) bound of a block
       * Default value: `1`
@@ -547,9 +548,9 @@ A living guide containing the syntax and purpose of each component
       orientation?: Orientation
     })
     ```
-    * `direction`
+    * `direction: Rotate`
       * The direction which the `Rotate` is pointing towards
-    * `orientation`
+    * `orientation: Orientation`
       * A second axis of rotation in which to align `direction`
   * Description:
     * Stores a direction for an object to be facing in
@@ -585,11 +586,11 @@ A living guide containing the syntax and purpose of each component
       rotate?: Rotate
     })
     ```
-    * `Pos`
+    * `pos: Pos`
       * Optional parameter
       * A position value to offset an object by
       * Default value: `new Pos({})`
-    * `Rotate`
+    * `rotate: Rotate`
       * Optional parameter
       * A rotate value to offset an object's rotation by
       * Default value: `new Rotate({})`
@@ -617,7 +618,7 @@ A living guide containing the syntax and purpose of each component
       builder: function
     })
     ```
-    * `size`
+    * `size: Bounds2d`
       * The height and width of the frame to be built
     * defaultFill
       * Optional parameter
@@ -694,11 +695,11 @@ A living guide containing the syntax and purpose of each component
       fallback: boolean
     })
     ```
-    * `size`
+    * `size: Bounds2d`
       * The height and width of the Frame
-    * `value`
+    * `value: BitMask[]`
       * The specific pixel values of the frame
-    * `fallback`
+    * `fallback: boolean`
       * The value for unset bitmask values to be set to
   * Description
     * Stores a set of data in the form of multiple `BitMask`, with each being a set length
@@ -740,14 +741,14 @@ A living guide containing the syntax and purpose of each component
       size?: Bounds2d
     }) extends Frame
     ```
-    * `data`
+    * `data: string[]`
       * The data to be stored
       * Each entry in the array of strings acts as a new BitMask
-    * `offCharacter`
+    * `offCharacter: string`
       * Optional parameter
       * The character in `data` to be treated as a `false`
       * Default value: `" "` (space)
-    * `size`
+    * `size: Bounds2d`
       * Optional parameter
       * The height and width of the final `Frame`
       * Default value: `null`
@@ -794,14 +795,14 @@ A living guide containing the syntax and purpose of each component
       preview?: boolean
     }) extends Frame
     ```
-    * `imageData`
+    * `imageData: ...`
       * The raw image data returned by a Jimp.read() command
-    * `activeRange`
+    * `activeRange: [min: number, max:number]`
       * Optional parameter
       * Stores the range of image pixel brightness values that will register as a `true`
       * Pixel brightness is calculated as `(pixel.a / 255) * (pixel.r + pixel.g + pixel.b) / 3 `
       * Default value: `[0,127]`
-    * `preview`
+    * `preview: boolean`
       * Optional parameter
       * Indicates whether or not the image is printed to the console
       * Default value: `false`
@@ -885,10 +886,10 @@ A living guide containing the syntax and purpose of each component
     ```typescript
     class Frames({
       frames: Frame[],
-      size?: Bounds
+      size?: Bounds2d
     })
     ```
-    * `size`
+    * `size: Bounds2d`
       * The height and width of all the frames
   * Description
     * Stores multiple frames which are garunteed to have the same bounds
@@ -908,10 +909,10 @@ A living guide containing the syntax and purpose of each component
       movement?: Bounds2d,
       step?: Bounds2d
     })
-    ```
-    * `movement`
+  ```
+    * `movement: Bounds2d`
       * The range of movement that `frame` is expected to handle
-    * `step`
+    * `step: Bounds2d`
       * The amount of pixels that each unit of movement in `movement` represents
       * A step of `{x:2,y:2}` with a movement of `{x:1,y:1}` would result in 2 pixels of x/y movement with one increase in x/y sprite position
   * Description
@@ -931,20 +932,20 @@ A living guide containing the syntax and purpose of each component
   * Syntax:
     ```typescript
     class ROMFrame({
-      format: ROMFormat | RomFormat[],
+      format: ROMFormat | ROMFormat[],
       jsonData: any | any[],
       depth?: number,
       reverseBits?: boolean,
       reverseOrder?: boolean
     }) extends Frame
     ```
-    * `format`
+    * `format: ROMFormat | ROMFormat[]`
       * Used a small amount of abstraction above the raw bits
       * Input in the format `{name: string, bits: number}`
         * `name`: The name of the section this is heading
         * `bits`: The amount of bits this section will take up
       * Multiple `format` units make up a word
-    * `jsonData`
+    * `jsonData: ...`
       * Used a small amount of abstraction above the raw bits
       * Input in the format `{[name]: value, [name]: value, ...}`
         * `name`: The name of the section that this is heading
@@ -952,18 +953,18 @@ A living guide containing the syntax and purpose of each component
           * Must be able to fit within `bits` bits. 
           * eg: (128 is too large for 7 bits, but 127 *will* fit)
       * One `jsonData` unit makes up a word
-    * `depth`
+    * `depth: number`
       * Optional parameter
       * The size of the BitMask that stores the final result of the `format`/`jsonData` data
       * Can be thought of as the size of a word in this ROM
       * Default value: `-1`
         * Signal that the depth will be set to the sum of all `format` unit section `bits` values
-    * `reverseBits`
+    * `reverseBits: boolean`
       * Optional parameter
       * If `true`: stores section of value `12` as `0b0011`
       * if `false`: stores a section of value `12` as `0b1100`
       * Default value: `false`
-    * `reverseOrder`
+    * `reverseOrder: boolean`
       * Optional parameter
       * If `true`: reverses the order of format
       * Default value: `false`
@@ -1009,7 +1010,7 @@ A living guide containing the syntax and purpose of each component
       reverseOrder?: boolean
     }) extends ROMFrame
     ```
-    * `format`
+    * `format: MappedROMFormat | MappedROMFormat[]`
       * Used a small amount of abstraction above the raw bits
       * Input in the format `{name: string, bits: number, map?: any[]}`
         * `name`: The name of the section this is heading
@@ -1019,7 +1020,7 @@ A living guide containing the syntax and purpose of each component
             * `namedValue`: The string to be replaced
             * `numberValue` The value to replace `namedValue` with
       * Multiple `format` units make up a word
-    * `jsonData`
+    * `jsonData: ...`
       * Used a small amount of abstraction above the raw bits
       * Input in the format `{[name]: value, [name]: value, ...}`
         * `name`: The name of the section that this is heading
@@ -1027,18 +1028,18 @@ A living guide containing the syntax and purpose of each component
           * Must be able to fit within `bits` bits. 
           * eg: (128 is too large for 7 bits, but 127 *will* fit)
       * One `jsonData` unit makes up a word
-    * `depth`
+    * `depth: number`
       * Optional parameter
       * The size of the BitMask that stores the final result of the `format`/`jsonData` data
       * Can be thought of as the size of a word in this ROM
       * Default value: `-1`
         * Signal that the depth will be set to the sum of all `format` unit section `bits` values
-    * `reverseBits`
+    * `reverseBits: boolean`
       * Optional parameter
       * If `true`: stores section of value `12` as `0b0011`
       * if `false`: stores a section of value `12` as `0b1100`
       * Default value: `false`
-    * `reverseOrder`
+    * `reverseOrder: boolean`
       * Optional parameter
       * If `true`: reverses the order of format
       * Default value: `false`
@@ -1081,7 +1082,7 @@ A living guide containing the syntax and purpose of each component
       depth?: number
     }) extends ROMFrame
     ```
-    * `depth`
+    * `depth: number`
       * Optional parameter
       * The size of the BitMask that stores the data
       * Default value: `8`
@@ -1164,7 +1165,7 @@ A living guide containing the syntax and purpose of each component
       id: Id
     })
     ```
-    * `id`
+    * `id: ID`
       * Contains the individual Ids to all the Logic blocks that `frame` is attached to
   * Description
     * Stores a `Frame`, along with the Logic blocks that it is connected to
@@ -1200,15 +1201,15 @@ A living guide containing the syntax and purpose of each component
       color?: Color
     })
     ```
-    * `pos`
+    * `pos: Pos`
       * Optional parameter
       * Specifies the position of the `Unit`
       * Default value: `new Pos({})`
-    * `rotate`
+    * `rotate: Rotate`
       * Optional parameter
       * Specifies the rotation and orientation of the `Unit`
       * Default value: `new Rotate({})`
-    * `color`
+    * `color: Color`
       * Optional parameter
       * Specifies what color the `Unit` should be
       * Default value: `new Color()`
@@ -1238,21 +1239,21 @@ A living guide containing the syntax and purpose of each component
       children?: Unit[]
     }) extends Unit
     ```
-    * `pos`
+    * `pos: Pos`
       * Optional parameter
       * Specifies the position of the `Container`
       * Default value: `new Pos({})`
-    * `rotate`
+    * `rotate: Rotate`
       * Optional parameter
       * Specifies the rotation and orientation of the `Container`
       * Default value: `new Rotate({})`
-    * `color`
+    * `color: Color`
       * Optional parameter
       * Specifies what color all `Unit`s within the container should be. This overrides their original color
       * Default value: `new Color()`
-    * `child`
+    * `child: Unit`
       * A single `Unit` for the `Container` to envelop
-    * `children`
+    * `children: Unit[]`
       * Multiple `Unit`s for the `Container` to envelop
   * Description
     * Holds multiple `Unit`s, to allow a blueprint to be made of more than one `Unit`
@@ -1287,26 +1288,28 @@ A living guide containing the syntax and purpose of each component
       spacing?: Bounds
     })
     ```
-    * `pos`
+    * `pos: Pos`
       * Optional parameter
       * Specifies the position of the `Grid`
       * Default value: `new Pos({})`
-    * `rotate`
+    * `rotate: Rotate`
       * Optional parameter
       * Specifies the rotation and orientation of the `Grid`
       * Default value: `new Rotate({})`
-    * `color`
+    * `color: Color`
       * Optional parameter
       * Specifies what color all `Unit`s within the container should be. This overrides their original color
       * Default value: `new Color()`
-    * `children`
+    * `children: Unit[]`
       * Multiple `Unit`s for the `Grid` to envelop
-    * `size`
+    * `size: Bounds`
       * The bounds of the `Grid`, so `Unit`s put into the grid can wrap-around properly
-    * `spacing`
+    * `spacing: Bounds`
+    * Optional Parameter
       * The amount of space between `Unit`s in the `Grid`.
       * This does not care about the actual size of each `Unit`, just the amount of space between their origins
       * A spacing of `{x:1,y:1,z:1}` will lead to 1x1x1 blocks touching, and anything larger overlapping
+      * Default value: `new Bounds({})`
   * Description
     * Takes in a set of `Units`, and attempts to lay them into a 3d grid pattern
     * This must be given the exact amount of `Unit`s specified by `size`
@@ -1356,23 +1359,23 @@ A living guide containing the syntax and purpose of each component
       packageA: string
     }) extends Container
     ```
-    * `pos`
+    * `pos: Pos`
       * Optional parameter
       * Specifies the position of the `Packager`
       * Default value: `new Pos({})`
-    * `rotate`
+    * `rotate: Rotate`
       * Optional parameter
       * Specifies the rotation and orientation of the `Packager`
       * Default value: `new Rotate({})`
-    * `color`
+    * `color: Color`
       * Optional parameter
       * Specifies what color all `Unit`s within the container should be. This overrides their original color
       * Default value: `new Color()`
-    * `child`
+    * `child: Unit`
       * A single `Unit` for the `Packager` to envelop
-    * `children`
+    * `children: Unit[]`
       * Multiple `Unit`s for the `Packager` to envelop
-    * `packageA`
+    * `packageA: string`
       * The Scrap Mechanic compatible blueprint file snippet containing the object to be added to
   * Description
     * Holds multiple `Unit`s, to allow a blueprint to be made of more than one `Unit`
@@ -1409,19 +1412,19 @@ A living guide containing the syntax and purpose of each component
       debug: boolean
     })
     ```
-    * `key`
+    * `key: Key`
       * Optional parameter
       * The key that will be used for generating all other objects
       * Default value: `new BasicKey({})`
-    * `title`
+    * `title: string`
       * Optional parameter
       * The title of the blueprint that will be generated
       * Default value: `SM Logic Creation`
-    * `description`
+    * `description: string`
       * Optional parameter
       * The description of the blueprint that will be generated
       * Default value: `V2 of programmatically generating Scrap Mechanic logic-based creations`
-    * `debug`
+    * `debug: boolean`
       * Optional parameter
       * If true: Adds in an [Axis](#axis-1) at the origin of the Body
       * Default value: `false`
@@ -1464,19 +1467,19 @@ A living guide containing the syntax and purpose of each component
         shapeId: ShapeIds
       }) extends Unit
     ```
-    * `pos`
+    * `pos: Pos`
       * Optional parameter
       * Specifies the position of the `Block`
       * Default value: `new Pos({})`
-    * `rotate`
+    * `rotate: Rotate`
       * Optional parameter
       * Specifies the rotation and orientation of the `Block`
       * Default value: `new Rotate({})`
-    * `color`
+    * `color: Color`
       * Optional parameter
       * Specifies what color the `Block` should be
       * Default value: `new Color()`
-    * `shapeId`
+    * `shapeId: ShapeIds`
       * Specifies the type of block to be built
   * Description
     * The basic class for building any blocks
@@ -1503,21 +1506,21 @@ A living guide containing the syntax and purpose of each component
         shapeId: ShapeIds
       ) extends Block
     ```
-    * `bounds`
+    * `bounds: Bounds`
       * Specifies the bounding box of this block
-    * `pos`
+    * `pos: Pos`
       * Optional parameter
       * Specifies the origin of the `Scalable`
       * Default value: `new Pos({})`
-    * `rotate`
+    * `rotate: Rotate`
       * Optional parameter
       * Specifies the rotation and orientation of the `Scalable`
       * Default value: `new Rotate({})`
-    * `color`
+    * `color: Color`
       * Optional parameter
       * Specifies what color the `Scalable` should be
       * Default value: `new Color()`
-    * `shapeId`
+    * `shapeId: ShapeIds`
       * Specifies the type of block to be built
   * Description
     * Represents blocks whose bounds can be resized, (eg: making a 32x32 platform one `Scalable` instead of 1024 `Block`s)
@@ -1546,25 +1549,25 @@ A living guide containing the syntax and purpose of each component
         shapeId: ShapeIds,
       }) extends Block
     ```
-    * `key`
+    * `key: Key`
       * Used to generate an `Id` for this Logic `Block`
-    * `pos`
+    * `pos: Pos`
       * Optional parameter
       * Specifies the position of the `Unit`
       * Default value: `new Pos({})`
-    * `rotate`
+    * `rotate: Rotate`
       * Optional parameter
       * Specifies the rotation and orientation of the `Block`
       * Default value: `new Rotate({})`
-    * `color`
+    * `color: Color`
       * Optional parameter
       * Specifies what color the `Unit` should be
       * Default value: `new Color()`
-    * `connections`
+    * `connections: Connections`
       * Optional parameter
       * Specifies what other Logic `Block`s this Logic `Block` is connected to
         * Default value: `new Connections({})`
-    * `shapeId`
+    * `shapeId: ShapeIds`
       * Specifies the type of block to be built
   * Description
     * The basic class for building blocks that can interact with Scrap Mechanic logic signals
@@ -1612,25 +1615,25 @@ A living guide containing the syntax and purpose of each component
         connections?: Connections
       }) extends BasicLogic
     ```
-    * `key`
+    * `key: Key`
       * Used to generate an `Id` for this Logic `Block`
-    * `pos`
+    * `pos: Pos`
       * Optional parameter
       * Specifies the position of the `Unit`
       * Default value: `new Pos({})`
-    * `rotate`
+    * `rotate: Rotate`
       * Optional parameter
       * Specifies the rotation and orientation of the `Block`
       * Default value: `new Rotate({})`
-    * `color`
+    * `color: Color`
       * Optional parameter
       * Specifies what color the `Unit` should be
       * Default value: `new Color()`
-    * `operation`
+    * `operation: Operation`
       * Optional parameter
       * Specifies what function this `Logic` will perform
       * Default value: `new Operation()`
-    * `connections`
+    * `connections: Connectinos`
       * Optional parameter
       * Specifies what other Logic `Block`s this Logic `Block` is connected to
         * Default value: `new Connections({})`
@@ -1651,7 +1654,7 @@ A living guide containing the syntax and purpose of each component
       * Returns the `Connections` object representing the other blocks this Logic `Block` is connected to
     * `get id(): Id`
       * Returns the `Id` of this Logic `Block`
-    * `abstract get controller()` 
+    * `get controller()` 
       * Returns an `Object` that slots into the `controller` section when the `build` method is called
       * This section handles any and all logical connections and interactions
     * `connectTo(other: BasicLogic | Id)`
@@ -1684,45 +1687,39 @@ A living guide containing the syntax and purpose of each component
 * #### **Timer**
   * Syntax
     ```typescript
-      class Logic({
+      class Timer({
         key: Key,
+        delay?: Delay
         pos?: Pos,
         rotate?: Rotate,
         color?: Color,
-        operation?: Operation
         connections?: Connections
       }) extends BasicLogic
     ```
-    * `key`
+    * `key: Key`
       * Used to generate an `Id` for this Logic `Block`
-    * `pos`
+    * `delay: Delay`
+      * Optional parameter
+      * The delay this timer adds to the circuit (excludes the 1 tick every component has)
+      * Default value: `new Delay({ delay:0, unit: Time.Tick })`
+    * `pos: Pos`
       * Optional parameter
       * Specifies the position of the `Unit`
       * Default value: `new Pos({})`
-    * `rotate`
+    * `rotate: Rotate`
       * Optional parameter
       * Specifies the rotation and orientation of the `Block`
-      * Default value: `new Rotate({})`
-    * `color`
+      * Default value: `new Rotate({ direction: Direction.Up })`
+    * `color: Color`
       * Optional parameter
       * Specifies what color the `Unit` should be
       * Default value: `new Color()`
-    * `operation`
-      * Optional parameter
-      * Specifies what function this `Logic` will perform
-      * Default value: `new Operation()`
-    * `connections`
+    * `connections: Connections`
       * Optional parameter
       * Specifies what other Logic `Block`s this Logic `Block` is connected to
         * Default value: `new Connections({})`
   * Description
-    * A Logic Block in *Scrap Mechanic* that can perform 1 of 6 logical operations on boolean inputs:
-      * `And`
-      * `Or`
-      * `Xor` (Exclusive Or)
-      * `Nand` (Not And)
-      * `Nor` (Not Or)
-      * `Xnor` (Exclusive Not Or)
+    * A Timer Block in *Scrap Mechanic* that can easily add delay to a circuit
   * Methods
     * `build(offset: Offset)`
       * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
@@ -1732,20 +1729,11 @@ A living guide containing the syntax and purpose of each component
       * Returns the `Connections` object representing the other blocks this Logic `Block` is connected to
     * `get id(): Id`
       * Returns the `Id` of this Logic `Block`
-    * `abstract get controller()` 
+    * `get controller()` 
       * Returns an `Object` that slots into the `controller` section when the `build` method is called
       * This section handles any and all logical connections and interactions
     * `connectTo(other: BasicLogic | Id)`
       * Connect the output of this Logic `Block` to the input of another Logic `Block`
-    * `updateTypeColor(): boolean`
-      * Checks if the logic block should have a color other than the default based on its `Operation`
-      * Returns if the color was updated
-    * `get operation(): Operation`
-      * Returns the operation this `Logic` performs
-    * `set operation(operation: Operation)`
-      * Sets the type of function this `Logic` will perform
-    * `set color(color: Color)`
-      * sets the color, and the `colorSet` flat
   * Properties
     * `pos: Pos`
       * Stores the origin of the `Block`
@@ -1757,45 +1745,40 @@ A living guide containing the syntax and purpose of each component
       * Stores the other Logic `Block`s this Logic `Block` is connected to
     * `_id: Id`
       * Identifies this Logic `Block` as unique
-    * `op: Operation`
-      * Stores the function the `Logic` performs
-    * `colorSet: boolean`
-      * Stores if the color was set explicitly (by the user) or implicitly (by the `operation` type)
+    * `delay: Delay`
+      * The delay this `Timer` will add to the circuit (excluding the 1 tick added to all logic blocks)
 
 * #### **Button**
   * Syntax
     ```typescript
-      class BasicLogic({
+      class Button({
         key: Key,
         pos?: Pos,
         rotate?: Rotate,
         color?: Color,
         connections?: Connectinos
-        shapeId: ShapeIds,
       }) extends Block
     ```
-    * `key`
+    * `key: Key`
       * Used to generate an `Id` for this Logic `Block`
-    * `pos`
+    * `pos: Pos`
       * Optional parameter
       * Specifies the position of the `Unit`
       * Default value: `new Pos({})`
-    * `rotate`
+    * `rotate: Rotate`
       * Optional parameter
       * Specifies the rotation and orientation of the `Block`
       * Default value: `new Rotate({})`
-    * `color`
+    * `color: Color`
       * Optional parameter
       * Specifies what color the `Unit` should be
       * Default value: `new Color()`
-    * `connections`
+    * `connections: Connections`
       * Optional parameter
       * Specifies what other Logic `Block`s this Logic `Block` is connected to
         * Default value: `new Connections({})`
-    * `shapeId`
-      * Specifies the type of block to be built
   * Description
-    * The basic class for building blocks that can interact with Scrap Mechanic logic signals
+    * An input into a logic circuit--only sends out an *on* signal when held
   * Methods
     * `build(offset: Offset)`
       * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
@@ -1805,7 +1788,7 @@ A living guide containing the syntax and purpose of each component
       * Returns the `Connections` object representing the other blocks this Logic `Block` is connected to
     * `get id(): Id`
       * Returns the `Id` of this Logic `Block`
-    * `abstract get controller()` 
+    * `get controller()` 
       * Returns an `Object` that slots into the `controller` section when the `build` method is called
       * This section handles any and all logical connections and interactions
     * `connectTo(other: BasicLogic | Id)`
@@ -1825,37 +1808,34 @@ A living guide containing the syntax and purpose of each component
 * #### **Switch**
   * Syntax
     ```typescript
-      class BasicLogic({
+      class Switch({
         key: Key,
         pos?: Pos,
         rotate?: Rotate,
         color?: Color,
         connections?: Connectinos
-        shapeId: ShapeIds,
       }) extends Block
     ```
-    * `key`
+    * `key: Key`
       * Used to generate an `Id` for this Logic `Block`
-    * `pos`
+    * `pos: Pos`
       * Optional parameter
       * Specifies the position of the `Unit`
       * Default value: `new Pos({})`
-    * `rotate`
+    * `rotate: Rotate`
       * Optional parameter
       * Specifies the rotation and orientation of the `Block`
       * Default value: `new Rotate({})`
-    * `color`
+    * `color: Color`
       * Optional parameter
       * Specifies what color the `Unit` should be
       * Default value: `new Color()`
-    * `connections`
+    * `connections: Connections`
       * Optional parameter
       * Specifies what other Logic `Block`s this Logic `Block` is connected to
         * Default value: `new Connections({})`
-    * `shapeId`
-      * Specifies the type of block to be built
   * Description
-    * The basic class for building blocks that can interact with Scrap Mechanic logic signals
+    * An input into a logic circuit--toggles between an *on* and *off* signal when pressed
   * Methods
     * `build(offset: Offset)`
       * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
@@ -1865,7 +1845,7 @@ A living guide containing the syntax and purpose of each component
       * Returns the `Connections` object representing the other blocks this Logic `Block` is connected to
     * `get id(): Id`
       * Returns the `Id` of this Logic `Block`
-    * `abstract get controller()` 
+    * `get controller()` 
       * Returns an `Object` that slots into the `controller` section when the `build` method is called
       * This section handles any and all logical connections and interactions
     * `connectTo(other: BasicLogic | Id)`
@@ -1886,13 +1866,448 @@ A living guide containing the syntax and purpose of each component
 
 > ### [Wood](#wood-1)
 > ### [Glass](#glass-1)
-> ### [GlassTile](#glassTile-1)
+> ### [GlassTile](#glasstile-1)
 > ### [Cardboard](#cardboard-1)
 > ### [Concrete](#concrete-1)
 > ### [Metal](#metal-1)
 > ### [Barrier/Caution](#barrier)
 > ### [Bricks](#bricks-1)
 
+* #### **Wood**
+  * Syntax
+    ```typescript
+      class Wood({
+        bounds: Bounds,
+        pos?: Pos,
+        color?: Color,
+        rotate?: Rotate
+      }) extends Scalable
+    ```
+    * `bounds: Bounds`
+      * Specifies the bounding box of this block
+    * `pos: Pos`
+      * Optional parameter
+      * Specifies the origin of the `Scalable`
+      * Default value: `new Pos({})`
+    * `rotate: Rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Scalable`
+      * Default value: `new Rotate({})`
+    * `color: Color`
+      * Optional parameter
+      * Specifies what color the `Scalable` should be
+      * Default value: `new Color()`
+  * Description
+    * A preset of `Scalable` using the *Wood* material
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Scalable`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `bounds: Bounds`
+      * Stores the bounding box of the `Scalable`
+
+* #### **Glass**
+  * Syntax
+    ```typescript
+      class Glass({
+        bounds: Bounds,
+        pos?: Pos,
+        color?: Color,
+        rotate?: Rotate
+      }) extends Scalable
+    ```
+    * `bounds: Bounds`
+      * Specifies the bounding box of this block
+    * `pos: Pos`
+      * Optional parameter
+      * Specifies the origin of the `Scalable`
+      * Default value: `new Pos({})`
+    * `rotate: Rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Scalable`
+      * Default value: `new Rotate({})`
+    * `color: Color`
+      * Optional parameter
+      * Specifies what color the `Scalable` should be
+      * Default value: `new Color()`
+  * Description
+    * A preset of `Scalable` using the *Glass* material
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Scalable`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `bounds: Bounds`
+      * Stores the bounding box of the `Scalable`
+
+* #### **GlassTile**
+  * Syntax
+    ```typescript
+      class GlassTile({
+        bounds: Bounds,
+        pos?: Pos,
+        color?: Color,
+        rotate?: Rotate
+      }) extends Scalable
+    ```
+    * `bounds: Bounds`
+      * Specifies the bounding box of this block
+    * `pos: Pos`
+      * Optional parameter
+      * Specifies the origin of the `Scalable`
+      * Default value: `new Pos({})`
+    * `rotate: Rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Scalable`
+      * Default value: `new Rotate({})`
+    * `color: Color`
+      * Optional parameter
+      * Specifies what color the `Scalable` should be
+      * Default value: `new Color()`
+  * Description
+    * A preset of `Scalable` using the *GlassTile* material
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Scalable`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `bounds: Bounds`
+      * Stores the bounding box of the `Scalable`
+
+* #### **Cardboard**
+  * Syntax
+    ```typescript
+      class Cardboard({
+        bounds: Bounds,
+        pos?: Pos,
+        color?: Color,
+        rotate?: Rotate
+      }) extends Scalable
+    ```
+    * `bounds: Bounds`
+      * Specifies the bounding box of this block
+    * `pos: Pos`
+      * Optional parameter
+      * Specifies the origin of the `Scalable`
+      * Default value: `new Pos({})`
+    * `rotate: Rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Scalable`
+      * Default value: `new Rotate({})`
+    * `color: Color`
+      * Optional parameter
+      * Specifies what color the `Scalable` should be
+      * Default value: `new Color()`
+  * Description
+    * A preset of `Scalable` using the *Cardboard* material
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Scalable`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `bounds: Bounds`
+      * Stores the bounding box of the `Scalable`
+
+* #### **Concrete**
+  * Syntax
+    ```typescript
+      class Concrete({
+        bounds: Bounds,
+        pos?: Pos,
+        color?: Color,
+        rotate?: Rotate
+      }) extends Scalable
+    ```
+    * `bounds: Bounds`
+      * Specifies the bounding box of this block
+    * `pos: Pos`
+      * Optional parameter
+      * Specifies the origin of the `Scalable`
+      * Default value: `new Pos({})`
+    * `rotate: Rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Scalable`
+      * Default value: `new Rotate({})`
+    * `color: Color`
+      * Optional parameter
+      * Specifies what color the `Scalable` should be
+      * Default value: `new Color()`
+  * Description
+    * A preset of `Scalable` using the *Concrete* material
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Scalable`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `bounds: Bounds`
+      * Stores the bounding box of the `Scalable`
+
+* #### **Metal**
+  * Syntax
+    ```typescript
+      class Metal({
+        bounds: Bounds,
+        pos?: Pos,
+        color?: Color,
+        rotate?: Rotate
+      }) extends Scalable
+    ```
+    * `bounds: Bounds`
+      * Specifies the bounding box of this block
+    * `pos: Pos`
+      * Optional parameter
+      * Specifies the origin of the `Scalable`
+      * Default value: `new Pos({})`
+    * `rotate: Rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Scalable`
+      * Default value: `new Rotate({})`
+    * `color: Color`
+      * Optional parameter
+      * Specifies what color the `Scalable` should be
+      * Default value: `new Color()`
+  * Description
+    * A preset of `Scalable` using the *Metal* material
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Scalable`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `bounds: Bounds`
+      * Stores the bounding box of the `Scalable`
+
+* #### **Barrier**
+  * Syntax
+    ```typescript
+      class Barrier({
+        bounds: Bounds,
+        pos?: Pos,
+        color?: Color,
+        rotate?: Rotate
+      }) extends Scalable
+    ```
+    * `bounds: Bounds`
+      * Specifies the bounding box of this block
+    * `pos: Pos`
+      * Optional parameter
+      * Specifies the origin of the `Scalable`
+      * Default value: `new Pos({})`
+    * `rotate: Rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Scalable`
+      * Default value: `new Rotate({})`
+    * `color: Color`
+      * Optional parameter
+      * Specifies what color the `Scalable` should be
+      * Default value: `new Color()`
+  * Description
+    * A preset of `Scalable` using the *Barrier* material
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Scalable`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `bounds: Bounds`
+      * Stores the bounding box of the `Scalable`
+
+* #### **Bricks**
+  * Syntax
+    ```typescript
+      class Bricks({
+        bounds: Bounds,
+        pos?: Pos,
+        color?: Color,
+        rotate?: Rotate
+      }) extends Scalable
+    ```
+    * `bounds: Bounds`
+      * Specifies the bounding box of this block
+    * `pos: Pos`
+      * Optional parameter
+      * Specifies the origin of the `Scalable`
+      * Default value: `new Pos({})`
+    * `rotate: Rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Scalable`
+      * Default value: `new Rotate({})`
+    * `color: Color`
+      * Optional parameter
+      * Specifies what color the `Scalable` should be
+      * Default value: `new Color()`
+  * Description
+    * A preset of `Scalable` using the *Bricks* material
+  * Methods
+    * `build(offset: Offset)`
+      * Returns a *Scrap Mechanic* compatible representation of this block as an `Object`
+  * Properties
+    * `pos: Pos`
+      * Stores the origin of the `Scalable`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Scalable`
+    * `shapeId: ShapeIds`
+      * Stores the `shapeId` of this block
+    * `bounds: Bounds`
+      * Stores the bounding box of the `Scalable`
+
+
+> # Prebuilts
+> ## Support Sections
+> * [Delays](#delays-2)
+> * [Displays](#displays)
+> * [Memory](#memory)
+> * [Numbers](#numbers)
+> * [SSP (**S**crap **S**erial **P**rotocol)](#ssp)
+> * [Support](#support)
+
+## Delays
+
+> ### [DelayUnit]
+> ### [SmartDelayUnit]
+
+
+## Displays
+> ### [FutureBitMap]
+> ### [BitMap]
+> ### [SimpleBitMap]
+> ### [SevenSegment]
+> ### [CharacterDisplay]
+> ### [VideoDisplay]
+
+## Memory
+> ### [Bit](#bit-1)
+> ### [OldBit]
+> ### [Bits]
+> ### [Nibble]
+> ### [Byte]
+> ### [SmallBit]
+> ### [MemoryGridBloc]
+> ### [MemoryRow]
+> ### [AddressableMemoryRow]
+> ### [MemoryGrid]
+> ### [MemorySelector]
+> ### [MemoryRowReader]
+> ### [ROM]
+> ### [ROMPackage]
+> ### [CardROM]
+> ### [CardRomPackage]
+> ### [***D**ouble **D**ensity* CardRomPackage]
+
+* #### **Bit**
+  * Syntax
+    ```typescript
+      class Bit({
+        key: Key,
+        pos?: Pos,
+        rotate?: Rotate,
+        color?: Color,
+        placeValue?: number,
+        connections?: MultiConnections
+      }) extends Container
+    ```
+    * `key: Key`
+      * Used to generate an `Id` for this Logic `Block`
+    * `pos: Pos`
+      * Optional parameter
+      * Specifies the position of the `Unit`
+      * Default value: `new Pos({})`
+    * `rotate: Rotate`
+      * Optional parameter
+      * Specifies the rotation and orientation of the `Block`
+      * Default value: `new Rotate({})`
+    * `color: Color`
+      * Optional parameter
+      * Specifies what color the `Unit` should be
+      * Default value: `new Color()`
+    * `placeValue: number`
+      * Optional Parameter
+      * Specifies where this bit belongs in the space of a larger object (such as a `Bits` or `Byte`)
+      * Default value: `1`
+    * `connections: MultiConnections`
+      * Optional parameter
+      * Specifies where each Logic Block within the `Bit` sends its signal to
+      * Default value: `new MultiConnections({})`
+  * Description
+    * A construct able to hold 1 bit of information (1/0)
+  * Methods
+    * `compress(): void`
+      * Moves all children within this `Container` to the origin of the `Container`
+    * `get color(): Color`
+      * Store what color all `Unit`s in the the `Container` should be
+    * `set color(color: Color)`
+      * Set what color all `Unit`s in the the `Container` should be
+    * `build(Offset: offset): string`
+      * Returns a Scrap Mechanic compatible JSON string that represents the `Container`
+    * `get setId(): Id`
+      * Returns the `Id` of the logic block that can be pulsed to turn the bit *on*
+    * `get resetId(): Id`
+      * Returns the `Id` of the logic block that can be pulsed to turn the bit *off*
+    * `get readId(): Id`
+      * Returns the `Id` of the third logic block (not involved in set/reset) 
+    * `get read(): Logic`
+      * Returns the Logic Block object of the logic block used to get the signal from the `Bit`
+  * Properties
+    * `children: Unit[]`
+      * A list of all `Unit`s that this `Container` is holding on to
+    * `compressed: boolean`
+      * Whether or not the `compress` command has been run on this `Container`
+    * `pos: Pos`
+      * Stores the position of the `Unit`
+    * `rotation: Rotate`
+      * Stores the rotation and orientation of the `Unit`
+    * `_io: Map<string,Key>`
+      * Stores the `UniqueCustomKey`s used to identify individual `Bit`
+    * `placeValue: number`
+      * Stores where this bit belongs in the space of a larger object (such as a `Bits` or `Byte`)
+
+## Numbers
+> ### [Integer]
+> ### [ConstantCompare]
+> ### [Comparators]
+> ### [EqualsConstant]
+
+## SSP
+> ### [SSP Receiver]
+
+## Support
+> ### [Axis]
+> ### [Custom2dShape]
+> ### 
 
 
 * #### **Template**
