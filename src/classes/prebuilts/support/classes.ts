@@ -5,7 +5,7 @@ import { Bounds, Pos, Rotate } from "../../../support/spatial/classes";
 import { Scalable } from "../../blocks/basics";
 import { Glass, Wood } from "../../blocks/materials";
 import { DraggableIds, ShapeIds } from "../../shapeIds";
-import { AxisInterface, Custom2dShapeInterface } from "./interfaces";
+import { AxisInterface } from "./interfaces";
 
 export class Axis extends Container {
   constructor({

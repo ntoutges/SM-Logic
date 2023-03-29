@@ -125,7 +125,7 @@ export class Mural extends Container {
     if (bounds == null) {
       let xBound = 1;
       let yBound = 1;
-      for (let layer of layers) {
+      for (let layer of layers.layers) {
         xBound = Math.max(xBound, layer.frame.width);
         yBound = Math.max(yBound, layer.frame.height);
       }
@@ -143,23 +143,22 @@ export class Mural extends Container {
       }
     }
 
-    for (let layer of layers) {
+    for (let layer of layers.layers) {
       const frame = layer.frame.resize(bounds);
-      const layerColor = new Color(layer.material.color);
 
       const rows = frame.rows;
       for (let y in rows) {
         for (let x in rows[y].mask) {
-          if (orderedChildren[y][x]) { continue; } // don't overwrite previous layer (layer 0 has highest priority, then layer2, etc...)
-          orderedChildren[y][x] = (rows[y].mask[x] == undefined) ? 
+          if (orderedChildren[y][x] || !rows[y].mask[x]) { continue; } // don't overwrite previous layer (layer 0 has highest priority, then layer2, etc...)
+          orderedChildren[y][x] = (rows[y].mask[x] == undefined) ?
+            undefined : 
             (layer.material.type == DraggableIds.None) ? 
               null : 
               new Scalable({
                 bounds: new Bounds2d({ x:1, y:1 }),
-                color: layerColor,
-                pos: new Pos({ x: +x, y: +y })
-              }, layer.material.type)
-            : undefined;
+                color: layer.material.color,
+                pos: new Pos({ x: +x, y: -y+rows.length-1 })
+              }, layer.material.type);
         }
       }
     }

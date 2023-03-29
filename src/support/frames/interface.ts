@@ -10,6 +10,11 @@ export interface FrameInterface {
   fallback?: boolean
 }
 
+export interface FullFrameInterface {
+  size: Bounds2d,
+  fill?: boolean
+}
+
 export interface DataDumpInterface {
   lineSize?: number,
   chunkSize?: number

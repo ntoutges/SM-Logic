@@ -36,11 +36,10 @@ export class Pos extends Equatable {
     });
   }
   // rotates about the origin (0,0)
-  rotate(other: Rotate): Pos { // only pays attention to direction (forwards/backwards/left/right)
+  rotate(other: Rotate): Pos { // mostly only pays attention to direction (forwards/backwards/left/right)
     let x = this.x;
     let y = this.y;
     let z = this.z;
-    // console.log(other.orientation)
     switch (other.direction) {
       // default:
       // case Direction.Forwards:
@@ -57,6 +56,48 @@ export class Pos extends Equatable {
         x = -this.y;
         y = this.x;
         break;
+      case Direction.Up:
+      case Direction.Down:
+        // UP + UP -> swap y/z
+        // DOWN + DOWN -> swap y/z
+        if (
+          other.direction == Direction.Up && other.orientation == Orientation.Up ||
+          other.direction == Direction.Down && other.orientation == Orientation.Down
+          ) {
+          y = this.z;
+          z = this.y;
+          break;
+        }
+        // UP + DOWN -> swap y/-z
+        // DOWN + UP -> swap y/-z
+        if (
+          other.direction == Direction.Up && other.orientation == Orientation.Down ||
+          other.direction == Direction.Down && other.orientation == Orientation.Up
+        ) {
+          y = this.z;
+          z = -this.y;
+          break;
+        }
+        // UP + RIGHT -> swap x/z
+        // DOWN + LEFT -> swap x/z 
+        if (
+          other.direction == Direction.Up && other.orientation == Orientation.Right ||
+          other.direction == Direction.Down && other.orientation == Orientation.Left
+        ) {
+          x = this.z;
+          z = this.x;
+          break;
+        }
+        // UP + LEFT -> swap x/-z
+        // DOWN + RIGHT -> swap x/-z
+        if (
+          other.direction == Direction.Up && other.orientation == Orientation.Left ||
+          other.direction == Direction.Down && other.orientation == Orientation.Right
+        ) {
+          x = this.z;
+          z = -this.x;
+          break;
+        }
     }
     return new Pos({
       x: x,
@@ -117,12 +158,30 @@ export class Bounds extends Pos {
         z: this.z
       });
     else if (other.direction == Direction.Right || other.direction == Direction.Left) {
-      return new Bounds({
+      return new Bounds({ // swap x amd y
         x: this.y,
         y: this.x,
         z: this.z
       });
     }
+    // else if (other.direction == Direction.Up || other.direction == Direction.Down) {
+      if (other.orientation == Orientation.Up || other.orientation == Orientation.Down) {
+        // bring back to top
+        return new Bounds({ // swap y and z
+          x: this.x,
+          y: this.z,
+          z: this.y
+        })
+      }
+      // else if (other.orientation == Orientation.Left || other.orientation == Orientation.Right) {
+        // bring left to top
+        return new Bounds({ // swap x and z
+          x: this.z,
+          y: this.y,
+          z: this.x
+        })
+      // }
+    // }
   }
 
   get volume(): number {

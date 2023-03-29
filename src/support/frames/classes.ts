@@ -6,7 +6,7 @@ import { BitMask, Operation, RawBitMask, VBitMask } from "../logic/classes";
 import { LogicalOperation } from "../logic/enums";
 import { Bounds2d, Pos2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
-import { AnimatedSpriteInterface, CharacterFrameInterface, CharactersFrameInterface, DataDumpInterface, FileFrameInterface, FrameInterface, FramerInterface, FramesInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
+import { AnimatedSpriteInterface, CharacterFrameInterface, CharactersFrameInterface, DataDumpInterface, FileFrameInterface, FrameInterface, FramerInterface, FramesInterface, FullFrameInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
 
 export class Frame extends Equatable {
   private _size: Bounds2d;
@@ -112,7 +112,7 @@ export class Frame extends Equatable {
 
     const value = [];
     for (let i in this._value) {
-      value[i] = this._value[(+i + count.y) % this._value.length].shift(count.x);
+      value[i] = this._value[(+i + y) % this._value.length].shift(count.x);
     }
 
     return new Frame({
@@ -257,6 +257,25 @@ export class Frame extends Equatable {
     }
 
     return binArr;
+  }
+}
+
+export class FullFrame extends Frame {
+  constructor({
+    size,
+    fill=true
+  }: FullFrameInterface) {
+    const value: BitMask[] = [];
+    
+    for (let y = 0; y < size.y; y++) {
+      const data: boolean[] = [];
+      for (let x = 0; x < size.x; x++) { data.push(fill) }
+      value.push( new BitMask(data) );
+    }
+    super({
+      size,
+      value
+    })
   }
 }
 

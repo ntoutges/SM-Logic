@@ -1,6 +1,7 @@
 import { UnitInterface } from "../../../containers/interfaces";
 import { Colors } from "../../../support/colors/enums";
 import { Frame } from "../../../support/frames/classes";
+import { Layers } from "../../../support/layers/classes";
 import { Bounds2d } from "../../../support/spatial/classes";
 import { DraggableIds } from "../../shapeIds";
 
@@ -10,15 +11,7 @@ export interface Custom2dShapeInterface extends UnitInterface {
   falseMaterial?: DraggableIds
 }
 
-interface Layer {
-  frame: Frame
-  material: {
-    type: DraggableIds
-    color?: Colors
-  }
-}
-
 export interface MuralInterface extends UnitInterface {
-  layers: Layer[]
-  bounds: Bounds2d
+  layers: Layers
+  bounds?: Bounds2d
 }

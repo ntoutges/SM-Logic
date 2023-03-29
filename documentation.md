@@ -14,6 +14,7 @@ A living guide containing the syntax and purpose of each component
 > * [Spatial](#spatial)
 > * [Graphics](#graphics)
 > * [Frames](#frames)
+> * [Layers](#layers)
 
 ## Colors 
 
@@ -1175,22 +1176,21 @@ A living guide containing the syntax and purpose of each component
     * `id: Id`
       * Stores the individual Ids to all the Logic blocks that `frame` is attached to
 
+> ## Layers
+> ### [Material]
+> ### [Layer]
+> ### [Layers]
+
 > # Container Classes
 > ## Container Sections
 > * [Basics](#basics)
 > * [Bodies](#bodies)
 
-## Colors 
-
-> ### [Color](#color-1)
-> ### [HexColor](#hexcolor-1)
-> ### [RGBColor](#rgbcolor-1)
-
 ## Basics
-### [Unit](#unit-1)
-### [Container](#container-1)
-### [Grid](#grid-1)
-### [Packager](#packager-1)
+> ### [Unit](#unit-1)
+> ### [Container](#container-1)
+> ### [Grid](#grid-1)
+> ### [Packager](#packager-1)
 
 * #### **Unit**
   * Syntax
@@ -2310,6 +2310,7 @@ A living guide containing the syntax and purpose of each component
 
 ## Transcribers
 > ### [Custom2dShape]
+> ### [Mural]
 
 
 * #### **Template**

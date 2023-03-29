@@ -13,7 +13,7 @@ import { Logic, Timer } from "../../../blocks/basics";
 import { Wood } from "../../../blocks/materials";
 import { DraggableIds } from "../../../shapeIds";
 import { Integer } from "../../numbers/classes";
-import { Custom2dShape } from "../../support/classes";
+import { Custom2dShape } from "../../transcribers/classes";
 import { AddressableMemoryRowInterface, CardROMInterface, CardROMPackageInterface, MemoryGridInterface, MemoryRowInterface, MemorySelectorInterface, ROMInterface, ROMPackageInterface } from "./interfaces";
 
 export class MemoryRow extends Grid {

@@ -5,7 +5,7 @@ import { Container, Grid, Unit } from "./containers/classes";
 import { ConstantCompare, Integer } from "./classes/prebuilts/numbers/classes";
 import { CustomKey, BasicKey, Id, UniqueCustomKey, KeylessFutureId, Identifier, KeyGen, Keys, StringKeyGen, KeyMap, KeylessId } from "./support/context/classes";
 import { BitMask, Connections, Delay, Delays, MultiConnections, Operation, RawBitMask, VBitMask } from "./support/logic/classes";
-import { CharacterFrame, CharactersFrame, FileFrame, Frame, Frames, MappedROMFrame, RawROMFrame, readFile, ROMFrame, VFrame } from "./support/frames/classes"
+import { CharacterFrame, CharactersFrame, FileFrame, Frame, Frames, FullFrame, MappedROMFrame, RawROMFrame, readFile, ROMFrame, VFrame } from "./support/frames/classes"
 import { Bounds, Bounds2d, Pos, Pos2d, Rotate } from "./support/spatial/classes";
 import { Direction, Orientation } from "./support/spatial/enums";
 import { BitMap, CharacterDisplay, FutureBitMap, SevenSegment, SimpleBitMap, VideoDisplay } from "./classes/prebuilts/displays/classes";
@@ -18,14 +18,15 @@ import { Color, HexColor, RGB, RGBColor } from "./support/colors/classes";
 import { Colors } from "./support/colors/enums";
 import { MemoryGridBloc } from "./classes/prebuilts/memory/memoryBlocs/classes";
 import { Axis } from "./classes/prebuilts/support/classes";
-import { Custom2dShape } from "./classes/prebuilts/transcribers/classes";
+import { Custom2dShape, Mural } from "./classes/prebuilts/transcribers/classes";
 import { GenericBody } from "./containers/genericBody";
 import { FrameBuilder } from "./support/graphics/classes";
-import { Wood } from "./classes/blocks/materials";
+import { Concrete, GlassTile, Wood } from "./classes/blocks/materials";
 import { DraggableIds } from "./classes/shapeIds";
 import { ROMs } from "./support/ROMs";
 import { SSPReceiver } from "./classes/prebuilts/SSP/classes";
 import { Charsets } from "./support/frames/graphics";
+import { Layer, Layers, Material } from "./support/layers/classes";
 
 const Jimp = require("jimp");
 
@@ -37,32 +38,38 @@ export class Body extends GenericBody {
     const key = this.key;
     const gen = new StringKeyGen(key);
 
-    const txt = new CharactersFrame({
-      chars: "HELLO, WORLD!\nPROGRAMMED\nTO WORK ",
-      charset: Charsets.PETSCII
-    })
+    const childs = []
+    for (let i = 0; i < 255; i += 8) {
+      for (let j = 0; j < 255; j += 8) {
+        for (let k = 0; k < 255; k += 8) {
+          childs.push(
+            new Concrete({
+              bounds: new Bounds2d({}),
+              color: new RGBColor({
+                rgb: new RGB({
+                  r: i,
+                  g: j,
+                  b: k
+                })
+              })
+            })
+          );
+        }
+      }
+    }
 
-    const display = new FutureBitMap({
-      key,
-      size: new Bounds2d({
-        x: txt.width,
-        y: txt.height
-      })
-    });
-    
-    const en = new Switch({
-      key,
-      connections: new Connections(display.getFrameId(txt)),
-      pos: new Pos({
-        z: -1
-      })
-    })
-
-    return new Container({
-      children: [
-        display,
-        en
-      ]
+    return new Grid({
+      size: new Bounds({
+        x: 32,
+        y: 32,
+        z: 32
+      }),
+      spacing: new Bounds({
+        x: 1,
+        y: 1,
+        z: 1
+      }),
+      children: childs
     })
   }
 }

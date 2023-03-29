@@ -121,7 +121,7 @@ export class Grid extends Container {
   get depth(): number { return this._size.y; }
   get height(): number { return this._size.z; }
   build(offset=new Offset({})) {
-    if (this.children.length != this._size.x * this._size.y * this._size.z)
+    if (this.children.length != this._size.volume)
       throw new Error("Amount of children does not match bounds");
     
     let posCounter: Pos = new Pos({x:0,y:0,z:0});
@@ -129,10 +129,10 @@ export class Grid extends Container {
     let childBlueprints: Array<string> = [];
     this.children.forEach((child: Unit) => {
       if (posCounter.x >= this._size.x) {
-        position = position.add( new Pos({ x: -posCounter.x, y:this._spacing.y }) );
+        position = position.add( new Pos({ x: -posCounter.x*this._spacing.x, y:this._spacing.y }) );
         posCounter = posCounter.add( new Pos({x: -posCounter.x, y:1}) ); // reset x // add 1 to y
         if (posCounter.y >= this._size.y) {
-          position = position.add( new Pos({ y: -posCounter.y, z:this._spacing.z }) );
+          position = position.add( new Pos({ y: -posCounter.y*this._spacing.y, z:this._spacing.z }) );
           posCounter = posCounter.add( new Pos({y: -posCounter.y, z:1}) ); // reset y // add 1 to z
         }
       }
@@ -155,7 +155,7 @@ export class Grid extends Container {
       const built = child.build( localOffset );
       if (built != "") // some Units, such as [Custom2dShape], may return an empty string, as they have no data to add
         childBlueprints.push( built );
-
+      
       posCounter = posCounter.add( new Pos({x:1}) );
       position = position.add( new Pos({x:this._spacing.x}) );
     });
