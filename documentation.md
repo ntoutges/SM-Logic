@@ -18,6 +18,7 @@ A living guide containing the syntax and purpose of each component
 
 ## Colors 
 
+> ### [RGB]
 > ### [Color](#color-1)
 > ### [HexColor](#hexcolor-1)
 > ### [RGBColor](#rgbcolor-1)
@@ -678,6 +679,7 @@ A living guide containing the syntax and purpose of each component
 > ### [frame](#frame-1)
 > ### [VFrame](#vframe-1)
 > ### [FileFrame](#fileframe-1)
+> ### [FileFrames]
 > ### [Framer](#framer-1)
 > ### [Frames](#frames-1)
 > ### [FrameSprite](#framesprite-1)

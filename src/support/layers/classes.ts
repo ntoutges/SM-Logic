@@ -4,18 +4,18 @@ import { Colors } from "../colors/enums";
 import { Frame } from "../frames/classes";
 import { Bounds2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
-import { LayerInterface, LayersInterface } from "./interfaces";
+import { LayerInterface, LayersInterface, MaterialInterface } from "./interfaces";
 
 export class Material extends Equatable {
   readonly type: DraggableIds;
   readonly color: Color;
   constructor({
     type,
-    color = Colors.SM_Orange
-  }) {
+    color = new Color(Colors.SM_Orange)
+  }: MaterialInterface) {
     super([ "type", "color" ]);
     this.type = type;
-    this.color = new Color(color);
+    this.color = color;
   }
 }
 

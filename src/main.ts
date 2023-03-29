@@ -5,7 +5,7 @@ import { Container, Grid, Unit } from "./containers/classes";
 import { ConstantCompare, Integer } from "./classes/prebuilts/numbers/classes";
 import { CustomKey, BasicKey, Id, UniqueCustomKey, KeylessFutureId, Identifier, KeyGen, Keys, StringKeyGen, KeyMap, KeylessId } from "./support/context/classes";
 import { BitMask, Connections, Delay, Delays, MultiConnections, Operation, RawBitMask, VBitMask } from "./support/logic/classes";
-import { CharacterFrame, CharactersFrame, FileFrame, Frame, Frames, FullFrame, MappedROMFrame, RawROMFrame, readFile, ROMFrame, VFrame } from "./support/frames/classes"
+import { CharacterFrame, CharactersFrame, FileFrame, FileFrames, Frame, Frames, FullFrame, MappedROMFrame, RawROMFrame, readFile, ROMFrame, VFrame } from "./support/frames/classes"
 import { Bounds, Bounds2d, Pos, Pos2d, Rotate } from "./support/spatial/classes";
 import { Direction, Orientation } from "./support/spatial/enums";
 import { BitMap, CharacterDisplay, FutureBitMap, SevenSegment, SimpleBitMap, VideoDisplay } from "./classes/prebuilts/displays/classes";
@@ -38,38 +38,15 @@ export class Body extends GenericBody {
     const key = this.key;
     const gen = new StringKeyGen(key);
 
-    const childs = []
-    for (let i = 0; i < 255; i += 8) {
-      for (let j = 0; j < 255; j += 8) {
-        for (let k = 0; k < 255; k += 8) {
-          childs.push(
-            new Concrete({
-              bounds: new Bounds2d({}),
-              color: new RGBColor({
-                rgb: new RGB({
-                  r: i,
-                  g: j,
-                  b: k
-                })
-              })
-            })
-          );
-        }
-      }
-    }
+    const imageData = await readFile("WUC.png");
 
-    return new Grid({
-      size: new Bounds({
-        x: 32,
-        y: 32,
-        z: 32
-      }),
-      spacing: new Bounds({
-        x: 1,
-        y: 1,
-        z: 1
-      }),
-      children: childs
+    const frames = new FileFrames({
+      imageData,
+      colors: []
+    });
+
+    return new Mural({
+      layers: frames.genLayers()
     })
   }
 }

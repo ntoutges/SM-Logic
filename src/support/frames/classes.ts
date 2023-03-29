@@ -6,7 +6,10 @@ import { BitMask, Operation, RawBitMask, VBitMask } from "../logic/classes";
 import { LogicalOperation } from "../logic/enums";
 import { Bounds2d, Pos2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
-import { AnimatedSpriteInterface, CharacterFrameInterface, CharactersFrameInterface, DataDumpInterface, FileFrameInterface, FrameInterface, FramerInterface, FramesInterface, FullFrameInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
+import { AnimatedSpriteInterface, CharacterFrameInterface, CharactersFrameInterface, DataDumpInterface, FileFrameInterface, FileFramesInterface, FrameInterface, FramerInterface, FramesInterface, FullFrameInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
+import { Color, RGB, RGBColor } from "../colors/classes";
+import { DraggableIds } from "../../classes/shapeIds";
+import { Layer, Layers, Material } from "../layers/classes";
 
 export class Frame extends Equatable {
   private _size: Bounds2d;
@@ -694,6 +697,90 @@ export class FileFrame extends Frame {
     if (preview) console.log("+-" + dashes + "-+");
 
     super({size: size, value: bitmasks});
+  }
+}
+
+export class FileFrames extends Frames {
+  private colors: Color[];
+  constructor({
+    imageData,
+    colors
+  }: FileFramesInterface) {
+    const size = new Bounds2d({
+      x: imageData.bitmap.width,
+      y: imageData.bitmap.height
+    });
+
+    if (colors.length == 0) throw new Error("[colors] must contain at least one color");
+
+    const colorBitmasks: BitMask[][] = [];
+    for (let i in colors) { colorBitmasks[i] = []; } // initialze with empty arrays
+    for (let y = size.y-1; y >= 0; y--) {
+      const bitmaskData: boolean[][] = [];
+      for (let i in colors) { bitmaskData.push([]); } // initialize with empty arrays
+      for (let x = size.x-1; x >= 0; x--) {
+        const raw = Jimp.intToRGBA(imageData.getPixelColor(x,y));
+        const rgb = new RGB({
+          r: raw.r,
+          g: raw.g,
+          b: raw.b
+        });
+        let minDiffIndex = -1;
+        let minDiff = 0;
+        for (let i in colors) {
+          const difference = rgb.difference(colors[i].rgb).greyscale();
+          if (minDiffIndex == -1 || difference < minDiff) {
+            minDiffIndex = +i;
+            minDiff = difference;
+          }
+        }
+        for (let i in colors) { bitmaskData[i].push(+i == minDiffIndex) } // only set the closest color to a true
+      }
+      for (let i in colors) {
+        colorBitmasks[i].push( new BitMask(bitmaskData[i]) );
+      }
+    }
+
+    const frames: Frame[] = [];
+    for (let mask of colorBitmasks) {
+      frames.push(
+        new Frame({
+          size,
+          value: mask
+        })
+      );
+    }
+
+    super({
+      frames,
+      size
+    });
+
+    this.colors = colors;
+  }
+
+  genLayers(type:DraggableIds = DraggableIds.Concrete) {
+    const layers = [];
+    for (let i in this.colors) {
+      layers.push(
+        new Layer({
+          frame: this.frames[i],
+          material: new Material({
+            type,
+            color: this.colors[i]
+          })
+        })
+      );
+    }
+    return new Layers({ layers });
+  }
+}
+
+export class AutoFileFrames extends FileFrames {
+  constructor({
+
+  }: AutoFileFramesInterface) {
+    
   }
 }
 

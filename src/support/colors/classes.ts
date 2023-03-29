@@ -28,6 +28,18 @@ export class RGB extends Equatable {
     // garuntee leading '0's in hex string
     return (16777216 + (this._r * 65536) + (this._g * 256) + (this._b)).toString(16).substring(1,7);
   }
+  greyscale(weights:RGB = new RGB({ r:1,g:1,b:1 })): number {
+    const weightTotal = (weights.r + weights.g + weights.b);
+    return (this.r*weights.r + this.g*weights.g + this.b*weights.b) / (weightTotal | 1);
+  }
+
+  difference(other: RGB) {
+    return new RGB({
+      r: Math.abs(this.r - other.r),
+      g: Math.abs(this.g - other.g),
+      b: Math.abs(this.b - other.b)
+    });
+  }
 }
 
 export class Color extends Equatable {

@@ -14,3 +14,9 @@ export interface RGBColorInterface {
     b?: [ min:number, max:number ]
   }
 }
+
+export interface RGBGreyscaleInterface {
+  rWeight?: number,
+  gWeight?: number,
+  bWeight?: number
+}
