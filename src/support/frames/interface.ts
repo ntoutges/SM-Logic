@@ -3,7 +3,7 @@ import { Id } from "../context/classes"
 import { BitMask, Operation } from "../logic/classes"
 import { Bounds2d } from "../spatial/classes"
 import { Frame, Frames } from "./classes"
-import { Color } from "../colors/classes"
+import { Color, ColorList, RGB } from "../colors/classes"
 
 export interface FrameInterface {
   size: Bounds2d,
@@ -111,5 +111,11 @@ export interface FileFrameInterface {
 
 export interface FileFramesInterface {
   imageData: any
-  colors: Color[]
+  colors: ColorList
+}
+
+export interface AutoFileFramesInterface {
+  imageData: any
+  colorStep?: RGB
+  greyscale?: boolean
 }

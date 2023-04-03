@@ -20,6 +20,7 @@ export class Operation extends Equatable {
       case LogicalOperation.Input:
       case LogicalOperation.Buffer:
       case LogicalOperation.Screen:
+      case LogicalOperation.Reset:
         return LogicalType.Or;
       case LogicalOperation.Xor:
         return LogicalType.Xor;
@@ -246,15 +247,23 @@ export class BitMask extends Equatable {
   binDump(): string {
     return parseInt(this.hexDump(), 16).toString(2); // use built in functions to convert from (4-bits / char) to (1-bit / char)
   }
+
+  has(state: boolean): boolean {
+    for (const type of this.mask) {
+      if (type == state) return true;
+    }
+    return false;
+  }
 }
 
 /// pass in a number, such as 0xfc or 0x00110101
 export class RawBitMask extends BitMask {
   constructor(mask: number, length=0) { // align right
+    if (mask > 2 ** length) throw new Error(`Length of BitMask too small to fit the value: ${mask}`)
+    
     const newMask: Array<boolean> = [];
-    const itts = Math.floor(Math.log(mask) / Math.LN2);
-    for (let i = 0; i <= itts; i++) {
-      let pow = Math.pow(2,itts-i);
+    for (let i = 0; i < length; i++) {
+      let pow = Math.pow(2,length-i-1);
       if (mask >= pow) {
         mask -= pow
         newMask.push(true)

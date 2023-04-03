@@ -1,5 +1,5 @@
 import { Container, Grid } from "../../../containers/classes";
-import { BasicKey, Id, KeylessFutureId, KeyMap } from "../../../support/context/classes";
+import { BasicKey, Id, KeylessFutureId, KeyMap, UniqueCustomKey } from "../../../support/context/classes";
 import { Connections, Delay, MultiConnections } from "../../../support/logic/classes";
 import { Bounds, Pos } from "../../../support/spatial/classes";
 import { Logic, Timer } from "../../blocks/basics";
@@ -15,9 +15,14 @@ export class DelayUnit extends Grid {
     connections = new MultiConnections([])
   }: DelayUnitInterface) {
     let timers: Array<Timer> = [];
-    let timerKeys: Array<BasicKey> = [];
+    let timerKeys: Array<UniqueCustomKey> = [];
     for (let i in delays.delays) {
-      timerKeys.push(key)
+      timerKeys.push(
+        new UniqueCustomKey({
+          identifier: `delays${i}`,
+          key
+        })
+      );
     }
     for (let [i, delay] of delays.delays.entries()) {
       const conns = ((i == 0) ? [] : [ new Id(timerKeys[i-1]) ]).concat(
@@ -40,7 +45,11 @@ export class DelayUnit extends Grid {
       children: timers
     });
   }
-  getTimer(i: number): Timer { return this.children[i] as Timer; }
+  getTimer(i: number): Timer {
+    if (i < 0) i += this.children.length;
+    return this.children[i] as Timer;
+  }
+  getFirstTimer(): Timer { return this.getTimer(-1); }
   getTimerIds(delay: Delay): Id {
     const id = new KeylessFutureId();
     for (let timer of this.children) {

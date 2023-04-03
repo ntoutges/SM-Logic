@@ -19,9 +19,12 @@ A living guide containing the syntax and purpose of each component
 ## Colors 
 
 > ### [RGB]
+> ### [MonoRGB]
 > ### [Color](#color-1)
 > ### [HexColor](#hexcolor-1)
 > ### [RGBColor](#rgbcolor-1)
+> ### [ColorList]
+> ### [ColorNameList]
 
 * #### **Color**
   * ```typescript
@@ -184,6 +187,8 @@ A living guide containing the syntax and purpose of each component
       * Returns the hexidecimal representation of this BitMask
     * `binDump(): string
       * Returns the binary representation of this BitMask
+    * `has(state: boolean): boolean`
+      * Returns whether the given state appears in the BitMask
 
 * #### **RawBitMask**
   * ```typescript
@@ -216,6 +221,8 @@ A living guide containing the syntax and purpose of each component
       * Returns the hexidecimal representation of this BitMask
     * `binDump(): string
       * Returns the binary representation of this BitMask
+    * `has(state: boolean): boolean`
+      * Returns whether the given state appears in the BitMask
 
 * #### **VBitMask**
   * ```typescript
@@ -249,6 +256,8 @@ A living guide containing the syntax and purpose of each component
       * Returns the hexidecimal representation of this BitMask
     * `binDump(): string
       * Returns the binary representation of this BitMask
+    * `has(state: boolean): boolean`
+      * Returns whether the given state appears in the BitMask
 
 * #### **Delay**
   * Syntax:
@@ -680,6 +689,7 @@ A living guide containing the syntax and purpose of each component
 > ### [VFrame](#vframe-1)
 > ### [FileFrame](#fileframe-1)
 > ### [FileFrames]
+> ### [AutoFileFrames]
 > ### [Framer](#framer-1)
 > ### [Frames](#frames-1)
 > ### [FrameSprite](#framesprite-1)
@@ -921,6 +931,8 @@ A living guide containing the syntax and purpose of each component
   * Description
     * Stores a many copies of the original `frame`, but offset by a certain amount to allow a simple image to move about a screen
   * Methods
+    * `getPosIndex(position: Pos2d): number`
+      * Returns the frame index at which the frame at the specified `position` occurs
     * `getPos(position: Pos2d): Frame`
       * Returns a frame offset from the original position by `position`
   * Properties
@@ -930,6 +942,14 @@ A living guide containing the syntax and purpose of each component
       * The width of all the frames
     * `height: number`
       * The height of all the frames
+    * `spriteWidth: number`
+      * The width of the original sprite
+    * `spriteHeight: number`
+      * The height of the original sprite
+    * `spriteMovement: Bounds2d`
+      * The range of movement that `frame` is expected to handle
+    * `spriteStep: Bounds2d`
+      * The amount of pixels that each unit of movement in `spriteMovement` represents
 
 * #### **ROMFrame**
   * Syntax:
@@ -1260,7 +1280,7 @@ A living guide containing the syntax and purpose of each component
   * Description
     * Holds multiple `Unit`s, to allow a blueprint to be made of more than one `Unit`
   * Methods
-    * `compress(): void`
+    * `compress(origin: Pos): void`
       * Moves all children within this `Container` to the origin of the `Container`
     * `get color(): Color`
       * Store what color all `Unit`s in the the `Container` should be
@@ -2300,6 +2320,7 @@ A living guide containing the syntax and purpose of each component
 
 ## Numbers
 > ### [Integer]
+> ### [Counter]
 > ### [ConstantCompare]
 > ### [Comparators]
 > ### [EqualsConstant]

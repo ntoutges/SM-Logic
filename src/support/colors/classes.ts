@@ -1,6 +1,6 @@
 import { Equatable } from "../support/classes";
 import { Colors } from "./enums";
-import { RGBColorInterface, RGBInterface } from "./interfaces";
+import { ColorListInterface, ColorNameListInterface, RGBColorInterface, RGBInterface } from "./interfaces";
 
 export class RGB extends Equatable {
   private _r: number;
@@ -38,6 +38,16 @@ export class RGB extends Equatable {
       r: Math.abs(this.r - other.r),
       g: Math.abs(this.g - other.g),
       b: Math.abs(this.b - other.b)
+    });
+  }
+}
+
+export class MonoRGB extends RGB {
+  constructor(monocolor: number) {
+    super({
+      r: monocolor,
+      g: monocolor,
+      b: monocolor
     });
   }
 }
@@ -93,5 +103,29 @@ export class RGBColor extends HexColor {
     const bStr = ("0" + colors[2].toString(16)).slice(-2);
 
     super(rStr + gStr + bStr)
+  }
+}
+
+export class ColorList extends Equatable {
+  readonly colors: Color[];
+  constructor({
+    colors
+  }: ColorListInterface) {
+    super(["colors"]);
+    this.colors = colors;
+  }
+
+  isEmpty() { return this.colors.length == 0; }
+}
+
+export class ColorNameList extends ColorList {
+  constructor({
+    colors
+  }: ColorNameListInterface) {
+    const colorClasses: Color[] = [];
+    for (const color of colors) {
+      colorClasses.push( new Color(color) );
+    }
+    super({ colors: colorClasses });
   }
 }

@@ -1,6 +1,7 @@
+import { UnitInterface } from "../../../containers/interfaces";
 import { Color } from "../../../support/colors/classes";
-import { BasicKey, KeyMap } from "../../../support/context/classes";
-import { Connections } from "../../../support/logic/classes";
+import { BasicKey } from "../../../support/context/classes";
+import { Connections, MultiConnections } from "../../../support/logic/classes";
 import { Pos, Rotate } from "../../../support/spatial/classes";
 import { Logic } from "../../blocks/basics";
 import { CompareOperation } from "./enums";
@@ -26,4 +27,10 @@ export interface EqualsConstantInterface {
   color?: Color,
   rotate?: Rotate
   slowMode?: boolean
+}
+
+export interface CounterInterface extends UnitInterface {
+  key: BasicKey
+  depth?: number
+  connections?: MultiConnections
 }

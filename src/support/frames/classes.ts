@@ -6,8 +6,8 @@ import { BitMask, Operation, RawBitMask, VBitMask } from "../logic/classes";
 import { LogicalOperation } from "../logic/enums";
 import { Bounds2d, Pos2d } from "../spatial/classes";
 import { Equatable } from "../support/classes";
-import { AnimatedSpriteInterface, CharacterFrameInterface, CharactersFrameInterface, DataDumpInterface, FileFrameInterface, FileFramesInterface, FrameInterface, FramerInterface, FramesInterface, FullFrameInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
-import { Color, RGB, RGBColor } from "../colors/classes";
+import { AnimatedSpriteInterface, AutoFileFramesInterface, CharacterFrameInterface, CharactersFrameInterface, DataDumpInterface, FileFrameInterface, FileFramesInterface, FrameInterface, FramerInterface, FramesInterface, FullFrameInterface, MappedRomFrameInterface, PhysicalFrameInterface, RawROMFrameInterface, ROMFrameInterface, SpriteInterface, StringROMFrameInterface, VFrameInterface } from "./interface";
+import { Color, ColorList, MonoRGB, RGB, RGBColor } from "../colors/classes";
 import { DraggableIds } from "../../classes/shapeIds";
 import { Layer, Layers, Material } from "../layers/classes";
 
@@ -367,7 +367,7 @@ export class VFrame extends Frame {
     const value: Array<VBitMask> = [];
     const height = data.length; // get height
     let width = 1;
-    for (let i = data.length-1; i >= 0; i--) { // reversed loop to construct [value] in the correct order
+    for (let i in data) {
       width = Math.max(width, data[i].length); // get width
       
       let mask = new VBitMask(data[i], offCharacter);
@@ -433,6 +433,8 @@ export class Frames extends Equatable {
 export class FrameSprite extends Frames {
   readonly spriteWidth: number;
   readonly spriteHeight: number;
+  readonly spriteMovement: Bounds2d;
+  readonly spriteStep: Bounds2d;
   constructor({
     frame,
     movement,
@@ -445,13 +447,13 @@ export class FrameSprite extends Frames {
     });
 
     const sizedFrame = frame.resize(size);
-    for (let x = 0; x < movement.x; x++) {
-      for (let y = 0; y < movement.y; y++) {
+    for (let x = 0; x <= movement.x; x++) {
+      for (let y = 0; y <= movement.y; y++) {
         frames.push(
           sizedFrame.shift(
             new Pos2d({
               x: x * step.x,
-              y: y * step.y
+              y: -y * step.y
             })
           )
         );
@@ -461,14 +463,16 @@ export class FrameSprite extends Frames {
 
     this.spriteWidth = frame.width;
     this.spriteHeight = frame.height;
+    this.spriteMovement = movement;
+    this.spriteStep = step;
+  }
+  getPosIndex(position: Pos2d): number {
+    if (position.y > this.spriteMovement.y) throw new Error(`Invalid y position (${position.y} > ${this.spriteMovement.y})`);
+    if (position.x > this.spriteMovement.x) throw new Error(`Invalid x position (${position.x} > ${this.spriteMovement.x})`);
+    return position.y + position.x*(this.spriteMovement.y+1);
   }
   getPos(position: Pos2d): Frame {
-    const movementY = this.height - this.spriteHeight;
-    const movementX = this.width - this.spriteWidth;
-    if (position.y > movementY) throw new Error(`Invalid y position (${position.y} > ${movementY})`);
-    if (position.x > movementX) throw new Error(`Invalid x position (${position.x} > ${movementX})`);
-    const index: number = position.y + (position.x * movementY);
-    return this.frames[index];
+    return this.frames[this.getPosIndex(position)];
   }
 }
 
@@ -683,9 +687,9 @@ export class FileFrame extends Frame {
     }
 
     const bitmasks: Array<BitMask> = [];
-    for (let y = size.y - 1; y >= 0 ; y--) {
+    for (let y = 0; y < size.y; y++) {
       const bitmaskData: Array<boolean> = [];
-      for (let x = size.x-1; x >= 0; x--) {
+      for (let x = 0; x < size.x; x++) {
         const raw = Jimp.intToRGBA(imageData.getPixelColor(x,y));
 
         const avg = ((raw.r + raw.g + raw.b) / 3) * (raw.a / 255)
@@ -701,23 +705,23 @@ export class FileFrame extends Frame {
 }
 
 export class FileFrames extends Frames {
-  private colors: Color[];
+  private colors: ColorList;
   constructor({
     imageData,
-    colors
+    colors,
   }: FileFramesInterface) {
     const size = new Bounds2d({
       x: imageData.bitmap.width,
       y: imageData.bitmap.height
     });
 
-    if (colors.length == 0) throw new Error("[colors] must contain at least one color");
+    if (colors.isEmpty()) throw new Error("Must have at least one color in ColorList");
 
     const colorBitmasks: BitMask[][] = [];
-    for (let i in colors) { colorBitmasks[i] = []; } // initialze with empty arrays
+    for (let i in colors.colors) { colorBitmasks[i] = []; } // initialze with empty arrays
     for (let y = size.y-1; y >= 0; y--) {
       const bitmaskData: boolean[][] = [];
-      for (let i in colors) { bitmaskData.push([]); } // initialize with empty arrays
+      for (let i in colors.colors) { bitmaskData.push([]); } // initialize with empty arrays
       for (let x = size.x-1; x >= 0; x--) {
         const raw = Jimp.intToRGBA(imageData.getPixelColor(x,y));
         const rgb = new RGB({
@@ -727,16 +731,16 @@ export class FileFrames extends Frames {
         });
         let minDiffIndex = -1;
         let minDiff = 0;
-        for (let i in colors) {
-          const difference = rgb.difference(colors[i].rgb).greyscale();
+        for (let i in colors.colors) {
+          const difference = rgb.difference(colors.colors[i].rgb).greyscale();
           if (minDiffIndex == -1 || difference < minDiff) {
             minDiffIndex = +i;
             minDiff = difference;
           }
         }
-        for (let i in colors) { bitmaskData[i].push(+i == minDiffIndex) } // only set the closest color to a true
+        for (let i in colors.colors) { bitmaskData[i].push(+i == minDiffIndex) } // only set the closest color to a true
       }
-      for (let i in colors) {
+      for (let i in colors.colors) {
         colorBitmasks[i].push( new BitMask(bitmaskData[i]) );
       }
     }
@@ -761,13 +765,13 @@ export class FileFrames extends Frames {
 
   genLayers(type:DraggableIds = DraggableIds.Concrete) {
     const layers = [];
-    for (let i in this.colors) {
+    for (let i in this.colors.colors) {
       layers.push(
         new Layer({
           frame: this.frames[i],
           material: new Material({
             type,
-            color: this.colors[i]
+            color: this.colors.colors[i]
           })
         })
       );
@@ -778,9 +782,48 @@ export class FileFrames extends Frames {
 
 export class AutoFileFrames extends FileFrames {
   constructor({
-
+    imageData,
+    colorStep = new MonoRGB(64),
+    greyscale = false
   }: AutoFileFramesInterface) {
+    const size = new Bounds2d({
+      x: imageData.bitmap.width,
+      y: imageData.bitmap.height
+    });
     
+    // find all colors to use
+    const rawColors: Color[] = [];
+    const colorSet: Set<string> = new Set<string>();
+    for (let y = size.y-1; y >= 0; y--) {
+      for (let x = size.x-1; x >= 0; x--) {
+        const raw = Jimp.intToRGBA(imageData.getPixelColor(x,y));
+        let r: number;
+        let g: number;
+        let b: number;
+        if (greyscale) {
+          const avg = Math.min(Math.round((raw.r + raw.g + raw.b) / (colorStep.r * 3)) * colorStep.r, 255);
+          [r,g,b] = [avg,avg,avg];
+        }
+        else {
+          r = Math.min(Math.round(raw.r / colorStep.r) * colorStep.r, 255);
+          g = Math.min(Math.round(raw.g / colorStep.g) * colorStep.g, 255);
+          b = Math.min(Math.round(raw.b / colorStep.b) * colorStep.b, 255);
+        }
+        const color = new RGBColor({
+          rgb: new RGB({ r,g,b })
+        });
+        if (!colorSet.has(color.hex)) {
+          colorSet.add(color.hex);
+          rawColors.push(color);
+        }
+      }
+    }
+    const colors = new ColorList({ colors: rawColors });
+
+    super({
+      imageData,
+      colors
+    })
   }
 }
 

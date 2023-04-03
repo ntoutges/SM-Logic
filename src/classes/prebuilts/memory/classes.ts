@@ -170,15 +170,18 @@ export class Bits extends Container {
       bits.push(
         new Bit({
           key: key,
-          pos: pos.add(new Pos({"z": i})),
-          rotate,
-          color,
+          pos: new Pos({"z": i}),
           placeValue: thisPlaceValue,
           connections: connections.getMetaConnection( thisPlaceValue.toString() )
         })
       );
     }
-    super({ children: bits });
+    super({
+      children: bits,
+      pos,
+      rotate,
+      color
+    });
     this._bits = bits;
   }
   get bits(): Array<Bit> { return this._bits; }

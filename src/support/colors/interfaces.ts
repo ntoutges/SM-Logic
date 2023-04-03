@@ -1,4 +1,5 @@
-import { RGB } from "./classes"
+import { Color, RGB } from "./classes"
+import { Colors } from "./enums"
 
 export interface RGBInterface {
   r?: number,
@@ -19,4 +20,12 @@ export interface RGBGreyscaleInterface {
   rWeight?: number,
   gWeight?: number,
   bWeight?: number
+}
+
+export interface ColorListInterface {
+  colors: Color[]
+}
+
+export interface ColorNameListInterface {
+  colors: Colors[]
 }

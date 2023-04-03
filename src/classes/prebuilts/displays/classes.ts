@@ -308,7 +308,7 @@ export class VideoDisplay extends Container {
   constructor({
     key,
     frames,
-    frameTime = new Delay({ delay: 1, unit: Time.Tick }),
+    frameTime = new Delay({ delay: 0, unit: Time.Tick }),
     color,
     pos,
     rotate,
@@ -347,7 +347,11 @@ export class VideoDisplay extends Container {
       }),
       connections: new MultiConnections(connections)
     });
-    delayUnit.compress();
+    delayUnit.compress(
+      new Pos({
+        z: 1
+      })
+    );
     
     super({
       pos,rotate,color,

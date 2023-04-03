@@ -16,6 +16,7 @@ export enum LogicalOperation {
   XNor,
   Input,
   Output,
+  Reset,
   Buffer,
   Not,
   Screen

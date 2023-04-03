@@ -54,10 +54,9 @@ export class Container extends Unit {
       }
   }
 
-  compress() {
-    const zeroPos = new Pos({}); // x=0, y=0, z=0
+  compress(origin=new Pos({})) {
     for (let child of this.children) {
-      child.pos = zeroPos;
+      child.pos = origin;
     }
     this.compressed = true;
   }

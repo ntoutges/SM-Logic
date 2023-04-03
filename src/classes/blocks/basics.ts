@@ -14,17 +14,14 @@ import { BlockInterface, LogicInterface, ButtonInterface, BasicLogicInterface, T
 export abstract class Block extends Unit {
   readonly shapeId: ShapeIds;
   constructor({
-    pos = new Pos({}),
-    rotate = new Rotate({}),
-    color = new Color(),
+    pos,
+    rotate,
+    color,
     shapeId
   }: BlockInterface) {
     super({pos,rotate,color});
     this._addProps(["shapeId", "_id"]);
     
-    this.pos = pos;
-    this.rotation = rotate;
-    this.color = color;
     this.shapeId = shapeId;
   }
   
@@ -110,29 +107,31 @@ export class Logic extends BasicLogic {
     pos,
     rotate,
     operation = new Operation(),
-    color = null,
+    color = undefined,
     connections
   }: LogicInterface
   ) {
     super({pos, rotate, key, shapeId: ShapeIds.Logic, connections});
     this._addProps(["op","colorSet"]);
-    this.colorSet = color != null;
+    this.colorSet = color != undefined;
     this.op = operation;
     
     if (this.colorSet)
       this.color = color;
     else if ( !this.updateTypeColor() )
       this.color = new Color(Colors.Grey);
-      
   }
   updateTypeColor(): boolean { // returns if color was updated
     this.colorSet = false;
     switch (this.op.operation) {
       case LogicalOperation.Input:
-        this.color = new Color(Colors.SM_Input);  
+        this.color = new Color(Colors.SM_Input);
         break;
       case LogicalOperation.Output:
         this.color = new Color(Colors.SM_Output);
+        break;
+      case LogicalOperation.Reset:
+        this.color = new Color(Colors.SM_Red);
         break;
       case LogicalOperation.Screen:
         this.color = new Color(Colors.SM_Black);
@@ -148,7 +147,7 @@ export class Logic extends BasicLogic {
     super.color = color;
     this.colorSet = true;
   };
-  // get color(): Color { return super.color; }
+  get color(): Color { return super.color; }
   set operation(operation: Operation) {
     this.op = operation;
     if (!this.colorSet)
