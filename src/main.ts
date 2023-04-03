@@ -5,7 +5,7 @@ import { Container, Grid, Unit } from "./containers/classes";
 import { ConstantCompare, Counter, Integer } from "./classes/prebuilts/numbers/classes";
 import { CustomKey, BasicKey, Id, UniqueCustomKey, KeylessFutureId, Identifier, KeyGen, Keys, StringKeyGen, KeyMap, KeylessId } from "./support/context/classes";
 import { BitMask, Connections, Delay, Delays, MultiConnections, Operation, RawBitMask, VBitMask } from "./support/logic/classes";
-import { AutoFileFrames, CharacterFrame, CharactersFrame, FileFrame, FileFrames, Frame, Frames, FrameSprite, FullFrame, MappedROMFrame, RawROMFrame, readFile, ROMFrame, VFrame } from "./support/frames/classes"
+import { AnimatedFrameSprite, AutoFileFrames, CharacterFrame, CharactersFrame, FileFrame, FileFrames, Frame, Frames, FrameSprite, FullFrame, MappedROMFrame, RawROMFrame, readFile, ROMFrame, VFrame } from "./support/frames/classes"
 import { Bounds, Bounds2d, Pos, Pos2d, Rotate } from "./support/spatial/classes";
 import { Direction, Orientation } from "./support/spatial/enums";
 import { BitMap, CharacterDisplay, FutureBitMap, SevenSegment, SimpleBitMap, VideoDisplay } from "./classes/prebuilts/displays/classes";
@@ -57,9 +57,17 @@ export class Body extends GenericBody {
       })
     })
 
-    const player = new FrameSprite({
-      frame: new FileFrame({
-        imageData: await readFile("Small test.png")
+    const c1 = new Logic({ key, operation: new Operation(LogicalOperation.Not) })
+    const c2 = new Logic({ key, connections: new Connections(c1.id) })
+    const c3 = new Logic({ key, connections: new Connections(c2.id) })
+    c1.connectTo(c3)
+
+    const player = new AnimatedFrameSprite({
+      frames: new Frames({
+        frames: [
+          new FileFrame({ imageData: await readFile("Small test.png") }),
+          new FileFrame({ imageData: await readFile("Small test.png") }).invert()
+        ]
       }),
       movement: new Bounds2d({
         x: W-1,
@@ -76,10 +84,11 @@ export class Body extends GenericBody {
       frames: player
     })
 
-    const combiners: Logic[] = []
+    const combiners1: Logic[] = []
+    const combiners2: Logic[] = []
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
-        combiners.push(
+        combiners1.push(
           new Logic({
             key,
             operation: new Operation(LogicalOperation.And),
@@ -88,7 +97,25 @@ export class Body extends GenericBody {
                 player.getPosIndex(
                   new Pos2d({
                     x,y
-                  })
+                  }),
+                  0
+                )
+              ].id
+            ),
+            rotate: new Rotate({ direction: Direction.Up })
+          })
+        )
+        combiners2.push(
+          new Logic({
+            key,
+            operation: new Operation(LogicalOperation.And),
+            connections: new Connections(
+              screen.physicalFrames[
+                player.getPosIndex(
+                  new Pos2d({
+                    x,y
+                  }),
+                  1
                 )
               ].id
             ),
@@ -103,7 +130,8 @@ export class Body extends GenericBody {
     for (let x = 0; x < W; x++) {
       const conns: Id[] = []
       for (let i = 0; i < H; i++) {
-        conns.push(combiners[x + W*i].id)
+        conns.push(combiners1[x + W*i].id)
+        conns.push(combiners2[x + W*i].id)
       }
       comparesX.push(
         new ConstantCompare({
@@ -118,7 +146,8 @@ export class Body extends GenericBody {
     for (let y = 0; y < H; y++) {
       const conns: Id[] = [];
       for (let i = 0; i < W; i++) {
-        conns.push(combiners[W*y + i].id)
+        conns.push(combiners2[W*y + i].id)
+        conns.push(combiners1[W*y + i].id)
       }
       comparesY.push(
         new ConstantCompare({
@@ -130,6 +159,37 @@ export class Body extends GenericBody {
         })
       )
     }
+
+    const a_EN = new Logic({
+      key,
+      pos: new Pos({
+        x: 1,
+        y: 3
+      }),
+      connections: new Connections(combiners1.map((val) => { return val.id }))
+    })
+    const b_EN = new Logic({
+      key,
+      pos: new Pos({
+        x: 1,
+        y: 3,
+        z: 1
+      }),
+      operation: new Operation(LogicalOperation.Not),
+      connections: new Connections(combiners2.map((val) => { return val.id }))
+    });
+
+    const p = new Logic({
+      key,
+      connections: new Connections([ xC.inc.id, xC.dec.id, yC.inc.id, yC.dec.id ])
+    })
+    c1.connectTo(p)
+    c2.connectTo(p)
+
+    xC.inc.operation = new Operation(LogicalOperation.And);
+    xC.dec.operation = new Operation(LogicalOperation.And);
+    yC.inc.operation = new Operation(LogicalOperation.And);
+    yC.dec.operation = new Operation(LogicalOperation.And);
 
     return new Container({
       children: [
@@ -155,15 +215,73 @@ export class Body extends GenericBody {
         xC,
         yC,
         new Container({
-          children: combiners,
+          children: combiners1,
           pos: new Pos({
             x: 2,
             y: 3
           }),
-          // size: new Bounds({
-          //   x: W,
-          //   y: H
-          // })
+        }),
+        new Container({
+          children: combiners2,
+          pos: new Pos({
+            x: 2,
+            y: 3,
+            z: 1
+          }),
+        }),
+        a_EN,
+        b_EN,
+        new Switch({
+          key,
+          connections: new Connections([a_EN.id, b_EN.id]),
+          pos: new Pos({
+            x: -6,
+            z: 3
+          })
+        }),
+        new Button({
+          key,
+          connections: new Connections(xC.inc.id),
+          pos: new Pos({
+            x: -2,
+            z: 1,
+            y: -1
+          })
+        }),
+        new Button({
+          key,
+          connections: new Connections(xC.dec.id),
+          pos: new Pos({
+            x: -4,
+            z: 1,
+            y: -1
+          })
+        }),
+        new Button({
+          key,
+          connections: new Connections(yC.inc.id),
+          pos: new Pos({
+            x: -3,
+            z: 0,
+            y: -1
+          })
+        }),
+        new Button({
+          key,
+          connections: new Connections(yC.dec.id),
+          pos: new Pos({
+            x: -3,
+            z: 2,
+            y: -1
+          })
+        }),
+        new Container({
+          children: [
+            c1,c2,c3,p
+          ],
+          pos: new Pos({
+            y: 3
+          })
         })
       ]
     })

@@ -693,6 +693,7 @@ A living guide containing the syntax and purpose of each component
 > ### [Framer](#framer-1)
 > ### [Frames](#frames-1)
 > ### [FrameSprite](#framesprite-1)
+> ### [AnimatedFrameSprite]
 > ### [ROMFrame](#romframe-1)
 > ### [MappedROMFrame](#mappedromframe-1)
 > ### [RawROMFrame](#rawromframe-1)

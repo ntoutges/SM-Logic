@@ -479,6 +479,9 @@ export class FrameSprite extends Frames {
 export class AnimatedFrameSprite extends Frames {
   readonly spriteWidth: number;
   readonly spriteHeight: number;
+  readonly spriteMovement: Bounds2d;
+  readonly spriteStep: Bounds2d;
+  readonly animationCount: number
   constructor({
     frames,
     movement,
@@ -492,13 +495,13 @@ export class AnimatedFrameSprite extends Frames {
 
     for (let i in frames.frames) {
       const frame = frames.frames[i].resize(size);
-      for (let x = 0; x < movement.x; x++) {
-        for (let y = 0; y < movement.y; y++) {
+      for (let x = 0; x <= movement.x; x++) {
+        for (let y = 0; y <= movement.y; y++) {
           allFrames.push(
             frame.shift(
               new Pos2d({
                 x: x * step.x,
-                y: y * step.y
+                y: -y * step.y
               })
             )
           );
@@ -506,20 +509,26 @@ export class AnimatedFrameSprite extends Frames {
       }
     }
     super({ size, frames: allFrames });
-    this.spriteHeight = frames.width;
-    this.spriteWidth = frames.height;
+    this.spriteWidth = size.x;
+    this.spriteHeight = size.y;
+    this.spriteMovement = movement;
+    this.spriteStep = step;
+    this.animationCount = frames.frames.length;
+  }
+  getPosIndex(
+    position: Pos2d,
+    animation: number
+  ) {
+    if (position.y > this.spriteMovement.y) throw new Error(`Invalid y position (${position.y} > ${this.spriteMovement.y})`);
+    if (position.x > this.spriteMovement.x) throw new Error(`Invalid x position (${position.x} > ${this.spriteMovement.x})`);
+    if (animation >= this.animationCount) throw new Error(`Invalid animation index (${animation} >= ${this.frames.length})`)
+    return position.y + position.x*(this.spriteMovement.y+1) + animation*(this.spriteMovement.y+1)*(this.spriteMovement.x+1);
   }
   getPos(
     position: Pos2d,
     animation: number
   ): Frame {
-    const movementY = this.height - this.spriteHeight;
-    const movementX = this.width - this.spriteWidth;
-    if (position.y > movementY) throw new Error(`Invalid y position (${position.y} > ${movementY})`);
-    if (position.x > movementX) throw new Error(`Invalid x position (${position.x} > ${movementX})`);
-    if (animation >= this.frames.length) throw new Error(`Invalid animation index (${animation} >= ${this.frames.length})`)
-    const index: number = position.y + ((position.x + (animation * movementX)) * movementY);
-    return this.frames[index];
+    return this.frames[this.getPosIndex(position, animation)];
   }
 }
 

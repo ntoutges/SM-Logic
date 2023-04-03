@@ -31,6 +31,9 @@ export class Integer extends Bits {
 
 export class Counter extends Container {
   readonly signal: SmallBit[];
+  readonly inc: Logic;
+  readonly dec: Logic;
+  readonly reset: Logic;
   constructor({
     key,
     depth=8,
@@ -172,6 +175,9 @@ export class Counter extends Container {
     });
 
     this.signal = bits;
+    this.inc = increment;
+    this.dec = decrement;
+    this.reset = reset;
   }
 
 }
