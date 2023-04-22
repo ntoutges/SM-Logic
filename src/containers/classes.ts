@@ -2,22 +2,29 @@ import { Equatable } from "../support/support/classes";
 import { Color } from "../support/colors/classes";
 import { Key, Keyless } from "../support/context/classes";
 import { Bounds, Offset, Pos, Rotate } from "../support/spatial/classes";
-import { ContainerInterface, GridInterface, PackagerInterface, UnitInterface } from "./interfaces";
+import { ContainerInterface, GridInterface, PackagerInterface, UnitInterface2 } from "./interfaces";
+import { PosInterface } from "../support/spatial/interfaces";
+import { BoundsInterface } from "../support/spatial/interfaces";
 
 export abstract class Unit extends Equatable {
   pos: Pos;
   rotation: Rotate;
   private _color: Color;
+  boundingBox: Bounds;
+  origin: Pos;
   constructor({
     pos = new Pos({}),
     rotate = new Rotate({}),
     color = new Color(),
-  }: UnitInterface
+    bounds = new Bounds({})
+  }: UnitInterface2
   ) {
     super(["_pos", "_rot", "_color"]);
     this.pos = pos;
     this.rotation = rotate;
     this._color = color;
+    this.boundingBox = bounds;
+    this.origin = pos;
   }
   
   get color(): Color { return this._color; }
@@ -39,7 +46,7 @@ export class Container extends Unit {
   ) {
     super({pos,rotate,color});
     this._addProps(["children"]);
-    
+
     if (child != null && children != null)
       throw new Error("Cannot have both [child] and [children] property in a container");
     else if (child != null)
@@ -47,11 +54,33 @@ export class Container extends Unit {
     else if (children != null)
       this.children = children;
 
-      if (color != undefined) {
-        for (let child of this.children) {
-          child.color = color;
-        }
+    if (color != undefined) {
+      for (let child of this.children) {
+        child.color = color;
       }
+    }
+
+    // this system falls apart when any children are rotated... fix this!
+    let originData: PosInterface = {};
+    let extentData: BoundsInterface = {};
+    for (const child of this.children) {
+      const rotatedOrigin = child.origin.add(this.pos).rotate(child.rotation);
+      if (!("x" in originData) || rotatedOrigin.x < originData.x) originData.x = rotatedOrigin.x;
+      if (!("y" in originData) || rotatedOrigin.y < originData.y) originData.y = rotatedOrigin.y;
+      if (!("z" in originData) || rotatedOrigin.z < originData.z) originData.z = rotatedOrigin.z;
+    }
+    this.origin = new Pos(originData);
+    for (const child of this.children) {
+      const rotatedExtent = child.boundingBox.add(child.origin).rotate(child.rotation);
+      if (!("x" in extentData) || rotatedExtent.x > extentData.x) extentData.x = rotatedExtent.x;
+      if (!("y" in extentData) || rotatedExtent.y > extentData.y) extentData.y = rotatedExtent.y;
+      if (!("z" in extentData) || rotatedExtent.z > extentData.z) extentData.z = rotatedExtent.z;
+    }
+    this.boundingBox = new Bounds({
+      x: Math.max(extentData.x - this.origin.x, 1),
+      y: Math.max(extentData.y - this.origin.y, 1),
+      z: Math.max(extentData.z - this.origin.z, 1)
+    });
   }
 
   compress(origin=new Pos({})) {
@@ -109,6 +138,32 @@ export class Grid extends Container {
     super({pos,rotate,children,color});
     this._size = size;
     this._spacing = spacing;
+    
+    if (this.children.length > this._size.volume) throw new Error("Amount of children too great for bounds");
+
+    // determine [this.boundingBox] and [this.origin]
+    let originData: PosInterface = {};
+    let extentData: BoundsInterface = {};
+    for (let i in this.children) {
+      const child = this.children[i];
+      const rotatedOrigin = child.origin.add(this.pos).add(this.getOffsetAt(+i));
+      if (!("x" in originData) || rotatedOrigin.x < originData.x) originData.x = rotatedOrigin.x;
+      if (!("y" in originData) || rotatedOrigin.y < originData.y) originData.y = rotatedOrigin.y;
+      if (!("z" in originData) || rotatedOrigin.z < originData.z) originData.z = rotatedOrigin.z;
+    }
+    this.origin = new Pos(originData);
+    for (let i in this.children) {
+      const child = this.children[i];
+      const rotatedBounds = child.boundingBox.add(child.pos).rotate(child.rotation).add(this.getOffsetAt(+i));
+      if (!("x" in extentData) || rotatedBounds.x > extentData.x) extentData.x = rotatedBounds.x;
+      if (!("y" in extentData) || rotatedBounds.y > extentData.y) extentData.y = rotatedBounds.y;
+      if (!("z" in extentData) || rotatedBounds.z > extentData.z) extentData.z = rotatedBounds.z;
+    }
+    this.boundingBox = new Bounds({
+      x: Math.max(extentData.x - this.origin.x, 1),
+      y: Math.max(extentData.y - this.origin.y, 1),
+      z: Math.max(extentData.z - this.origin.z, 1)
+    });
   }
   getGridChild(pos: Pos): Unit {
     if (pos.x >= this._size.x || pos.y >= this._size.y || pos.z >= this._size.z)
@@ -116,13 +171,20 @@ export class Grid extends Container {
     const index = (pos.z*this._size.x*this._size.y) + (pos.y*this._size.y) + (pos.x);
     return this.children[index];
   }
+  getOffsetAt(index: number): Pos {
+    if (index < 0) index += this._size.volume;
+    if (index < 0 || index >= this._size.volume) throw new Error("Index out of bounds");
+
+    return new Pos({
+      x: (index % this._size.x) * this._spacing.x,
+      y: (Math.floor(index / this._size.x) % this._size.y) * this._spacing.y,
+      z: Math.floor(index / (this._size.x * this._size.y)) * this._spacing.z
+    });
+  }
   get width(): number { return this._size.x; }
   get depth(): number { return this._size.y; }
   get height(): number { return this._size.z; }
   build(offset=new Offset({})) {
-    if (this.children.length != this._size.volume)
-      throw new Error("Amount of children does not match bounds");
-    
     let posCounter: Pos = new Pos({x:0,y:0,z:0});
     let position: Pos = this.pos;
     let childBlueprints: Array<string> = [];

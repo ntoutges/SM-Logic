@@ -401,6 +401,12 @@ A living guide containing the syntax and purpose of each component
       * Returns a new `Pos` whose `x`,`y`, and `z` components are the sum of those properties of this `Pos` and the other `Pos`
     * `sub(other: Pos): Pos`
       * Returns a new `Pos` whose `x`,`y`, and `z` components are the difference between those properties of this `Pos` and the other `Pos`
+    * `scale(other: Pos | number): Pos`
+      * Returns a new `Pos` whose `x`, `y`, and `z` components have been multiplied by either a constant scalar, or by the respective values of the input `Pos`
+    * `get magnitude`
+      * Returns the magnitude of the vector
+    * `get unit`
+      * Returns the unit vector of this vector (`magnitude` = 0)
     * `rotate(other: Rotate): Pos`
       * Return a new `Pos` whose position hase been modified to coincide with a rotation
       * A rotation of 90 degrees will swap `x`/`y`, and negate `y`
@@ -437,6 +443,12 @@ A living guide containing the syntax and purpose of each component
       * Returns a new `Pos` whose `x`,`y`, and `z` components are the sum of those properties of this `Pos2d` and the other `Pos`
     * `sub(other: Pos): Pos`
       * Returns a new `Pos` whose `x`,`y`, and `z` components are the difference between those properties of this `Pos2d` and the other `Pos`
+    * `scale(other: Pos | number): Pos`
+      * Returns a new `Pos` whose `x`, `y`, and `z` components have been multiplied by either a constant scalar, or by the respective values of the input `Pos`
+    * `get magnitude`
+      * Returns the magnitude of the vector
+    * `get unit`
+      * Returns the unit vector of this vector (`magnitude` = 0)
     * `rotate(other: Rotate): Pos`
       * Return a new `Pos` whose position hase been modified to coincide with a rotation
       * A rotation of 90 degrees will swap `x`/`y`, and negate `y`
@@ -480,6 +492,12 @@ A living guide containing the syntax and purpose of each component
       * Returns a new `Pos` whose `x`,`y`, and `z` components are the sum of those properties of this `Pos` (including the stored relative `Pos`) and the other `Pos`
     * `sub(other: Pos): Pos`
       * Returns a new `Pos` whose `x`,`y`, and `z` components are the difference between those properties of this `Pos` (including the stored relative `Pos`) and the other `Pos`
+    * `scale(other: Pos | number): Pos`
+      * Returns a new `Pos` whose `x`, `y`, and `z` components have been multiplied by either a constant scalar, or by the respective values of the input `Pos`
+    * `get magnitude`
+      * Returns the magnitude of the vector
+    * `get unit`
+      * Returns the unit vector of this vector (`magnitude` = 0)
     * `rotate(other: Rotate): Pos`
       * Return a new `Pos` whose position hase been modified to coincide with a rotation
       * A rotation of 90 degrees will swap `x`/`y`, and negate `y`
@@ -515,7 +533,8 @@ A living guide containing the syntax and purpose of each component
     * `get y(): number`
       * Returns the `y` component of this bound
     * `get z(): number`
-      * Returns the `z` component of this bound
+    * `scale(other: scale | number): scale`
+      * Returns a new `scale` whose `x`, `y`, and `z` components have been multiplied by either a constant scalar, or by the respective values of the input `scale`
     * `build(): {"x": number, "y": number, "z": number}`
       * Return a value in a format that Scrap Mechanic can understand
 
@@ -546,6 +565,8 @@ A living guide containing the syntax and purpose of each component
       * Carry-over from parent class
       * `z` component never set, so it remains at its default value (1)
       * Returns the `z` component of this bound
+    * `scale(other: Pos | number): Pos`
+      * Returns a new `Pos` whose `x`, `y`, and `z` components have been multiplied by either a constant scalar, or by the respective values of the input `Pos`
     * `build(): {"x": number, "y": number, "z": number}`
       * Return a value in a format that Scrap Mechanic can understand
   * Properties:
@@ -1221,7 +1242,8 @@ A living guide containing the syntax and purpose of each component
     abstract class Unit({
       pos?: Pos,
       rotate?: Rotate,
-      color?: Color
+      color?: Color,
+      bounds?: Bounds
     })
     ```
     * `pos: Pos`
@@ -1236,6 +1258,10 @@ A living guide containing the syntax and purpose of each component
       * Optional parameter
       * Specifies what color the `Unit` should be
       * Default value: `new Color()`
+    * `bounds: Bounds`:
+      * Optional parameter
+      * Specifies the amount of space the `Unit` takes up
+      * Default value: `new Bounds({})`
   * Description
     * The basic class for anything that will be directly turned into a blueprint
   * Methods
@@ -1243,6 +1269,10 @@ A living guide containing the syntax and purpose of each component
       * Store what color the `Unit` should be
     * `set color(color: Color)`
       * Set what color the `Unit` should be
+    * `get boundingBox()`
+      * Get 
+    * `set boundingBox()`
+      * Set the space taken up by the Unit
     * `abstract build(Offset: offset): string`
       * Returns a Scrap Mechanic compatible JSON string that represents the `Unit`
   * Properties
@@ -1250,6 +1280,10 @@ A living guide containing the syntax and purpose of each component
       * Stores the position of the `Unit`
     * `rotation: Rotate`
       * Stores the rotation and orientation of the `Unit`
+    * `boundingBox: Bounds`
+      * Stores the space taken up by the `Unit`
+    * `origin: Pos`
+      * Stores the bottom-left corner of the `Unit`
 
 * #### **Container**
   * Syntax
@@ -1346,6 +1380,8 @@ A living guide containing the syntax and purpose of each component
   * Methods
     * `getGridChild(pos: Pos): Unit`
       * Get the `Unit` that at the specified position
+    * `getOffsetAt(index: number): Pos`
+      * Get the offset of a `Unit` at a given position
     * `getWidth(): number`
       * Returns amount of `Unit`s that make up the width of the `Grid`
     * `getHeight(): number`
@@ -1557,8 +1593,6 @@ A living guide containing the syntax and purpose of each component
       * Stores the rotation and orientation of the `Scalable`
     * `shapeId: ShapeIds`
       * Stores the `shapeId` of this block
-    * `bounds: Bounds`
-      * Stores the bounding box of the `Scalable`
 
 * #### **Basic Logic**
   * Syntax
@@ -1932,8 +1966,6 @@ A living guide containing the syntax and purpose of each component
       * Stores the rotation and orientation of the `Scalable`
     * `shapeId: ShapeIds`
       * Stores the `shapeId` of this block
-    * `bounds: Bounds`
-      * Stores the bounding box of the `Scalable`
 
 * #### **Glass**
   * Syntax
@@ -1971,8 +2003,6 @@ A living guide containing the syntax and purpose of each component
       * Stores the rotation and orientation of the `Scalable`
     * `shapeId: ShapeIds`
       * Stores the `shapeId` of this block
-    * `bounds: Bounds`
-      * Stores the bounding box of the `Scalable`
 
 * #### **GlassTile**
   * Syntax
@@ -2010,8 +2040,6 @@ A living guide containing the syntax and purpose of each component
       * Stores the rotation and orientation of the `Scalable`
     * `shapeId: ShapeIds`
       * Stores the `shapeId` of this block
-    * `bounds: Bounds`
-      * Stores the bounding box of the `Scalable`
 
 * #### **Cardboard**
   * Syntax
@@ -2049,8 +2077,6 @@ A living guide containing the syntax and purpose of each component
       * Stores the rotation and orientation of the `Scalable`
     * `shapeId: ShapeIds`
       * Stores the `shapeId` of this block
-    * `bounds: Bounds`
-      * Stores the bounding box of the `Scalable`
 
 * #### **Concrete**
   * Syntax
@@ -2088,8 +2114,6 @@ A living guide containing the syntax and purpose of each component
       * Stores the rotation and orientation of the `Scalable`
     * `shapeId: ShapeIds`
       * Stores the `shapeId` of this block
-    * `bounds: Bounds`
-      * Stores the bounding box of the `Scalable`
 
 * #### **Metal**
   * Syntax
@@ -2127,8 +2151,6 @@ A living guide containing the syntax and purpose of each component
       * Stores the rotation and orientation of the `Scalable`
     * `shapeId: ShapeIds`
       * Stores the `shapeId` of this block
-    * `bounds: Bounds`
-      * Stores the bounding box of the `Scalable`
 
 * #### **Barrier**
   * Syntax
@@ -2166,8 +2188,6 @@ A living guide containing the syntax and purpose of each component
       * Stores the rotation and orientation of the `Scalable`
     * `shapeId: ShapeIds`
       * Stores the `shapeId` of this block
-    * `bounds: Bounds`
-      * Stores the bounding box of the `Scalable`
 
 * #### **Bricks**
   * Syntax
@@ -2205,8 +2225,6 @@ A living guide containing the syntax and purpose of each component
       * Stores the rotation and orientation of the `Scalable`
     * `shapeId: ShapeIds`
       * Stores the `shapeId` of this block
-    * `bounds: Bounds`
-      * Stores the bounding box of the `Scalable`
 
 
 > # Prebuilts

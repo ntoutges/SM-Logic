@@ -176,6 +176,7 @@ export class Bits extends Container {
         })
       );
     }
+    
     super({
       children: bits,
       pos,

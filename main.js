@@ -20,7 +20,7 @@ const startTime = new Date();
 let midTime;
 
 console.log("Creating JSON.");
-body.build().then(blueprintObjects => {
+body.preBuild().then(blueprintObjects => {
   const blueprintString = `{\"bodies\":[{\"childs\":[${blueprintObjects.build()}]}],\"version\":${BLUEPRINT_VERSION}}`;
 
   midTime = new Date();

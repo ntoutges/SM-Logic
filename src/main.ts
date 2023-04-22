@@ -28,261 +28,111 @@ import { SSPReceiver } from "./classes/prebuilts/SSP/classes";
 import { Charsets } from "./support/frames/graphics";
 import { Layer, Layers, Material } from "./support/layers/classes";
 import { ColorSets } from "./support/frames/enums";
+import { StandardUnit } from "./containers/standard";
+import { AlignH, AlignV } from "./containers/enums";
 
 const Jimp = require("jimp");
 
 export class Body extends GenericBody {
   constructor() {
-    super({ debug:true });
+    super({ debug: false });
   }
   async build() {
     const key = this.key;
-    const gen = new StringKeyGen(key);
-
-    const W = 32
-    const H = 16
-
-    const xC = new Counter({
+    
+    var c = new Byte({
       key,
-      depth: 5,
-      pos: new Pos({
-        x: -3
+      rotate: new Rotate({
+        direction: Direction.Backwards
       })
     });
-    const yC = new Counter({
-      key,
-      depth: 4,
-      pos: new Pos({
-        x: -6
-      })
-    })
+    // console.log(c.origin)
+    // return c;
 
-    const c1 = new Logic({ key, operation: new Operation(LogicalOperation.Not) })
-    const c2 = new Logic({ key, connections: new Connections(c1.id) })
-    const c3 = new Logic({ key, connections: new Connections(c2.id) })
-    c1.connectTo(c3)
-
-    const player = new AnimatedFrameSprite({
-      frames: new Frames({
-        frames: [
-          new FileFrame({ imageData: await readFile("Small test.png") }),
-          new FileFrame({ imageData: await readFile("Small test.png") }).invert()
-        ]
-      }),
-      movement: new Bounds2d({
-        x: W-1,
-        y: H-1
-      }),
-      step: new Bounds2d({
-        x: 1,
-        y: 1
-      })
-    })
-
-    const screen = new BitMap({
-      key,
-      frames: player
-    })
-
-    const combiners1: Logic[] = []
-    const combiners2: Logic[] = []
-    for (let y = 0; y < H; y++) {
-      for (let x = 0; x < W; x++) {
-        combiners1.push(
-          new Logic({
-            key,
-            operation: new Operation(LogicalOperation.And),
-            connections: new Connections(
-              screen.physicalFrames[
-                player.getPosIndex(
-                  new Pos2d({
-                    x,y
-                  }),
-                  0
-                )
-              ].id
-            ),
-            rotate: new Rotate({ direction: Direction.Up })
-          })
-        )
-        combiners2.push(
-          new Logic({
-            key,
-            operation: new Operation(LogicalOperation.And),
-            connections: new Connections(
-              screen.physicalFrames[
-                player.getPosIndex(
-                  new Pos2d({
-                    x,y
-                  }),
-                  1
-                )
-              ].id
-            ),
-            rotate: new Rotate({ direction: Direction.Up })
-          })
-        )
-      }
-    }
-
-    const comparesX: ConstantCompare[] = []
-    const comparesY: ConstantCompare[] = []
-    for (let x = 0; x < W; x++) {
-      const conns: Id[] = []
-      for (let i = 0; i < H; i++) {
-        conns.push(combiners1[x + W*i].id)
-        conns.push(combiners2[x + W*i].id)
-      }
-      comparesX.push(
-        new ConstantCompare({
-          key,
-          signal: xC.signal,
-          constant: x,
-          ifC: new Connections(conns),
-          operation: CompareOperation.Equals
-        })
-      )
-    }
-    for (let y = 0; y < H; y++) {
-      const conns: Id[] = [];
-      for (let i = 0; i < W; i++) {
-        conns.push(combiners2[W*y + i].id)
-        conns.push(combiners1[W*y + i].id)
-      }
-      comparesY.push(
-        new ConstantCompare({
-          key,
-          signal: yC.signal,
-          constant: y,
-          ifC: new Connections(conns),
-          operation: CompareOperation.Equals
-        })
-      )
-    }
-
-    const a_EN = new Logic({
-      key,
-      pos: new Pos({
-        x: 1,
-        y: 3
-      }),
-      connections: new Connections(combiners1.map((val) => { return val.id }))
-    })
-    const b_EN = new Logic({
-      key,
-      pos: new Pos({
-        x: 1,
-        y: 3,
-        z: 1
-      }),
-      operation: new Operation(LogicalOperation.Not),
-      connections: new Connections(combiners2.map((val) => { return val.id }))
-    });
-
-    const p = new Logic({
-      key,
-      connections: new Connections([ xC.inc.id, xC.dec.id, yC.inc.id, yC.dec.id ])
-    })
-    c1.connectTo(p)
-    c2.connectTo(p)
-
-    xC.inc.operation = new Operation(LogicalOperation.And);
-    xC.dec.operation = new Operation(LogicalOperation.And);
-    yC.inc.operation = new Operation(LogicalOperation.And);
-    yC.dec.operation = new Operation(LogicalOperation.And);
-
-    return new Container({
+    return new StandardUnit({
       children: [
-        screen,
-        new Grid({
-          children: comparesX,
-          size: new Bounds({
-            x: W
-          }),
-          pos: new Pos({
-            y: 1
-          })
-        }),
-        new Grid({
-          children: comparesY,
-          size: new Bounds({
-            x: H
-          }),
-          pos: new Pos({
-            y: 2
-          })
-        }),
-        xC,
-        yC,
-        new Container({
-          children: combiners1,
-          pos: new Pos({
-            x: 2,
-            y: 3
-          }),
-        }),
-        new Container({
-          children: combiners2,
-          pos: new Pos({
-            x: 2,
-            y: 3,
-            z: 1
-          }),
-        }),
-        a_EN,
-        b_EN,
-        new Switch({
+        new Counter({
           key,
-          connections: new Connections([a_EN.id, b_EN.id]),
-          pos: new Pos({
-            x: -6,
-            z: 3
+          rotate: new Rotate({
+            direction: Direction.Backwards
           })
         }),
-        new Button({
+        new Byte({
+          key
+        }),
+        new Byte({
+          key
+        }),
+        new Byte({
+          key
+        }),
+        // new Byte({
+        //   key
+        // }),
+        // new Byte({
+        //   key
+        // }),
+        new Byte({
           key,
-          connections: new Connections(xC.inc.id),
           pos: new Pos({
-            x: -2,
-            z: 1,
-            y: -1
+            x: 5
           })
         }),
-        new Button({
-          key,
-          connections: new Connections(xC.dec.id),
-          pos: new Pos({
-            x: -4,
-            z: 1,
-            y: -1
-          })
+        new Logic({
+          key
         }),
-        new Button({
-          key,
-          connections: new Connections(yC.inc.id),
-          pos: new Pos({
-            x: -3,
-            z: 0,
-            y: -1
-          })
-        }),
-        new Button({
-          key,
-          connections: new Connections(yC.dec.id),
-          pos: new Pos({
-            x: -3,
-            z: 2,
-            y: -1
-          })
-        }),
-        new Container({
-          children: [
-            c1,c2,c3,p
-          ],
-          pos: new Pos({
-            y: 3
-          })
+        new Wood({
+          bounds: new Bounds({})
         })
+        // new Wood({
+        //   bounds: new Bounds({
+        //     x: 5,
+        //     y: 4
+        //   }),
+        //   color: new Color(Colors.SM_Red)
+        // }),
+        // new Wood({
+        //   bounds: new Bounds({
+        //     x: 4,
+        //     y: 3
+        //   }),
+        //   color: new Color(Colors.SM_Orange)
+        // }),
+        // new Wood({
+        //   bounds: new Bounds({
+        //     x: 4,
+        //     y: 2
+        //   }),
+        //   color: new Color(Colors.SM_Yellow)
+        // }),
+        // new Wood({
+        //   bounds: new Bounds({
+        //     x: 4,
+        //     y: 1
+        //   }),
+        //   color: new Color(Colors.SM_Green)
+        // }),
+        // new Byte({
+        //   key
+        // }),
+        // new Byte({
+        //   key
+        // }),
+        // new Byte({
+        //   key
+        // }),
+        // new Byte({
+        //   key
+        // }),
+        // new Byte({
+        //   key
+        // }),
+        // new Byte({
+        //   key
+        // }),
+        // new Byte({
+        //   key
+        // })
       ]
     })
   }

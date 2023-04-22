@@ -29,25 +29,24 @@ export abstract class Block extends Unit {
 }
 
 export class Scalable extends Block {
-  readonly bounds: Bounds;
   constructor({
     bounds,
     color = new Color(Colors.Pink),
     pos,
-    rotate
+    rotate = new Rotate({})
   }: ScalableInterface, shapeId: DraggableIds) {
     super({
-      pos,rotate,color,
+      pos,color,
       shapeId: shapeId as unknown as ShapeIds
     });
-    this.bounds = bounds;
+    this.boundingBox = bounds.rotate(rotate);
     this._addProps(["bounds"]);
   }
   build(offset: Offset = new Offset({})) {
     const rotation = this.rotation.add(offset.rotate);
-    const pos = this.pos.rotate(rotation).add(offset.pos).add( rotation.offset );
+    const pos = this.pos.rotate(rotation).add(offset.pos).sub( new Pos({ x:1, y:1 }) ); // constant offset that is required
     const json = {
-      "bounds": this.bounds.rotate(rotation).build(),
+      "bounds": this.boundingBox.rotate(rotation).build(),
       "color": this.color.hex,
       "pos": pos.build(),
       "shapeId": this.shapeId,

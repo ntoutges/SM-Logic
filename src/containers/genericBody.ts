@@ -30,7 +30,7 @@ export abstract class GenericBody {
   }
 
   async preBuild(): Promise<Unit> {
-    const built = await this.build()
+    const built = await this.build();
     if (this._debug)
       return new Container({
         children: [

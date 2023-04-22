@@ -35,6 +35,31 @@ export class Pos extends Equatable {
       "z": this.z - other.z
     });
   }
+  scale(other: Pos | number) {
+    if (other instanceof Pos) {
+      return new Pos({
+        "x": this.x * other.x,
+        "y": this.y * other.y,
+        "z": this.z * other.z
+      });
+    }
+    return new Pos({
+      "x": this.x * other,
+      "y": this.y * other,
+      "z": this.z * other
+    })
+  }
+  get magnitude() {
+    return Math.sqrt(this.x**2 + this.y**2 + this.z**2);
+  }
+  get unit() {
+    const mag = this.magnitude;
+    return new Pos({
+      "x": this.x / mag,
+      "y": this.y / mag,
+      "z": this.z / mag
+    });
+  }
   // rotates about the origin (0,0)
   rotate(other: Rotate): Pos { // mostly only pays attention to direction (forwards/backwards/left/right)
     let x = this.x;
@@ -182,6 +207,21 @@ export class Bounds extends Pos {
         })
       // }
     // }
+  }
+
+  scale(other: Bounds | number) {
+    if (other instanceof Bounds) {
+      return new Bounds({
+        "x": this.x * other.x,
+        "y": this.y * other.y,
+        "z": this.z * other.z
+      });
+    }
+    return new Bounds({
+      "x": this.x * other,
+      "y": this.y * other,
+      "z": this.z * other
+    })
   }
 
   get volume(): number {
