@@ -203,6 +203,9 @@ export class ConstantCompare extends Container {
       case CompareOperation.Equals:
         operationClass = EqualsConstant;
         break;
+      case CompareOperation.NotEquals:
+        operationClass = NotEqualsConstant;
+        break;
       default:
         throw new Error("Unrecognized CompareOperation");
     }
@@ -230,7 +233,7 @@ export abstract class Comparators extends Container {
   notOutput: Logic;
 }
 
-export class EqualsConstant extends Comparators {
+class EqualsConstant extends Comparators {
   constructor({
     key,
     signal,
@@ -261,6 +264,72 @@ export class EqualsConstant extends Comparators {
     const nand = new Logic({
       key,
       operation: new Operation(LogicalOperation.Nand),
+      pos: new Pos({ z:3 })
+    })
+
+    let connectionPattern = (new RawBitMask(constant, signal.length)).reverse();
+    for (let i in connectionPattern.mask) {
+      signal[i].conns.addConnection( (connectionPattern.mask[i] ? buffer.id : nor.id) )
+    }
+
+    const children: Logic[] = [];
+    if (connectionPattern.has(true)) children.push(buffer)
+    if (connectionPattern.has(false)) children.push(nor)
+
+    let output = and;
+    let notOutput = null;
+    if (slowMode) { // add third logic block
+      children.push(and);
+      children.push(nand);
+      nor.connectTo( and );
+      nor.connectTo( nand );
+      buffer.connectTo( and );
+      buffer.connectTo( nand );
+      notOutput = nand;
+    }
+    else { // connect everything to buffer // 1 tick faster than 'slowMode'
+      nor.connectTo( buffer )
+      output = buffer;
+    }
+    super({
+      color,pos,rotate,children
+    });
+    this.output = output;
+    this.notOutput = notOutput;
+  }
+}
+
+class NotEqualsConstant extends Comparators {
+  constructor({
+    key,
+    signal,
+    constant,
+    slowMode = true,
+    pos,
+    rotate,
+    color
+  }: EqualsConstantInterface) {
+    if (constant > Math.pow(2,signal.length))
+      throw new Error(`Constant value ${constant} greater than maximum Integer value (${Math.pow(2,signal.length)-1})`);
+    
+    const nor = new Logic({
+      key,
+      operation: new Operation(LogicalOperation.Nor),
+    });
+    const bufferIdentifier = slowMode ? CompareIdentifiers.BufferIn : CompareIdentifiers.Output;
+    const buffer = new Logic({
+      key,
+      operation: new Operation(LogicalOperation.And),
+      pos: new Pos({ z:1 })
+    });
+    const and = new Logic({
+      key,
+      operation: new Operation(LogicalOperation.Nand), // would be AND in EQUALS operation
+      pos: new Pos({ z:2 })
+    });
+    const nand = new Logic({
+      key,
+      operation: new Operation(LogicalOperation.And), // would be NAND in equals operation
       pos: new Pos({ z:3 })
     })
 
