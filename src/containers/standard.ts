@@ -4,17 +4,17 @@ import { Colors } from "../support/colors/enums";
 import { Bounds, Bounds2d, Pos } from "../support/spatial/classes";
 import { Container, Unit } from "./classes";
 import { AlignH, AlignV } from "./enums";
-import { StandardUnitInterface } from "./interfaces";
+import { StandardPlateInterface } from "./interfaces";
 
-export class StandardUnit extends Container {
+export class StandardPlate extends Container {
   constructor({
     gridSize = new Bounds2d({ x:4, y:4 }),
     gridSpacing = new Bounds2d({ x:4, y:4 }),
-    children=[],
+    children,
     horizontalAlign=AlignH.Center,
     verticalAlign=AlignV.Back,
     pos,color,rotate
-  }: StandardUnitInterface) {
+  }: StandardPlateInterface) {
     const gridAvailablility: Array<Array<boolean>> = [];
     for (let y = 0; y < gridSize.y; y++) {
       gridAvailablility.push([]);
@@ -28,8 +28,8 @@ export class StandardUnit extends Container {
     const childs: Unit[] = [];
     for (const child of children) {
       const childGridBounds = new Bounds2d({
-        x: Math.ceil(child.boundingBox.x / gridSpacing.x),
-        y: Math.ceil(child.boundingBox.y / gridSpacing.y)
+        x: Math.ceil(child.boundingBox.bounds.x / gridSpacing.x),
+        y: Math.ceil(child.boundingBox.bounds.y / gridSpacing.y)
       });
 
       let foundSpace = false;
@@ -54,8 +54,8 @@ export class StandardUnit extends Container {
             }
 
             // used to set alignment
-            const xOff = Math.round((childGridBounds.x*gridSpacing.x - child.boundingBox.x) * horizontalAlign);
-            const yOff = Math.round((childGridBounds.y*gridSpacing.y - child.boundingBox.y) * verticalAlign);
+            const xOff = Math.round((childGridBounds.x*gridSpacing.x - child.boundingBox.bounds.x) * horizontalAlign);
+            const yOff = Math.round((childGridBounds.y*gridSpacing.y - child.boundingBox.bounds.y) * verticalAlign);
 
             childs.push(
               new Container({
@@ -64,9 +64,10 @@ export class StandardUnit extends Container {
                   new Pos({
                     x: x * gridSpacing.x + xOff,
                     y: y * gridSpacing.y + yOff,
+                    z: 1
                   })
                 ).sub(
-                  child.origin
+                  child.boundingBox.origin
                 )
               })
             );
@@ -85,7 +86,7 @@ export class StandardUnit extends Container {
         new Wood({
           bounds: gridSize.scale(gridSpacing),
           pos: new Pos({
-            z: -1
+            z: 0
           })
         })
       )

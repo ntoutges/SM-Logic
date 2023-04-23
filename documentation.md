@@ -366,6 +366,7 @@ A living guide containing the syntax and purpose of each component
 > ### [Bounds2d](#bounds2d-1)
 > ### [Rotate](#rotate-1)
 > ### [Offset](#offset-1)
+> ### [Area](#area-1)
 
 * #### **Pos**
   * Syntax:
@@ -636,6 +637,27 @@ A living guide containing the syntax and purpose of each component
       * Stores the position value to offset an object by
     * `readonly rotate: Rotate`
       * Stores the rotation value to offst an object's rotation by
+* #### **Area**
+  * Syntax:
+    ```typescript
+    class Area({
+      origin: Pos,
+      bounds: Bounds
+    })
+    ```
+  * Description:
+    * Stores the space a certain container takes up
+  * Methods:
+    * `add(offset: Offset): Offset`
+      * Returns a new offset whose position and rotation have been added to the position and rotation of the other offset
+  * Properties:
+    * `readonly origin: Pos`
+      * Stores the furthest "bottom-left" coordinate within the bounding box of the container
+    * `readonly bounds: Bounds`
+      * Stores the volume that the container takes up
+  * Methods:
+    * `getCorner(rotation: Rotate, cornerType?: Corners): Pos`
+      * Returns the coordinate at the corner specified by `cornerType`
 
 ## Graphics
 
@@ -1659,6 +1681,8 @@ A living guide containing the syntax and purpose of each component
 > ### [Timer](#timer-1)
 > ### [Button](#button-1)
 > ### [Switch](#switch-1)
+> ### [Sensor]
+> ### [Light]
 
 * #### **Logic**
   * Syntax

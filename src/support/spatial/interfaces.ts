@@ -1,4 +1,4 @@
-import { Pos, Rotate } from "./classes";
+import { Bounds, Pos, Rotate } from "./classes";
 import { Direction, Orientation } from "./enums";
 
 export interface PosInterface {
@@ -35,4 +35,9 @@ export interface RotateInterface {
 export interface OffsetInterface {
   pos?: Pos,
   rotate?: Rotate  
+}
+
+export interface AreaInterface {
+  origin: Pos,
+  bounds: Bounds
 }

@@ -1,4 +1,3 @@
-import { Block } from "../classes/blocks/basics";
 import { Color } from "../support/colors/classes";
 import { BasicKey, Key } from "../support/context/classes";
 import { Bounds, Bounds2d, Pos, Rotate } from "../support/spatial/classes";
@@ -41,10 +40,10 @@ export interface BodyInterface {
   debug?: boolean
 }
 
-export interface StandardUnitInterface extends UnitInterface {
+export interface StandardPlateInterface extends UnitInterface {
   gridSize?: Bounds2d
   gridSpacing?: Bounds2d
-  children?: Unit[],
-  horizontalAlign?: AlignH,
+  children: Unit[]
+  horizontalAlign?: AlignH
   verticalAlign?: AlignV
 }

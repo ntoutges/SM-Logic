@@ -1,17 +1,17 @@
 import { Equatable } from "../support/support/classes";
 import { Color } from "../support/colors/classes";
 import { Key, Keyless } from "../support/context/classes";
-import { Bounds, Offset, Pos, Rotate } from "../support/spatial/classes";
+import { Area, Bounds, Offset, Pos, Rotate } from "../support/spatial/classes";
 import { ContainerInterface, GridInterface, PackagerInterface, UnitInterface2 } from "./interfaces";
 import { PosInterface } from "../support/spatial/interfaces";
 import { BoundsInterface } from "../support/spatial/interfaces";
+import { Corners, Direction } from "../support/spatial/enums";
 
 export abstract class Unit extends Equatable {
   pos: Pos;
   rotation: Rotate;
   private _color: Color;
-  boundingBox: Bounds;
-  origin: Pos;
+  boundingBox: Area;
   constructor({
     pos = new Pos({}),
     rotate = new Rotate({}),
@@ -23,8 +23,11 @@ export abstract class Unit extends Equatable {
     this.pos = pos;
     this.rotation = rotate;
     this._color = color;
-    this.boundingBox = bounds;
-    this.origin = pos;
+
+    this.boundingBox = new Area({
+      origin: pos,
+      bounds
+    });
   }
   
   get color(): Color { return this._color; }
@@ -64,22 +67,29 @@ export class Container extends Unit {
     let originData: PosInterface = {};
     let extentData: BoundsInterface = {};
     for (const child of this.children) {
-      const rotatedOrigin = child.origin.add(this.pos).rotate(child.rotation);
-      if (!("x" in originData) || rotatedOrigin.x < originData.x) originData.x = rotatedOrigin.x;
-      if (!("y" in originData) || rotatedOrigin.y < originData.y) originData.y = rotatedOrigin.y;
-      if (!("z" in originData) || rotatedOrigin.z < originData.z) originData.z = rotatedOrigin.z;
+      const origin = child.boundingBox.getCorner(this.rotation).add(this.pos);
+      const extent = child.boundingBox.getCorner(
+        this.rotation,
+        Corners.TopRight
+      ).add(this.pos);
+
+      
+      if (!("x" in originData) || origin.x < originData.x) originData.x = origin.x;
+      if (!("y" in originData) || origin.y < originData.y) originData.y = origin.y;
+      if (!("z" in originData) || origin.z < originData.z) originData.z = origin.z;
+      
+      if (!("x" in extentData) || extent.x > extentData.x) extentData.x = extent.x;
+      if (!("y" in extentData) || extent.y > extentData.y) extentData.y = extent.y;
+      if (!("z" in extentData) || extent.z > extentData.z) extentData.z = extent.z;
     }
-    this.origin = new Pos(originData);
-    for (const child of this.children) {
-      const rotatedExtent = child.boundingBox.add(child.origin).rotate(child.rotation);
-      if (!("x" in extentData) || rotatedExtent.x > extentData.x) extentData.x = rotatedExtent.x;
-      if (!("y" in extentData) || rotatedExtent.y > extentData.y) extentData.y = rotatedExtent.y;
-      if (!("z" in extentData) || rotatedExtent.z > extentData.z) extentData.z = rotatedExtent.z;
-    }
-    this.boundingBox = new Bounds({
-      x: Math.max(extentData.x - this.origin.x, 1),
-      y: Math.max(extentData.y - this.origin.y, 1),
-      z: Math.max(extentData.z - this.origin.z, 1)
+    const origin = new Pos(originData);
+    this.boundingBox = new Area({
+      bounds: new Bounds({
+        x: Math.max(extentData.x - origin.x, 0)+1,
+        y: Math.max(extentData.y - origin.y, 0)+1,
+        z: Math.max(extentData.z - origin.z, 0)+1
+      }),
+      origin
     });
   }
 
@@ -97,10 +107,7 @@ export class Container extends Unit {
       rotate: this.rotation
     }).add(offset);
 
-    this.pos.rotate(this.rotation);
     this.children.forEach((child: Unit) => {
-      // child.pos = child.pos.rotate(newOffset.rotate); // redundant
-
       const built = child.build(newOffset);
       if (built != "") // some Units, such as [Custom2dShape], may return an empty string, as they have no data to add
         childBlueprints.push( built );
@@ -146,24 +153,27 @@ export class Grid extends Container {
     let extentData: BoundsInterface = {};
     for (let i in this.children) {
       const child = this.children[i];
-      const rotatedOrigin = child.origin.add(this.pos).add(this.getOffsetAt(+i));
-      if (!("x" in originData) || rotatedOrigin.x < originData.x) originData.x = rotatedOrigin.x;
-      if (!("y" in originData) || rotatedOrigin.y < originData.y) originData.y = rotatedOrigin.y;
-      if (!("z" in originData) || rotatedOrigin.z < originData.z) originData.z = rotatedOrigin.z;
+      const origin = child.boundingBox.getCorner(this.rotation).add(this.getOffsetAt(+i));
+      if (!("x" in originData) || origin.x < originData.x) originData.x = origin.x;
+      if (!("y" in originData) || origin.y < originData.y) originData.y = origin.y;
+      if (!("z" in originData) || origin.z < originData.z) originData.z = origin.z;
     }
-    this.origin = new Pos(originData);
     for (let i in this.children) {
       const child = this.children[i];
-      const rotatedBounds = child.boundingBox.add(child.pos).rotate(child.rotation).add(this.getOffsetAt(+i));
+      const rotatedBounds = child.boundingBox.bounds.add(child.pos).rotate(child.rotation).add(this.getOffsetAt(+i));
       if (!("x" in extentData) || rotatedBounds.x > extentData.x) extentData.x = rotatedBounds.x;
       if (!("y" in extentData) || rotatedBounds.y > extentData.y) extentData.y = rotatedBounds.y;
       if (!("z" in extentData) || rotatedBounds.z > extentData.z) extentData.z = rotatedBounds.z;
     }
-    this.boundingBox = new Bounds({
-      x: Math.max(extentData.x - this.origin.x, 1),
-      y: Math.max(extentData.y - this.origin.y, 1),
-      z: Math.max(extentData.z - this.origin.z, 1)
-    });
+    const origin = new Pos(originData);
+    this.boundingBox = new Area({
+      bounds: new Bounds({
+        x: Math.max(extentData.x - origin.x, 1),
+        y: Math.max(extentData.y - origin.y, 1),
+        z: Math.max(extentData.z - origin.z, 1)
+      }),
+      origin
+    })
   }
   getGridChild(pos: Pos): Unit {
     if (pos.x >= this._size.x || pos.y >= this._size.y || pos.z >= this._size.z)

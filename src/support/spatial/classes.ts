@@ -1,5 +1,5 @@
-import { Bounds2dInterface, Bounds2dRemapInterface, BoundsInterface, OffsetInterface, Pos2dInterface, PosInterface, RelativePosInterface, RotateInterface } from "./interfaces";
-import { addDirectionTable, addOrientationTable, Direction, Orientation, rotateTable } from "./enums";
+import { AreaInterface, Bounds2dInterface, Bounds2dRemapInterface, BoundsInterface, OffsetInterface, Pos2dInterface, PosInterface, RelativePosInterface, RotateInterface } from "./interfaces";
+import { addDirectionTable, addOrientationTable, Corners, Direction, DirectionCornerTable, Orientation, rotateTable } from "./enums";
 import { Equatable } from "../support/classes";
 
 export class Pos extends Equatable {
@@ -309,14 +309,63 @@ export class Offset extends Equatable {
     rotate = new Rotate({})
   }: OffsetInterface
   ) {
-    super(["_pos", "_rotate"])
+    super(["pos", "rotate"])
     this.pos = pos
     this.rotate = rotate
   }
   add(offset: Offset): Offset {
     return new Offset({
-      pos: this.pos.rotate(this.rotate).add(offset.pos),
+      pos: this.pos.rotate(offset.rotate).add(offset.pos),
       rotate: this.rotate.add(offset.rotate)
     })
+  }
+}
+
+export class Area extends Equatable {
+  readonly origin: Pos;
+  readonly bounds: Bounds;
+  constructor({
+    origin,
+    bounds
+  }: AreaInterface) {
+    super(["origin", "size"]);
+    this.origin = origin;
+    this.bounds = bounds;
+  }
+
+  getCorner(rotation: Rotate, cornerType: Corners = Corners.BottomLeft) {
+    let origin: Pos = this.origin.rotate(rotation);
+    let bounds: Bounds = this.bounds.rotate(rotation);
+
+    return origin.sub(
+      new Pos({
+        x: (bounds.x-1) * DirectionCornerTable[cornerType][rotation.direction].x,
+        y: (bounds.y-1) * DirectionCornerTable[cornerType][rotation.direction].y
+      })
+    )
+
+    // switch (rotation.direction) {
+    //   case Direction.Backwards:
+    //     return origin.sub(
+    //       new Pos({
+    //         x: this.bounds.x-1,
+    //         y: this.bounds.y-1
+    //       })
+    //     );
+    //   case Direction.Left:
+    //     return origin.sub(
+    //       new Pos({
+    //         y: this.bounds.x-1
+    //       })
+    //     );
+    //   case Direction.Right:
+    //     return origin.sub(
+    //       new Pos({
+    //         x: this.bounds.y-1
+    //       })
+    //     )
+    //   default:
+    //     return origin;
+    // }
   }
 }

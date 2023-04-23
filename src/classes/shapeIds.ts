@@ -3,6 +3,8 @@ export enum ShapeIds {
   Timer = "8f7fd0e7-c46e-4944-a414-7ce2437bb30f",
   Button = "1e8d93a4-506b-470d-9ada-9c0a321e2db5",
   Switch = "7cf717d7-d167-4f2d-a6e7-6b2c70aa3986",
+  Sensor = "20dcd41c-0a11-4668-9b00-97f278ce21af",
+  Light = "ed27f5e2-cac5-4a32-a5d9-49f116acc6af",
   Wood = "df953d9c-234f-4ac2-af5e-f0490b223e71",
   Glass = "5f41af56-df4c-4837-9b3c-10781335757f",
   GlassTile = "749f69e0-56c9-488c-adf6-66c58531818f",

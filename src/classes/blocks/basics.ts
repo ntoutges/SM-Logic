@@ -6,10 +6,10 @@ import { Colors } from "../../support/colors/enums";
 import { Id } from "../../support/context/classes";
 import { Connections, Delay, Operation } from "../../support/logic/classes";
 import { LogicalOperation, Time } from "../../support/logic/enums";
-import { Bounds, Offset, Pos, Rotate } from "../../support/spatial/classes";
-import { Direction } from "../../support/spatial/enums";
+import { Area, Bounds, Offset, Pos, Rotate } from "../../support/spatial/classes";
+import { Direction, convertToRay } from "../../support/spatial/enums";
 import { DraggableIds, ShapeIds } from "../shapeIds";
-import { BlockInterface, LogicInterface, ButtonInterface, BasicLogicInterface, TimerInterface, ScalableInterface } from "./interfaces";
+import { BlockInterface, LogicInterface, ButtonInterface, BasicLogicInterface, TimerInterface, ScalableInterface, SensorInterface, LightInterface } from "./interfaces";
 
 export abstract class Block extends Unit {
   readonly shapeId: ShapeIds;
@@ -39,14 +39,17 @@ export class Scalable extends Block {
       pos,color,
       shapeId: shapeId as unknown as ShapeIds
     });
-    this.boundingBox = bounds.rotate(rotate);
+    this.boundingBox = new Area({
+      origin: this.boundingBox.origin,
+      bounds: bounds.rotate(rotate)
+    });
     this._addProps(["bounds"]);
   }
   build(offset: Offset = new Offset({})) {
     const rotation = this.rotation.add(offset.rotate);
-    const pos = this.pos.rotate(rotation).add(offset.pos).sub( new Pos({ x:1, y:1 }) ); // constant offset that is required
+    const pos = this.pos.add(offset.pos).sub( new Pos({ x:1, y:1 }) ); // constant offset that is required
     const json = {
-      "bounds": this.boundingBox.rotate(rotation).build(),
+      "bounds": this.boundingBox.bounds.rotate(rotation).build(),
       "color": this.color.hex,
       "pos": pos.build(),
       "shapeId": this.shapeId,
@@ -84,7 +87,7 @@ export abstract class BasicLogic extends Block {
   }
   build(offset=new Offset({})) {
     const rotation = this.rotation.add(offset.rotate);
-    const pos = this.pos.rotate(rotation).add(offset.pos).add( rotation.offset );
+    const pos = this.pos.rotate(offset.rotate).add(offset.pos).add( rotation.offset );
     const json = {
       "color": this.color.hex,
       "controller": this.controller,
@@ -238,6 +241,78 @@ export class Switch extends BasicLogic {
       "controllers": this.conns.build(),
       "id": this.id.ids[0],
       "joints": null
+    }
+  }
+}
+
+export class Sensor extends BasicLogic {
+  readonly range: number;
+  readonly colorMode: Color;
+  readonly buttonMode: boolean;
+  constructor({
+    key,
+    pos,color,
+    rotate = new Rotate({}),
+    connections,
+    range=20,
+    colorMode=null,
+    buttonMode=true
+  }: SensorInterface) {
+    super({
+      key,pos,color,
+      shapeId: ShapeIds.Sensor,
+      connections,
+      rotate: convertToRay(rotate)
+    });
+
+    this._addProps(["range", "colorMode", "buttonMode"]);
+
+    this.range = range;
+    this.colorMode = colorMode;
+    this.buttonMode = buttonMode;
+  }
+
+  get controller() {
+    return {
+      "autioEnabled": false,
+      "buttonMode": this.buttonMode,
+      "color": (this.colorMode != null) ? this.colorMode.hex : "FFFFFF",
+      "colorMode": this.colorMode != null,
+      "controllers": this.conns.build(),
+      "id": this.id.ids[0],
+      "joints": null,
+      "range": this.range
+    }
+  }
+}
+
+export class Light extends BasicLogic {
+  readonly luminance: number;
+  constructor({
+    key,
+    pos,color,
+    rotate = new Rotate({}),
+    luminance
+  }: LightInterface) {
+    super({
+      key,pos,color,
+      shapeId: ShapeIds.Light,
+      rotate: convertToRay(rotate)
+    });
+
+    this._addProps(["luminance"]);
+
+    this.luminance = luminance;
+  }
+
+  get controller() {
+    return {
+      "color": this.color.hex,
+      "coneAngle": 0,
+      "controllers": null, // cannot be connected to anything
+      "id": this.id.ids[0],
+      "joints": null,
+      "luminance": this.luminance
     }
   }
 }

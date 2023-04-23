@@ -1,4 +1,5 @@
 import { UnitInterface } from "../../containers/interfaces";
+import { Color } from "../../support/colors/classes";
 import { Id, Key } from "../../support/context/classes";
 import { Connections, Delay, Operation } from "../../support/logic/classes";
 import { Bounds } from "../../support/spatial/classes";
@@ -29,4 +30,17 @@ export interface ButtonInterface extends LogicInterface {}
 
 export interface ScalableInterface extends StandardInterface {
   bounds: Bounds
+}
+
+export interface SensorInterface extends StandardInterface {
+  key: Key
+  connections?: Connections
+  range?: number
+  colorMode?: Color
+  buttonMode?: boolean
+}
+
+export interface LightInterface extends StandardInterface {
+  key: Key
+  luminance?: number
 }

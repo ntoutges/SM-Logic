@@ -1,5 +1,5 @@
 import { Builder } from "./builders/classes";
-import { Button, Logic, Switch, Timer } from "./classes/blocks/basics";
+import { Button, Light, Logic, Sensor, Switch, Timer } from "./classes/blocks/basics";
 import { Bit, Bits, Byte } from "./classes/prebuilts/memory/classes";
 import { Container, Grid, Unit } from "./containers/classes";
 import { ConstantCompare, Counter, Integer } from "./classes/prebuilts/numbers/classes";
@@ -24,115 +24,142 @@ import { FrameBuilder } from "./support/graphics/classes";
 import { Concrete, GlassTile, Wood } from "./classes/blocks/materials";
 import { DraggableIds } from "./classes/shapeIds";
 import { ROMs } from "./support/ROMs";
-import { SSPReceiver } from "./classes/prebuilts/SSP/classes";
+// import { SSPReceiver } from "./classes/prebuilts/SSP/classes";
 import { Charsets } from "./support/frames/graphics";
 import { Layer, Layers, Material } from "./support/layers/classes";
 import { ColorSets } from "./support/frames/enums";
-import { StandardUnit } from "./containers/standard";
+import { StandardPlate } from "./containers/standard";
 import { AlignH, AlignV } from "./containers/enums";
 
 const Jimp = require("jimp");
 
 export class Body extends GenericBody {
   constructor() {
-    super({ debug: false });
+    super({
+      debug: false
+    });
   }
   async build() {
     const key = this.key;
-    
-    var c = new Byte({
-      key,
-      rotate: new Rotate({
-        direction: Direction.Backwards
-      })
-    });
-    // console.log(c.origin)
-    // return c;
 
-    return new StandardUnit({
-      children: [
-        new Counter({
+    const depth = 8
+
+    // quick proof of concept to show the possible speed of programmitcally generating logic
+    var sensors = []
+    var bits = []
+    var resets = []
+    var layers = []
+    
+    for (var i = 0; i < depth; i++) { layers.push([]) }
+
+    for (var j = 0; j < 64; j++) {
+      var bits1 = new Bits({
+        key,
+        depth
+      });
+      resets.push(bits1.reset);
+
+      var selectors: Logic[] = [];
+      var conns = []
+      for (var i = 0; i < depth; i++) {
+        selectors.push(
+          new Logic({
+            key,
+            operation: new Operation(LogicalOperation.And),
+            connections: new Connections(bits1.getBit(i).setId),
+            pos: new Pos({
+              z: i
+            })
+          })
+        );
+        conns.push(selectors[i].id)
+        layers[i].push(selectors[i].id)
+      }
+      bits.push(
+        new Container({
+          children: [].concat([bits1], selectors)
+        })
+      )
+
+      sensors.push(
+        new Sensor({
           key,
+          range: depth,
           rotate: new Rotate({
-            direction: Direction.Backwards
+            direction: Direction.Down
+          }),
+          connections: new Connections(conns)
+        })
+      );
+    }
+
+    var counter = new Counter({
+      key,
+      depth: Math.floor(Math.log2(depth)),
+      pos: new Pos({
+        x: -15
+      })
+    })
+    var demultiplexer = []
+    for (let i = 0; i < depth; i++) {
+      demultiplexer.push(
+        new ConstantCompare({
+          key,
+          constant: i,
+          operation: CompareOperation.Equals,
+          signal: counter.signal,
+          ifC: new Connections(layers[i])
+        })
+      )
+    }
+
+    return new Container({
+      children: [
+        new StandardPlate({
+          children: bits,
+          gridSize: new Bounds2d({
+            x: 8,
+            y: 8
           })
         }),
-        new Byte({
-          key
-        }),
-        new Byte({
-          key
-        }),
-        new Byte({
-          key
-        }),
-        // new Byte({
-        //   key
-        // }),
-        // new Byte({
-        //   key
-        // }),
-        new Byte({
-          key,
+        new Grid({
+          size: new Bounds({
+            x: 8,
+            y: 8
+          }),
+          children: sensors,
           pos: new Pos({
-            x: 5
+            x: -9
           })
         }),
         new Logic({
-          key
+          key: new CustomKey({
+            key,
+            identifier: "inv"
+          }),
+          connections: new Connections(resets),
+          operation: new Operation(LogicalOperation.Not),
+          pos: new Pos({
+            y: -1
+          })
         }),
-        new Wood({
-          bounds: new Bounds({})
+        new Button({
+          key,
+          connections: new Connections(
+            new Id( new CustomKey({key, identifier: "inv"}) )
+          ),
+          pos: new Pos({
+            y: -2
+          })
+        }),
+        counter,
+        new Container({
+          children: demultiplexer,
+          pos: new Pos({
+            x: -15,
+            y: 5
+          })
         })
-        // new Wood({
-        //   bounds: new Bounds({
-        //     x: 5,
-        //     y: 4
-        //   }),
-        //   color: new Color(Colors.SM_Red)
-        // }),
-        // new Wood({
-        //   bounds: new Bounds({
-        //     x: 4,
-        //     y: 3
-        //   }),
-        //   color: new Color(Colors.SM_Orange)
-        // }),
-        // new Wood({
-        //   bounds: new Bounds({
-        //     x: 4,
-        //     y: 2
-        //   }),
-        //   color: new Color(Colors.SM_Yellow)
-        // }),
-        // new Wood({
-        //   bounds: new Bounds({
-        //     x: 4,
-        //     y: 1
-        //   }),
-        //   color: new Color(Colors.SM_Green)
-        // }),
-        // new Byte({
-        //   key
-        // }),
-        // new Byte({
-        //   key
-        // }),
-        // new Byte({
-        //   key
-        // }),
-        // new Byte({
-        //   key
-        // }),
-        // new Byte({
-        //   key
-        // }),
-        // new Byte({
-        //   key
-        // }),
-        // new Byte({
-        //   key
-        // })
       ]
     })
   }
