@@ -1,6 +1,7 @@
 /// basic Scrap Mechanic block classes
 
 import { Unit } from "../../containers/classes";
+import { DraggableType, LightControllerType, LogicControllerType, LogicType, SensorControllerType, SwitchControllerType, TimerControllerType, UniBlockType, UniControllerType } from "../../containers/jsonformat";
 import { Color } from "../../support/colors/classes";
 import { Colors } from "../../support/colors/enums";
 import { Id } from "../../support/context/classes";
@@ -8,7 +9,7 @@ import { Connections, Delay, Operation } from "../../support/logic/classes";
 import { LogicalOperation, Time } from "../../support/logic/enums";
 import { Area, Bounds, Offset, Pos, Rotate } from "../../support/spatial/classes";
 import { Direction, convertToRay } from "../../support/spatial/enums";
-import { DraggableIds, ShapeIds } from "../shapeIds";
+import { DraggableIds, LogicIds, ShapeIds } from "../shapeIds";
 import { BlockInterface, LogicInterface, ButtonInterface, BasicLogicInterface, TimerInterface, ScalableInterface, SensorInterface, LightInterface } from "./interfaces";
 
 export abstract class Block extends Unit {
@@ -25,7 +26,7 @@ export abstract class Block extends Unit {
     this.shapeId = shapeId;
   }
   
-  abstract build(offset: Offset);
+  abstract build(offset: Offset): UniBlockType[];
 }
 
 export class Scalable extends Block {
@@ -45,18 +46,18 @@ export class Scalable extends Block {
     });
     this._addProps(["bounds"]);
   }
-  build(offset: Offset = new Offset({})) {
+  build(offset: Offset = new Offset({})): DraggableType[] {
     const rotation = this.rotation.add(offset.rotate);
     const pos = this.pos.add(offset.pos).sub( new Pos({ x:1, y:1 }) ); // constant offset that is required
     const json = {
       "bounds": this.boundingBox.bounds.rotate(rotation).build(),
       "color": this.color.hex,
       "pos": pos.build(),
-      "shapeId": this.shapeId,
+      "shapeId": this.shapeId as unknown as DraggableIds,
       "xaxis": 1,
       "zaxis": 3
-    }
-    return JSON.stringify(json);
+    };
+    return [json]; 
   }
 }
 
@@ -81,22 +82,22 @@ export abstract class BasicLogic extends Block {
   get connections(): Array<Id> { return this._conns.connections; }
   get conns(): Connections { return this._conns; }
   get id() { return this._id; }
-  abstract get controller();
+  abstract get controller(): UniControllerType;
   connectTo(other: BasicLogic | Id) {
     this.conns.addConnection((other instanceof BasicLogic) ? other.id : other);
   }
-  build(offset=new Offset({})) {
+  build(offset=new Offset({})): LogicType[] {
     const rotation = this.rotation.add(offset.rotate);
     const pos = this.pos.rotate(offset.rotate).add(offset.pos).add( rotation.offset );
     const json = {
       "color": this.color.hex,
       "controller": this.controller,
       "pos": pos.build(),
-      "shapeId": this.shapeId,
+      "shapeId": this.shapeId as unknown as LogicIds,
       "xaxis": rotation.xAxis,
       "zaxis": rotation.zAxis
     }
-    return JSON.stringify(json);
+    return [json];
   }
 }
 
@@ -155,7 +156,7 @@ export class Logic extends BasicLogic {
     if (!this.colorSet)
       this.updateTypeColor();
   }
-  get controller() {
+  get controller(): LogicControllerType {
     return {
       "active": false,
       "controllers": this.conns.build(),
@@ -184,7 +185,7 @@ export class Timer extends BasicLogic {
     });
     this.delay = delay;
   }
-  get controller() {
+  get controller(): TimerControllerType {
     const timeDelay = this.delay.build();
     return {
       "active": false,
@@ -211,7 +212,7 @@ export class Button extends BasicLogic {
       connections
     });
   }
-  get controller() {
+  get controller(): SwitchControllerType {
     return {
       "active": false,
       "controllers": this.conns.build(),
@@ -235,7 +236,7 @@ export class Switch extends BasicLogic {
       connections
     });
   }
-  get controller() {
+  get controller(): SwitchControllerType {
     return {
       "active": false,
       "controllers": this.conns.build(),
@@ -272,9 +273,9 @@ export class Sensor extends BasicLogic {
     this.buttonMode = buttonMode;
   }
 
-  get controller() {
+  get controller(): SensorControllerType {
     return {
-      "autioEnabled": false,
+      "audioEnabled": false,
       "buttonMode": this.buttonMode,
       "color": (this.colorMode != null) ? this.colorMode.hex : "FFFFFF",
       "colorMode": this.colorMode != null,
@@ -305,7 +306,7 @@ export class Light extends BasicLogic {
     this.luminance = luminance;
   }
 
-  get controller() {
+  get controller(): LightControllerType {
     return {
       "color": this.color.hex,
       "coneAngle": 0,

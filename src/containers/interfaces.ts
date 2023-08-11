@@ -3,6 +3,7 @@ import { BasicKey, Key } from "../support/context/classes";
 import { Bounds, Bounds2d, Pos, Rotate } from "../support/spatial/classes";
 import { Unit } from "./classes";
 import { AlignH, AlignV } from "./enums";
+import { ExportType } from "./jsonformat";
 
 export interface UnitInterface {
   pos?: Pos
@@ -46,4 +47,10 @@ export interface StandardPlateInterface extends UnitInterface {
   children: Unit[]
   horizontalAlign?: AlignH
   verticalAlign?: AlignV
+}
+
+export interface DeconstructorInterface extends UnitInterface {
+  key: BasicKey
+  toDeconstruct: ExportType
+  offset?: Pos
 }

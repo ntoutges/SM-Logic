@@ -2,13 +2,21 @@ import { UnitInterface } from "../../../containers/interfaces";
 import { Color } from "../../../support/colors/classes";
 import { BasicKey } from "../../../support/context/classes";
 import { Connections, MultiConnections } from "../../../support/logic/classes";
+import { IntegerValue } from "../../../support/numbers/classes";
 import { Pos, Rotate } from "../../../support/spatial/classes";
 import { Logic } from "../../blocks/basics";
-import { CompareOperation } from "./enums";
+import { Bits } from "../memory/classes";
+import { Counter, Integer } from "./classes";
+import { CompareOperation, IntegerTypes } from "./enums";
+
+export interface IntegerInterface extends UnitInterface {
+  bits: Bits | Counter,
+  // type?: IntegerTypes
+}
 
 export interface ConstantCompareInterface {
   key: BasicKey,
-  signal: Array<Logic>,
+  value: IntegerValue,
   constant: number,
   operation: CompareOperation,
   ifC: Connections,
@@ -21,7 +29,7 @@ export interface ConstantCompareInterface {
 
 export interface EqualsConstantInterface {
   key: BasicKey,
-  signal: Array<Logic>,
+  value: IntegerValue,
   constant: number
   pos?: Pos,
   color?: Color,

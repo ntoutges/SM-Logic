@@ -3,34 +3,62 @@ import { Color } from "../../../support/colors/classes";
 import { Id, KeylessFutureId, KeyMap, UniqueCustomKey } from "../../../support/context/classes";
 import { BitMask, Connections, MultiConnections, Operation, RawBitMask } from "../../../support/logic/classes";
 import { Bounds, Pos, Rotate } from "../../../support/spatial/classes";
-import { ConstantCompareInterface, CounterInterface, EqualsConstantInterface } from "./interfaces";
+import { ConstantCompareInterface, CounterInterface, EqualsConstantInterface, IntegerInterface } from "./interfaces";
 import { Container, Grid } from "../../../containers/classes";
 import { BasicLogic, Logic } from "../../blocks/basics";
 import { LogicalOperation } from "../../../support/logic/enums";
 import { CompareIdentifiers } from "../../../support/context/enums";
-import { CompareOperation } from "./enums";
+import { CompareOperation, IntegerTypes } from "./enums";
 import { SmallBit } from "../memory/classes";
 import { Direction } from "../../../support/spatial/enums";
+import { IntegerValue } from "../../../support/numbers/classes";
 
-export class Integer extends Bits {
-  setNumber(value: number): Id {
-    if (value < 0 || value >= Math.pow(2,this.bits.length) )
-    throw new Error(`The value [${value}] cannot be stored in a ${this.bits.length} bit Integer`);    
+// export class Integer extends Bits {
+//   setNumber(value: number): Id {
+//     if (value < 0 || value >= Math.pow(2,this.bits.length) )
+//     throw new Error(`The value [${value}] cannot be stored in a ${this.bits.length} bit Integer`);    
 
-    return super.set( (new RawBitMask(value, this.bits.length)).reverse() );
-  }
-  get signal(): Array<Logic> {
-    const logics: Array<Logic> = [];
-    this.bits.forEach((bit) => {
-      logics.push(bit.read);
+//     return super.set( (new RawBitMask(value, this.bits.length)).reverse() );
+//   }
+//   get signal(): Array<Logic> {
+//     const logics: Array<Logic> = [];
+//     this.bits.forEach((bit) => {
+//       logics.push(bit.read);
+//     });
+//     return logics;
+//   }
+//   get maxInt(): number { return Math.pow(2,this.bits.length) - 1; }
+// }
+
+export class Integer extends Container {
+  readonly signal: Logic[] = [];
+  constructor({
+    bits,
+    color,pos,rotate
+  }: IntegerInterface) {
+    super({
+      child: bits,
+      color,pos,rotate
     });
-    return logics;
+
+    for (const bit of bits.bits) {
+      this.signal.push(bit.read);
+    }
   }
-  get maxInt(): number { return Math.pow(2,this.bits.length) - 1; }
+
+  get bits() { return this.children[0] as Bits | Counter; }
+  // get reset() { return (this.children[0] as Bits).reset; }
+  // set(map: BitMask): Id { return (this.children[0] as Bits).set(map); }
+
+  get value(): IntegerValue {
+    return new IntegerValue({
+      signal: this.signal
+    });
+  }
 }
 
 export class Counter extends Container {
-  readonly signal: SmallBit[];
+  readonly bits: SmallBit[];
   readonly inc: Logic;
   readonly dec: Logic;
   readonly reset: Logic;
@@ -174,7 +202,7 @@ export class Counter extends Container {
       pos,color,rotate
     });
 
-    this.signal = bits;
+    this.bits = bits;
     this.inc = increment;
     this.dec = decrement;
     this.reset = reset;
@@ -185,7 +213,7 @@ export class Counter extends Container {
 export class ConstantCompare extends Container {
   constructor({
   key,
-  signal,
+  value,
   constant,
   operation,
   ifC,
@@ -206,12 +234,24 @@ export class ConstantCompare extends Container {
       case CompareOperation.NotEquals:
         operationClass = NotEqualsConstant;
         break;
+      case CompareOperation.GreaterThan:
+        operationClass = GreaterThanConstant;
+        break;
+      case CompareOperation.GreaterThanOrEqual:
+        operationClass = GreaterThanOrEqualConstant;
+        break;
+      case CompareOperation.LessThan:
+        operationClass = LessThanConstant;
+        break;
+      case CompareOperation.LessThanOrEqual:
+        operationClass = LessThanOrEqualConstant;
+        break;
       default:
         throw new Error("Unrecognized CompareOperation");
     }
     const childContainer: Comparators = new operationClass({
       key,
-      signal,
+      value,
       constant,
       slowMode,
       color,
@@ -236,15 +276,15 @@ export abstract class Comparators extends Container {
 class EqualsConstant extends Comparators {
   constructor({
     key,
-    signal,
+    value,
     constant,
     slowMode = true,
     pos,
     rotate,
     color
   }: EqualsConstantInterface) {
-    if (constant > Math.pow(2,signal.length))
-      throw new Error(`Constant value ${constant} greater than maximum Integer value (${Math.pow(2,signal.length)-1})`);
+    if (constant > Math.pow(2,value.length))
+      throw new Error(`Constant value ${constant} greater than maximum Integer value (${Math.pow(2,value.length)-1})`);
     
     const nor = new Logic({
       key,
@@ -267,9 +307,9 @@ class EqualsConstant extends Comparators {
       pos: new Pos({ z:3 })
     })
 
-    let connectionPattern = (new RawBitMask(constant, signal.length)).reverse();
+    let connectionPattern = (new RawBitMask(constant, value.length)).reverse();
     for (let i in connectionPattern.mask) {
-      signal[i].conns.addConnection( (connectionPattern.mask[i] ? buffer.id : nor.id) )
+      value.signal[i].conns.addConnection( (connectionPattern.mask[i] ? buffer.id : nor.id) )
     }
 
     const children: Logic[] = [];
@@ -302,15 +342,15 @@ class EqualsConstant extends Comparators {
 class NotEqualsConstant extends Comparators {
   constructor({
     key,
-    signal,
+    value,
     constant,
     slowMode = true,
     pos,
     rotate,
     color
   }: EqualsConstantInterface) {
-    if (constant > Math.pow(2,signal.length))
-      throw new Error(`Constant value ${constant} greater than maximum Integer value (${Math.pow(2,signal.length)-1})`);
+    if (constant > Math.pow(2,value.length))
+      throw new Error(`Constant value ${constant} greater than maximum Integer value (${Math.pow(2,value.length)-1})`);
     
     const nor = new Logic({
       key,
@@ -333,9 +373,9 @@ class NotEqualsConstant extends Comparators {
       pos: new Pos({ z:3 })
     })
 
-    let connectionPattern = (new RawBitMask(constant, signal.length)).reverse();
+    let connectionPattern = (new RawBitMask(constant, value.length)).reverse();
     for (let i in connectionPattern.mask) {
-      signal[i].conns.addConnection( (connectionPattern.mask[i] ? buffer.id : nor.id) )
+      value.signal[i].conns.addConnection( (connectionPattern.mask[i] ? buffer.id : nor.id) )
     }
 
     const children: Logic[] = [];
@@ -362,5 +402,193 @@ class NotEqualsConstant extends Comparators {
     });
     this.output = output;
     this.notOutput = notOutput;
+  }
+}
+
+// note: these are always in fast mode
+class GreaterThanConstant extends Comparators {
+  constructor({
+    key,
+    value,
+    constant,
+    slowMode = true,
+    pos,
+    rotate,
+    color
+  }: EqualsConstantInterface) {
+    
+    const output: Logic = new Logic({
+      key,
+      operation: new Operation(LogicalOperation.Or)
+    });
+    const notOutput: Logic = new Logic({
+      key,
+      operation: new Operation(LogicalOperation.Nor)
+    });
+    
+    if (constant < 0) { // output is always true, because integers can only be positive
+      output.connectTo(notOutput);
+      super({
+        children: [
+          output,
+          notOutput
+        ],
+        color,pos,rotate
+      });
+
+      // swapped to make 'output' always on
+      this.output = notOutput;
+      this.notOutput = output;
+    }
+    else if (constant >= 2 ** value.length - 1) { // output is always false, because integers must be less than [2 ** value.length]
+      output.connectTo(notOutput);
+
+      super({
+        children: [
+          output,
+          notOutput
+        ],
+        color,pos,rotate
+      });
+      
+      this.output = output;
+      this.notOutput = notOutput;
+    }
+    else {
+      const opBuffers: Logic[] = []; // inverts the input value based on the constant value
+      const ands: Logic[] = []; // ands together opBuffers
+
+      const constantBitmask = new RawBitMask((constant <= Math.pow(2,value.length)) ? constant : 0, value.length);
+      let hasSeenOn = false;
+
+      for (let i in constantBitmask.mask) {
+        const revI = value.signal.length - +i - 1;
+        const bit = constantBitmask.mask[i];
+        
+        if (bit && !hasSeenOn) {
+          hasSeenOn = true;
+        }
+
+        if (hasSeenOn) {
+          if (!bit) {
+            const and = new Logic({
+              key,
+              operation: new Operation(LogicalOperation.And),
+              connections: new Connections([output.id, notOutput.id]),
+              // pos: new Pos({
+              //   x: +i + 2
+              // }),
+              // rotate: new Rotate({
+              //   direction: Direction.Up
+              // })
+            });
+            ands.push(and);
+            value.signal[revI].connectTo(and);
+
+            // connect each buffer to the next [and] in the sequence
+            for (let j in opBuffers) { opBuffers[j].connectTo(and); }
+          }
+          
+          if (+i != constantBitmask.mask.length-1) { // on last bit, ignore buffer (it will not connect to anything)
+            let bufferType = LogicalOperation.Not; // signal inverted if bit unset
+            if (bit) bufferType = LogicalOperation.Buffer; // signal unchanged if bit set
+            
+            const buffer = new Logic({
+              key,
+              operation: new Operation(bufferType),
+              // pos: new Pos({
+              //   x: +i + 2,
+              //   y: 1
+              // }),
+              // rotate: new Rotate({
+              //   direction: Direction.Up
+              // })
+            });
+
+            value.signal[revI].connectTo(buffer);
+            opBuffers.push(buffer);
+          }
+        }
+        else { // send directly to output
+          value.signal[revI].connectTo(output);
+          value.signal[revI].connectTo(notOutput);
+        }
+      }
+
+      super({
+        children: [].concat(
+          opBuffers,
+          ands,
+          output,
+          notOutput
+        ),
+        pos,color,rotate
+      });
+
+      this.output = output;
+      this.notOutput = notOutput;
+    }
+  }
+}
+
+class GreaterThanOrEqualConstant extends GreaterThanConstant {
+  constructor({
+    key,
+    value,
+    constant,
+    slowMode = true,
+    pos,
+    rotate,
+    color
+  }: EqualsConstantInterface) {
+    // x >= 10 == x > (10-1) (in integer math) -> subtract 1 from constant
+    super({
+      key,value,
+      constant: constant-1,
+      slowMode,
+      pos,rotate,color
+    });
+  }
+}
+
+class LessThanOrEqualConstant extends GreaterThanConstant {
+  constructor({
+    key,
+    value,
+    constant,
+    slowMode = true,
+    pos,
+    rotate,
+    color
+  }: EqualsConstantInterface) {
+    super({
+      key,value,constant,slowMode,
+      pos,rotate,color
+    });
+
+    // x <= 10 == !(x > 10) -> swap output and notOutput
+    const temp = this.output;
+    this.output = this.notOutput;
+    this.notOutput = temp;
+  }
+}
+
+class LessThanConstant extends LessThanOrEqualConstant {
+  constructor({
+    key,
+    value,
+    constant,
+    slowMode = true,
+    pos,
+    rotate,
+    color
+  }: EqualsConstantInterface) {
+    // x < 10 == x <= (10-1) (in integer math) -> subtract 1 from constant
+    super({
+      key,value,
+      constant: constant-1,
+      slowMode,
+      pos,rotate,color
+    });
   }
 }

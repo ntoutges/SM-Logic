@@ -115,7 +115,7 @@ export class FrameBuilder extends Equatable {
       for (let y = 0; y < this.size.y; y++) {
         bitMaskData.push(this.defaultFill); // fill background with data
         
-        const pos = new Pos({x,y});
+        const pos = new Pos2d({x,y});
         for (let k = this.group.length-1; k >= 0; k--) {
           const shape = this.group[k];
           if (shape.renderAt( pos )) {

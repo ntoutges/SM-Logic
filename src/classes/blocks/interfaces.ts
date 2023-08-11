@@ -26,7 +26,10 @@ export interface TimerInterface extends LogicInterface {
   delay?: Delay
 }
 
-export interface ButtonInterface extends LogicInterface {}
+export interface ButtonInterface extends StandardInterface {
+  key: Key
+  connections?: Connections
+}
 
 export interface ScalableInterface extends StandardInterface {
   bounds: Bounds

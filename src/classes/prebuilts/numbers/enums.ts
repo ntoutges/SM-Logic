@@ -1,4 +1,13 @@
 export enum CompareOperation {
   Equals,
-  NotEquals
+  NotEquals,
+  GreaterThan,
+  GreaterThanOrEqual,
+  LessThan,
+  LessThanOrEqual
+}
+
+export enum IntegerTypes {
+  Signed,
+  Unsigned
 }

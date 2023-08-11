@@ -186,7 +186,6 @@ export class Bits extends Container {
     this._bits = bits;
   }
   get bits(): Array<Bit> { return this._bits; }
-  getBit(place: number): Bit { return this.bits[place]; }
   get reset(): Id {
     const ids = new KeylessFutureId();
     for (let bit of this._bits) { ids.addId(bit.resetId); }
@@ -224,10 +223,10 @@ export class Nibble extends Bits {
       connections
     });
   }
-  get bit0(): Bit { return super.getBit(0); }
-  get bit1(): Bit { return super.getBit(1); }
-  get bit2(): Bit { return super.getBit(2); }
-  get bit3(): Bit { return super.getBit(3); }
+  get bit0(): Bit { return super.bits[0]; }
+  get bit1(): Bit { return super.bits[1]; }
+  get bit2(): Bit { return super.bits[2]; }
+  get bit3(): Bit { return super.bits[3]; }
 }
 
 export class Byte extends Bits {
@@ -248,14 +247,14 @@ export class Byte extends Bits {
       connections
     });
   }
-  get bit0(): Bit { return super.getBit(0); }
-  get bit1(): Bit { return super.getBit(1); }
-  get bit2(): Bit { return super.getBit(2); }
-  get bit3(): Bit { return super.getBit(3); }
-  get bit4(): Bit { return super.getBit(4); }
-  get bit5(): Bit { return super.getBit(5); }
-  get bit6(): Bit { return super.getBit(6); }
-  get bit7(): Bit { return super.getBit(7); }
+  get bit0(): Bit { return super.bits[0]; }
+  get bit1(): Bit { return super.bits[1]; }
+  get bit2(): Bit { return super.bits[2]; }
+  get bit3(): Bit { return super.bits[3]; }
+  get bit4(): Bit { return super.bits[4]; }
+  get bit5(): Bit { return super.bits[5]; }
+  get bit6(): Bit { return super.bits[6]; }
+  get bit7(): Bit { return super.bits[7]; }
 }
 
 // requires a 1-tick pulse to toggle
@@ -273,4 +272,6 @@ export class SmallBit extends Logic {
     });
     this.connectTo(this); // connect this logic to itself
   }
+
+  get read(): Logic { return this; } // maintain compatibility with larger bit
 }

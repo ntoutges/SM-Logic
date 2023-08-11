@@ -5,7 +5,7 @@ import { CharacterFrame, Frame, Frames, PhysicalFrame } from "../../../support/f
 import { BitMask, Connections, Delay, MultiConnections, Operation, ScaleableDelays, VBitMask } from "../../../support/logic/classes";
 import { LogicalOperation, Time } from "../../../support/logic/enums";
 import { MultiConnectionsType } from "../../../support/logic/interfaces";
-import { Bounds, Bounds2d, Pos, Rotate } from "../../../support/spatial/classes";
+import { Bounds, Bounds2d, Pos, Pos2d, Rotate } from "../../../support/spatial/classes";
 import { BasicLogic, Block, Logic, Timer } from "../../blocks/basics";
 import { DelayUnit } from "../delays/classes";
 import { numberSegments, NumToString } from "./enums";
@@ -71,6 +71,9 @@ export class FutureBitMap extends Grid {
     }
     if (newId.isReady) return newId;
     return undefined; // a space character
+  }
+  getPixelId(pos: Pos2d): Id {
+    return (super.getGridChild( pos.to3d({ "yMap": "z" } )) as Logic).id;
   }
 }
 

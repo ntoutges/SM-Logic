@@ -53,7 +53,7 @@ export class MonoRGB extends RGB {
 }
 
 export class Color extends Equatable {
-  color: Colors;
+  private color: Colors;
   constructor(color: Colors = Colors.Lightgrey) {
     super(["_color"]);
     this.color = color;

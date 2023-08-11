@@ -146,6 +146,36 @@ export class Pos2d extends Pos {
   }: Pos2dInterface) {
     super({x,y});
   }
+
+  to3d({
+    xMap="x",
+    yMap="y"
+  }: Bounds2dRemapInterface) {
+    if (xMap == yMap)
+      throw new Error("xMap and yMap cannot have the same value");
+    var x = this.x;
+    var y = this.y;
+    var z = 1;
+    switch (xMap) {
+      case "y":
+        y = this.x;
+        x = this.y;
+        break;
+      case "z":
+        z = this.x;
+        x = this.z;
+        break;
+    }
+    switch (yMap) {
+      case "x":
+        x = this.y;
+        y = this.x;
+      case "z":
+        z = this.y;
+        y = this.z;
+    }
+    return new Pos({ x,y,z });
+  }
 }
 
 export class RelativePos extends Pos {
@@ -268,6 +298,7 @@ export class Bounds2d extends Bounds {
   }: Bounds2dInterface) {
     super({x,y});
   }
+
   to3d({
     xMap="x",
     yMap="y"

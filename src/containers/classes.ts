@@ -6,6 +6,7 @@ import { ContainerInterface, GridInterface, PackagerInterface, UnitInterface2 } 
 import { PosInterface } from "../support/spatial/interfaces";
 import { BoundsInterface } from "../support/spatial/interfaces";
 import { Corners, Direction } from "../support/spatial/enums";
+import { UniBlockType } from "./jsonformat";
 
 export abstract class Unit extends Equatable {
   pos: Pos;
@@ -33,7 +34,7 @@ export abstract class Unit extends Equatable {
   get color(): Color { return this._color; }
   set color(color: Color) { this._color = color; }
 
-  abstract build(offset: Offset): string;
+  abstract build(offset: Offset): UniBlockType[];
 }
 
 export class Container extends Unit {
@@ -101,7 +102,7 @@ export class Container extends Unit {
   }
 
   build(offset=new Offset({})) {
-    let childBlueprints: Array<string> = [];
+    let childBlueprints: Array<UniBlockType> = [];
     const newOffset = new Offset({
       pos: this.pos,
       rotate: this.rotation
@@ -109,11 +110,11 @@ export class Container extends Unit {
 
     this.children.forEach((child: Unit) => {
       const built = child.build(newOffset);
-      if (built != "") // some Units, such as [Custom2dShape], may return an empty string, as they have no data to add
-        childBlueprints.push( built );
+      if (Object.keys(built).length > 0) // some Units, such as [Custom2dShape], may return an empty string, as they have no data to add
+        childBlueprints = childBlueprints.concat( built );
     });
 
-    return childBlueprints.join(",");
+    return childBlueprints;
   }
 }
 
@@ -197,7 +198,7 @@ export class Grid extends Container {
   build(offset=new Offset({})) {
     let posCounter: Pos = new Pos({x:0,y:0,z:0});
     let position: Pos = this.pos;
-    let childBlueprints: Array<string> = [];
+    let childBlueprints: Array<UniBlockType> = [];
     this.children.forEach((child: Unit) => {
       if (posCounter.x >= this._size.x) {
         position = position.add( new Pos({ x: -posCounter.x*this._spacing.x, y:this._spacing.y }) );
@@ -224,13 +225,13 @@ export class Grid extends Container {
       }
 
       const built = child.build( localOffset );
-      if (built != "") // some Units, such as [Custom2dShape], may return an empty string, as they have no data to add
-        childBlueprints.push( built );
+      if (Object.keys(built).length > 0) // some Units, such as [Custom2dShape], may return an empty string, as they have no data to add
+        childBlueprints = childBlueprints.concat( built );
       
       posCounter = posCounter.add( new Pos({x:1}) );
       position = position.add( new Pos({x:this._spacing.x}) );
     });
-    return childBlueprints.join(",");
+    return childBlueprints;
   }
 }
 
@@ -270,13 +271,11 @@ export class Packager extends Container {
 
       object.pos = pos.add(packageOffset.pos).build(); // ignore rotation... for now
     }
-    let packageStr = JSON.stringify(packageJSON);
-    packageStr = packageStr.substring(1, packageStr.length-1);
+    // let packageStr = JSON.stringify(packageJSON);
+    // packageStr = packageStr.substring(1, packageStr.length-1);
 
     let built = super.build(offset);
-    if (built != "") // some Units, such as [Custom2dShape], may return an empty string, as they have no data to add
-      built += ","
 
-    return built + packageStr;
+    return built.concat(packageJSON);
   }
 }

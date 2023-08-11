@@ -21,7 +21,8 @@ let midTime;
 
 console.log("Creating JSON.");
 body.preBuild().then(blueprintObjects => {
-  const blueprintString = `{\"bodies\":[{\"childs\":[${blueprintObjects.build()}]}],\"version\":${BLUEPRINT_VERSION}}`;
+  const childs = JSON.stringify(blueprintObjects.build());
+  const blueprintString = `{\"bodies\":[{\"childs\":${childs}}],\"version\":${BLUEPRINT_VERSION}}`;
 
   midTime = new Date();
   const delta1 = midTime.getTime() - startTime.getTime();

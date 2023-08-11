@@ -15,6 +15,7 @@ A living guide containing the syntax and purpose of each component
 > * [Graphics](#graphics)
 > * [Frames](#frames)
 > * [Layers](#layers)
+> * [Numbers]
 
 ## Colors 
 
@@ -1714,7 +1715,7 @@ A living guide containing the syntax and purpose of each component
       * Optional parameter
       * Specifies what function this `Logic` will perform
       * Default value: `new Operation()`
-    * `connections: Connectinos`
+    * `connections: Connections`
       * Optional parameter
       * Specifies what other Logic `Block`s this Logic `Block` is connected to
         * Default value: `new Connections({})`
@@ -1837,7 +1838,7 @@ A living guide containing the syntax and purpose of each component
         pos?: Pos,
         rotate?: Rotate,
         color?: Color,
-        connections?: Connectinos
+        connections?: Connections
       }) extends Block
     ```
     * `key: Key`
@@ -1894,7 +1895,7 @@ A living guide containing the syntax and purpose of each component
         pos?: Pos,
         rotate?: Rotate,
         color?: Color,
-        connections?: Connectinos
+        connections?: Connections
       }) extends Block
     ```
     * `key: Key`

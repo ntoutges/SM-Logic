@@ -14,6 +14,7 @@ import { Wood } from "../../../blocks/materials";
 import { DraggableIds } from "../../../shapeIds";
 import { Integer } from "../../numbers/classes";
 import { Custom2dShape } from "../../transcribers/classes";
+import { Byte } from "../classes";
 import { AddressableMemoryRowInterface, CardROMInterface, CardROMPackageInterface, MemoryGridInterface, MemoryRowInterface, MemorySelectorInterface, ROMInterface, ROMPackageInterface } from "./interfaces";
 
 export class MemoryRow extends Grid {
@@ -29,9 +30,10 @@ export class MemoryRow extends Grid {
     for (let i = 0; i < length; i++) {
       ints.push(
         new Integer({
-          key,
-          depth: 8,
-          connections: connections.getMetaConnection(i.toString())
+          bits: new Byte({
+            key,
+            connections: connections.getMetaConnection(i.toString())
+          })
         })
       );
     }
@@ -85,7 +87,7 @@ export class AddressableMemoryRow extends Container {
         });
       }
       conns.push({
-        conns: new Connections( byte.reset ),
+        conns: new Connections( (byte.bits as Byte).reset ),
         id: new Identifier( combineIds(x.toString(),"8") )
       });
     }
@@ -181,7 +183,7 @@ export class AddressableMemoryRow extends Container {
     const allResetConns: Array<Id> = [];
     for (let x = 0; x < length; x++) {
       allResetConns.push(
-        (memoryRow.children[x] as Integer).reset
+        ((memoryRow.children[x] as Integer).bits as Byte).reset
       )
     }
     const resetAll = new Logic({
