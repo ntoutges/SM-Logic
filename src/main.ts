@@ -29,7 +29,7 @@ import { Layer, Layers, Material } from "./support/layers/classes";
 import { ColorSets } from "./support/frames/enums";
 import { StandardPlate } from "./containers/standard";
 import { AlignH, AlignV } from "./containers/enums";
-import { SSPReceiver } from "./classes/prebuilts/SSP/classes";
+import { SSPReceiver, SSPSender } from "./classes/prebuilts/SSP/classes";
 import { Deconstructor } from "./containers/deconstructor";
 
 const Jimp = require("jimp");
@@ -43,53 +43,70 @@ export class Body extends GenericBody {
   async build() {
     const key = this.key;
     
-    const passthrough = new Logic({
-      key,
-      pos: new Pos({
-        y: -1,
-        z: 0
-      })
-    })
-    
-    const button = new Button({
-      key,
-      pos: new Pos({
-        y: -1,
-        z: 2
-      }),
-      rotate: new Rotate({
-        direction: Direction.Forwards
-      }),
-      connections: new Connections(passthrough.id)
-    })
+    const extensions = 2;
 
-    const obj = new SSPReceiver({
-      key,
-      signal: [passthrough],
-      extensions: 1
-    });
-
-    const lights = []
-    for (var i = 0; i < 8; i++) {
-      lights.push(
-        new Light({
+    const signal = [];
+    for (let i = 0; i < 8+8*extensions; i++) {
+      signal.push(
+        new Switch({
           key,
-          pos: new Pos({
-            x: 5,
-            y: -5+2*i
+          rotate: new Rotate({
+            direction: Direction.Up
           })
         })
       )
     }
 
+    const obj2 = new SSPSender({
+      pos: new Pos({
+        x: -10
+      }),
+      key,
+      extensions: extensions
+    });
+
+    const obj = new SSPReceiver({
+      key,
+      // signal,
+      extensions: extensions
+    });
+
+    const switches = new Grid({
+      pos: new Pos({
+        y: -5
+      }),
+      size: new Bounds({
+        x: 8,
+        y: 4,
+      }),
+      children: signal
+    })
+
+    const lights = [];
+    for (let i = 0; i < 8+8*extensions; i++) {
+      lights.push(
+        new Light({
+          key,
+          pos: new Pos({
+            x: 8,
+            y: 2 + i
+          }),
+          rotate: new Rotate({
+            direction: Direction.Right
+          })
+        })
+      )
+    }
+
+    obj2.connectInputSignal(signal)
     obj.connectSignalTo(lights)
 
     return new Container({
       children: [
         obj,
-        button,
-        passthrough
+        obj2,
+        switches
       ].concat(lights)
-    });
+    })
   }
 }

@@ -11,15 +11,14 @@ export class Deconstructor extends Unit {
   readonly toDeconstruct: UniBlockType[];
   private readonly logics: LogicType[];
   constructor({
-    pos = new Pos({}),
+    pos,
     rotate, // currently does nothing, because I am lazy
     color,
-    offset = new Pos({}),
     toDeconstruct,
     key
   }: DeconstructorInterface) {
     super({
-      pos: pos.add(offset),
+      pos,
       rotate,
       color
     });
@@ -27,7 +26,7 @@ export class Deconstructor extends Unit {
     const idMap: Map<number, number> = new Map<number, number>();
     const logics: LogicType[] = [];
 
-    this.toDeconstruct = toDeconstruct.bodies[0].childs;
+    this.toDeconstruct = JSON.parse(JSON.stringify(toDeconstruct.bodies[0].childs)); // create copy of specific part
 
     for (const child of this.toDeconstruct) {
       if (isLogicType(child)) {
@@ -56,6 +55,22 @@ export class Deconstructor extends Unit {
     this.logics = logics;
   }
 
+  getColoredLogicObject(
+    color: Color,
+    index: number = 0
+  ): UniBlockType {
+    let counter = 0;
+    for (const logic of this.logics) {
+      if (color.hex == logic.color) {
+        if (counter == index) {
+          return logic;
+        }
+        counter++;
+      }
+    }
+    return null;
+  }
+
   getColoredInputs(color: Color): KeylessFutureId { // find all logic gates of a color, and return a key with their ids
     const ids = new KeylessFutureId();
     for (const logic of this.logics) {
@@ -69,7 +84,7 @@ export class Deconstructor extends Unit {
     for (const logic of this.logics) {
       if (color.hex == logic.color) { // same color
         if (logic.controller.controllers == null) {
-          logic.controller.controllers = null;  
+          logic.controller.controllers = [];
         }
         
         if (other instanceof BasicLogic) other = other.id;
@@ -96,7 +111,7 @@ export class Deconstructor extends Unit {
     for (const logic of this.logics) {
       if (color.hex == logic.color && count++ == index) { // same color        
         if (logic.controller.controllers == null) {
-          logic.controller.controllers = null;  
+          logic.controller.controllers = [];
         }
         
         if (other instanceof BasicLogic) other = other.id;

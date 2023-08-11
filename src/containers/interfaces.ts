@@ -52,5 +52,4 @@ export interface StandardPlateInterface extends UnitInterface {
 export interface DeconstructorInterface extends UnitInterface {
   key: BasicKey
   toDeconstruct: ExportType
-  offset?: Pos
 }
